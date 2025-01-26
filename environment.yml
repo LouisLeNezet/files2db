@@ -1,0 +1,17 @@
+name: env_concat
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - defaults
+dependencies:
+  - python >= 3.8
+  - pandas
+  - xlrd
+  - openpyxl
+  - pep8
+  - pylint
+  - pytest
+  - pytest-cov
+  - typer
+  - pip

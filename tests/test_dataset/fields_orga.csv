@@ -1,0 +1,4 @@
+﻿Field;ParentField;Type;Min;Max;Mod
+Month;Health;Int;2;20;
+Type;Month;String;;;
+Lateralisation;Type;String;;;

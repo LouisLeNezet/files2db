@@ -1,0 +1,5 @@
+﻿Type;ToNum;ToDate;DelEnd;Del;Sep;StripStart;StripEnd;Case;Sep1Pat;Sep2Name;Sep1Name;Sep2Pat;Sep3Pat;Sep3Name;SepKeepLink
+Date;F;T;;0,?,??,???,nan,00:00:00;et,+,\n; ; , 00:00:00;
+String;F;F;;;; ; ;lower
+Int;T;F;;;;;;
+Health;F;F;;;;;;
