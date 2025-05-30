@@ -9,9 +9,9 @@ from collections import abc as class_name
 import logging
 import numpy as np
 import pandas as pd
-from files2db.data_process.null_values import bool_invert, not_null, is_null
-from files2db.data_process.null_values import get_not_null, all_modify
-from files2db.ui.print_infos import print_exception
+from data_process.null_values import bool_invert, not_null, is_null
+from data_process.null_values import get_not_null, all_modify
+from ui.print_infos import print_exception
 
 def convert_to_set(values, alter=False, to_list=False):
     """

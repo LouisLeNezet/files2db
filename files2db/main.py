@@ -13,12 +13,11 @@ from datetime import date
 import pandas as pd
 import typer
 
-from files2db.read_file.data_reading import read_file
-from files2db.data_mg.norm_data import norm_data
-from files2db.read_file.data_reading import load_file_orga
-from files2db.read_file.check_file import get_db_from_excel, get_db_from_csv
-from files2db.ui.get_infos import get_file_path, get_os, welcome
-from files2db.data_process.null_values import not_null
+from read_file.data_read import read_file
+from data_mg.norm_data import norm_data
+from read_file.orga_read import get_db_from_excel, get_db_from_csv, load_file_orga
+from ui.get_infos import get_file_path, get_os, welcome
+from data_process.null_values import not_null
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 

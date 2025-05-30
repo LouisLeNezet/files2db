@@ -9,7 +9,7 @@ import os
 import sys
 import logging
 import typer
-from files2db.data_mg.main import main
+from files2db.main import main
 
 logging.basicConfig(level=logging.INFO)
 

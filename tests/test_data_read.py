@@ -7,7 +7,7 @@ Testing scripts for the different common functions.
 """
 import os
 import unittest
-from files2db.read_file.data_read import read_file
+from read_file.data_read import read_file
 
 class TestingClass(unittest.TestCase):
     """ Class for testing """

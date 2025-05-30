@@ -9,12 +9,12 @@ import logging
 from importlib import resources
 import pandas as pd
 from openpyxl import load_workbook
-from files2db.ui.get_infos import get_file_path
-from files2db.read_file.data_read import read_file
+from ui.get_infos import get_file_path
+from read_file.data_read import read_file
 
 def load_file_orga():
     """Load internal file_orga.csv as a Pandas DataFrame and transform it into a dictionary."""
-    with resources.open_text("files2db.data", "file_orga.csv") as csvfile:
+    with resources.open_text("data", "file_orga.csv") as csvfile:
         orga = pd.read_csv(csvfile)
 
         # Validate required columns
@@ -42,7 +42,7 @@ def validate_files_presence(files_needed: set, files_available: set, path: str):
     extra_files = files_available - files_needed
 
     if missing_files:
-        raise KeyError(f"Missing files {missing_files} in organisation file {path}")
+        raise KeyError(f"Missing files {sorted(missing_files)} in my_organisation file {path}")
 
     if extra_files:
         logging.warning("Extra files %s present in %s and not needed", extra_files, path)

@@ -8,11 +8,11 @@ import re
 import logging
 import numpy as np
 import pandas as pd
-from files2db.ui.print_infos import print_exception
-from files2db.data_process.set_operation import intersect, joint, match
-from files2db.data_process.null_values import array_not_null, not_null, is_null
-from files2db.data_process.null_values import get_not_null, any_nested_list
-from files2db.data_mg.convert import date_convert, num_convert
+from ui.print_infos import print_exception
+from data_process.set_operation import intersect, joint, match
+from data_process.null_values import array_not_null, not_null, is_null
+from data_process.null_values import get_not_null, any_nested_list
+from data_mg.convert import date_convert, num_convert
 
 pd.set_option('display.max_columns', None)
 

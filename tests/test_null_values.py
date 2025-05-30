@@ -10,9 +10,9 @@ import math
 import pandas as pd
 import numpy as np
 
-from files2db.data_process.null_values import not_null, is_null, array_not_null, bool_invert
-from files2db.data_process.null_values import any_nested_list, get_not_null
-from files2db.data_process.null_values import simplify_array, modify, all_modify
+from data_process.null_values import not_null, is_null, array_not_null, bool_invert
+from data_process.null_values import any_nested_list, get_not_null
+from data_process.null_values import simplify_array, modify, all_modify
 
 
 class TestingClass(unittest.TestCase):

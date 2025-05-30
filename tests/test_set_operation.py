@@ -7,8 +7,8 @@ Testing scripts for the different set operation.
 """
 import unittest
 
-from files2db.data_process.set_operation import union, convert_to_set, percent_error
-from files2db.data_process.set_operation import difference, joint, disjoint, intersect, match
+from data_process.set_operation import union, convert_to_set, percent_error
+from data_process.set_operation import difference, joint, disjoint, intersect, match
 
 class TestingClass(unittest.TestCase):
     """ Class for testing """

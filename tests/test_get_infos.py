@@ -7,7 +7,7 @@ Testing scripts for the different common functions.
 """
 import unittest
 
-from files2db.ui.get_infos import welcome, get_path_os, get_file_path, get_os
+from ui.get_infos import welcome, get_path_os, get_file_path, get_os
 
 class TestingClass(unittest.TestCase):
     """ Class for testing """

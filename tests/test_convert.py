@@ -9,7 +9,7 @@ import unittest
 import pandas as pd
 import numpy as np
 
-from files2db.data_mg.convert import date_convert, num_convert, check_numeric
+from data_mg.convert import date_convert, num_convert, check_numeric
 
 class TestingClass(unittest.TestCase):
     """ Class for testing """

@@ -11,9 +11,9 @@ from unittest.mock import patch
 import pandas as pd
 from openpyxl import Workbook
 
-from files2db.read_file.orga_read import load_file_orga, validate_files_presence
-from files2db.read_file.orga_read import validate_columns, validate_columns_orga
-from files2db.read_file.orga_read import get_db_from_csv, get_db_from_excel
+from read_file.orga_read import load_file_orga, validate_files_presence
+from read_file.orga_read import validate_columns, validate_columns_orga
+from read_file.orga_read import get_db_from_csv, get_db_from_excel
 
 class TestValidateFiles(unittest.TestCase):
     """Check that the validate_files_presence function works as expected."""

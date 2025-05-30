@@ -9,7 +9,7 @@ import logging
 from collections import abc as class_name
 import numpy as np
 import pandas as pd
-from files2db.ui.print_infos import print_exception
+from ui.print_infos import print_exception
 
 def modify(value, alter=True):
     """Modify value given if asked and change all null value to None.
