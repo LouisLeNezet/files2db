@@ -11,9 +11,9 @@ import logging
 import numpy as np
 import pandas as pd
 
-from ui.print_infos import print_exception
-from data_process.null_values import not_null, is_null, array_not_null
-from data_process.null_values import get_not_null,bool_invert
+from ..ui.print_infos import print_exception
+from ..data_process.null_values import not_null, is_null, array_not_null
+from ..data_process.null_values import get_not_null,bool_invert
 
 def conca_name(row):
     """

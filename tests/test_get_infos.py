@@ -7,7 +7,7 @@ Testing scripts for the different common functions.
 """
 import unittest
 
-from ui.get_infos import welcome, get_path_os, get_file_path, get_os
+from files2db.ui.get_infos import welcome, get_path_os, get_file_path
 
 class TestingClass(unittest.TestCase):
     """ Class for testing """
@@ -26,28 +26,38 @@ class TestingClass(unittest.TestCase):
 
     def test_get_file_path(self):
         """Test function get_file_path"""
-        current_os = get_path_os(get_os()[1])
         test_values = [
             "/mnt/c/test","/test/it/is",
-            "C:/test/it/is",r"C:\test\it\is",
-            "../../test/it/is",r"..\..\test\it\is",
+            "C:/test/it/is", r"C:\test\it\is",
+            "../../test/it/is", r"..\..\test\it\is",
             "./test/it/is", r".\test\it\is"
         ]
-        if current_os == "Windows":
-            test_result = [
+
+        results_by_os = {
+            "Windows": [
                 "C:/test","/test/it/is","C:/test/it/is","C:/test/it/is",
                 "../../test/it/is","../../test/it/is","./test/it/is","./test/it/is"
-            ]
-        elif current_os == "Wsl":
-            test_result = [
+            ],
+            "Wsl": [
                 "/mnt/c/test","/test/it/is","/mnt/c/test/it/is","/mnt/c/test/it/is",
                 "../../test/it/is","../../test/it/is","./test/it/is","./test/it/is"
+            ],
+            "Linux": [
+                "/mnt/c/test","/test/it/is",
+                "C:/test/it/is", "C:/test/it/is",
+                "../../test/it/is", "../../test/it/is",
+                "./test/it/is", "./test/it/is"
             ]
-        else:
-            raise OSError(f"Operating system not supported for the moment:{current_os}")
-        for value, result in zip(test_values, test_result):
-            with self.subTest(line=value, os_test=current_os):
-                self.assertEqual(get_file_path(value),result)
+        }
+
+        for dest_os, expected_results in results_by_os.items():
+            for value, result in zip(test_values, expected_results):
+                with self.subTest(line=value, os_test=dest_os):
+                    self.assertEqual(
+                        get_file_path(value, cwd_os=dest_os),
+                        result
+                    )
+
         with self.subTest(line="error"):
             with self.assertRaisesRegex(Exception,"should not match multiple or none os patterns"):
                 get_file_path("ThisIsAwrongPath")

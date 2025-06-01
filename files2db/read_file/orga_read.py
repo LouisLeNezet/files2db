@@ -6,15 +6,16 @@ Created on 22/10/2021
 Check for presence absence of file, sheets, columns
 """
 import logging
+import re
 from importlib import resources
 import pandas as pd
 from openpyxl import load_workbook
-from ui.get_infos import get_file_path
-from read_file.data_read import read_file
+from ..ui.get_infos import get_file_path
+from ..read_file.data_read import read_file
 
 def load_file_orga():
     """Load internal file_orga.csv as a Pandas DataFrame and transform it into a dictionary."""
-    with resources.open_text("data", "file_orga.csv") as csvfile:
+    with resources.open_text("files2db.data", "file_orga.csv") as csvfile:
         orga = pd.read_csv(csvfile)
 
         # Validate required columns
@@ -65,6 +66,12 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
             df, path=file, cols_need=set(orga_dict[file]["columns_needed"]),
             cols_sup=orga_dict[file]["columns_sup"]
         )
+        # Transform to integer needed columns
+        if ("integer" in orga_dict[file]) & isinstance(orga_dict[file]["integer"], str):
+            for col in orga_dict[file]["integer"].split(","):
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+    return db_dict
 
 def get_db_from_excel(path: str, orga_dict: dict) -> dict:
     """Load and validate an Excel file based on organisation specifications."""
@@ -79,8 +86,6 @@ def get_db_from_excel(path: str, orga_dict: dict) -> dict:
     validate_files_presence(set(orga_dict.keys()), set(wb.sheetnames), path)
 
     db_dict = {sheet: pd.read_excel(path_file, sheet_name=sheet) for sheet in orga_dict}
-
-    validate_columns_orga(orga_dict, db_dict)
 
     return db_dict
 
@@ -100,6 +105,42 @@ def get_db_from_csv(path: str, orga_dict: dict) -> dict:
         db_path_file = get_file_path(file_path)
         db_dict[file] = read_file(db_path_file, sep = sep)
 
-    validate_columns_orga(orga_dict, db_dict)
+    return db_dict
+
+def get_db_from_path(path_file: str, db_orga: dict) -> dict:
+    """
+    Get the database from a file based on its extension and organisation specifications.
+    Parameters
+    ----------
+    path_file : str
+        Full path to the file.
+    db_orga : dict
+        Organisation dictionary containing file specifications.
+    Returns
+    -------
+    db_dict : dict
+        Dictionary containing the database loaded from the file.
+    Raises
+    ------
+    TypeError
+        If the file extension is not supported (not .csv or .xlsx).
+    """
+    path_file = get_file_path(path_file)
+    
+    if not isinstance(path_file, str):
+        raise TypeError("The path_file should be a string")
+    if not isinstance(db_orga, dict):
+        raise TypeError("The db_orga should be a dictionary")
+
+    if re.search(string=path_file, pattern=r"\.csv$"):
+        db_dict = get_db_from_csv(path_file, db_orga)
+    elif re.search(string=path_file, pattern=r"\.(xlsx|xls|xlsm)"):
+        db_dict = get_db_from_excel(path_file, db_orga)
+    else:
+        raise TypeError(
+            f"File {path_file} should be either an .xlsx, .xls, xlsm or a .csv"
+        )
+
+    db_dict = validate_columns_orga(db_orga, db_dict)
 
     return db_dict

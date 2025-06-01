@@ -9,8 +9,8 @@ import re
 import logging
 import pandas as pd
 import numpy as np
-from ui.print_infos import print_exception
-from data_process.null_values import not_null
+from ..ui.print_infos import print_exception
+from ..data_process.null_values import not_null
 
 
 short_date_f = re.compile(r"\d{1,2}\.\d\d\.\d\d")

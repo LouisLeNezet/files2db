@@ -11,9 +11,9 @@ from unittest.mock import patch
 import pandas as pd
 from openpyxl import Workbook
 
-from read_file.orga_read import load_file_orga, validate_files_presence
-from read_file.orga_read import validate_columns, validate_columns_orga
-from read_file.orga_read import get_db_from_csv, get_db_from_excel
+from files2db.read_file.orga_read import load_file_orga, validate_files_presence
+from files2db.read_file.orga_read import validate_columns, validate_columns_orga
+from files2db.read_file.orga_read import get_db_from_csv, get_db_from_excel
 
 class TestValidateFiles(unittest.TestCase):
     """Check that the validate_files_presence function works as expected."""
@@ -22,7 +22,7 @@ class TestValidateFiles(unittest.TestCase):
         """Test missing files detection."""
         with self.assertRaises(KeyError) as context:
             validate_files_presence({"file1", "file2"}, {"file1"}, "test.xlsx")
-        self.assertIn("Missing files {'file2'}", str(context.exception))
+        self.assertIn("Missing files ['file2']", str(context.exception))
 
     @patch('logging.warning')
     def test_validate_files_presence_extra_files(self, mock_log):
@@ -154,7 +154,7 @@ class TestGetDBFromExcel(unittest.TestCase):
         file_path = os.path.join(self.test_data_path, "RepTest_wrong.xlsx")
         with self.assertRaises(KeyError) as context:
             get_db_from_excel(file_path, load_file_orga())
-        self.assertIn("Missing files {\'FieldsOrga\',", str(context.exception))
+        self.assertIn("Missing files [\'FieldsOrga\',", str(context.exception))
 
     @patch('logging.warning')
     def test_get_db_from_excel_correct(self, mock_log):
@@ -196,6 +196,7 @@ class TestGetDBFromCSV(unittest.TestCase):
     def test_get_db_from_csv_correct(self):
         """Test correct file."""
         file_path = os.path.join(self.test_data_path, "orga.csv")
+        print(file_path)
         db_orga = get_db_from_csv(file_path, load_file_orga())
         self.assertEqual(
             set(db_orga.keys()),

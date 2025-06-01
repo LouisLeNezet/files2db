@@ -1,6 +1,6 @@
 file,path,sep
-Files,./PythonScript/tests/test_dataset/files.csv,";"
-Formats,./PythonScript/tests/test_dataset/formats.csv,";"
-ValuesConv,./PythonScript/tests/test_dataset/values.csv,";"
-Fields,./PythonScript/tests/test_dataset/fields.csv,";"
-FieldsOrga,./PythonScript/tests/test_dataset/fields_orga.csv,";"
+Files,./tests/test_dataset/files.csv,";"
+Formats,./tests/test_dataset/formats.csv,";"
+ValuesConv,./tests/test_dataset/values.csv,";"
+Fields,./tests/test_dataset/fields.csv,";"
+FieldsOrga,./tests/test_dataset/fields_orga.csv,";"

@@ -13,11 +13,11 @@ from datetime import date
 import pandas as pd
 import typer
 
-from read_file.data_read import read_file
-from data_mg.norm_data import norm_data
-from read_file.orga_read import get_db_from_excel, get_db_from_csv, load_file_orga
-from ui.get_infos import get_file_path, get_os, welcome
-from data_process.null_values import not_null
+from .read_file.data_read import read_file
+from .data_mg.norm_data import norm_data
+from .read_file.orga_read import get_db_from_path, load_file_orga
+from .ui.get_infos import get_file_path, get_os, welcome
+from .data_process.null_values import not_null
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
@@ -28,29 +28,6 @@ def start():
     op_sys, path_wd = get_os()
     welcome("concatenate files", path_wd, op_sys)
     return(op_sys, path_wd)
-
-def check_main_file(path:str, db_orga:str):
-    """_summary_
-
-    Parameters
-    ----------
-    path : str
-        Path to main file
-
-    Raises
-    ------
-    TypeError
-        The file extension should either be xls, xlsx, xlsm or csv
-    """
-    path_file = get_file_path(path)
-    if re.search(string=path_file, pattern=r"\.csv$"):
-        db_dict = get_db_from_csv(path_file, db_orga)
-    elif re.search(string=path_file, pattern=r"\.(xlsx|xls|xlsm)"):
-        db_dict = get_db_from_excel(path_file, db_orga)
-    else:
-        raise TypeError(f"File {path_file} should be either an .xlsx, .xls, xlsm or a .csv")
-
-    return db_dict
 
 def check_files_exist(files_path:pd.Series):
     """Check for the existence of all files in the given series
@@ -80,70 +57,151 @@ def check_files_exist(files_path:pd.Series):
 
 def iterate_file(file):
     """Iterate through all files in the database
+    
+    All the files are read and concatenated into a single dataframe.
+    Each file is expected to have a 'FileName' and 'Folder' column
+    which are used to construct the full file path.
+    The metadata columns (starting with 'meta_') are also added to the dataframe.
+    If a metadata column is not present in the file data, it is added with the value from the file info.
 
     Args:
         file (pd.DataFrame): Pandas dataframe containing the files to parse
+    
+    Returns:
+        pd.DataFrame: Dataframe containing all the data from the files
+    
+    Raises:
+        FileNotFoundError: If a file cannot be found or accessed
     """
-    line_raw = 0
-    line_dropped_na = 0
-    line_normed =0
+
     all_data = pd.DataFrame()
+    metadata_columns = [col for col in file.columns if isinstance(col, str) and col.startswith("meta_")]
+    
+    if file.empty:
+        logging.warning("No files to process. The input dataframe is empty. Check ToAdd column in the database.")
+        return all_data
+
     for index in file.index:
         file_infos = file.loc[index].copy()
-        file_errors_all = []
         file_name = file_infos["FileName"]
-        file_loc = str(file_infos["Folder"] + "\\" + file_name)
-        file_lect = file_infos["Lecteur"]
-        file_infos.loc["FileLoc"] = file_loc
         file_path = get_file_path(file_infos["FilePath"])
+
         print("--------------------------------------------------")
         print(file_name)
 
         # Read  file
-        file_data = read_file(file_path, file_infos)
-        line_raw += file_data.shape[0]
-
-        # Delete all rows with only NA values
-        file_data = file_data.dropna(how="all",axis="index")
-        line_dropped_na += file_data.shape[0]
+        try:
+            file_data = read_file(
+                file_to_add_path=file_path,
+                header=file_infos.get("Header"),
+                line_start=file_infos.get("LineStart"),
+                line_end=file_infos.get("LineEnd"),
+                col_start=file_infos.get("ColStart"),
+                col_end=file_infos.get("ColEnd"),
+                sheet_name=file_infos.get("SheetName"),
+                encoding=file_infos.get("Encoding", "utf8"),
+                sep=file_infos.get("Sep", "\t")
+            )
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"File not found: {file_path}") from e
+        except Exception as e:
+            raise e
 
         # Add meta data to file
-        file_data["File"] = file_loc
-        if not_null(file_lect):
-            file_data["Dys_NA_Lecteur"] = file_lect
-
-        # Normalize resulting file
-        file_data, file_errors = norm_data(file_data)
-        file_errors_all.append(file_errors)
-        line_normed += file_data.shape[0]
+        file_data["File"] = file_infos["FileName"]
+        
+        for col in metadata_columns:
+            col_name = col.replace("meta_", "")
+            if col_name not in file_data.columns:
+                file_data[col_name] = file_infos[col]
+            else:
+                # If the column is already present, we can just skip it
+                pass
 
         # Add file to merged data_frame
         all_data = pd.concat([all_data,file_data])
 
-    # Save as csv
-    save_path = os.path.join(f"/DataGenerated/AllID_{date.today()}.csv")
-    print(save_path)
-    all_data.to_csv(get_file_path(f"./DataGenerated/AllID_{date.today()}.csv"),sep=";")
+    return all_data
 
-    logging.info("LINE_RAW: %s", line_raw)
-    logging.info("LINE_DROPPED_NA: %s", line_dropped_na)
-    logging.info("LINE_NORMED: %s", line_normed)
-    logging.info("Data obtained: %s", all_data.shape[0])
-
-def main(path:str):
-    """Main function of the concatenation script.
-    Welcome user, check file given
-    Iterate through all the files listed
+def norm_data(all_data:pd.DataFrame):
+    """Normalize the data in the dataframe
 
     Args:
-        path (str): String corresponding to the path of the main file to use.
-    """
-    _op_sys, _path_wd = start()
-    db_orga = load_file_orga()
-    db_get = check_main_file(path, db_orga)
-    check_files_exist(db_get["Files"]["FilePath"])
-    iterate_file(db_get["Files"].loc[db_get["Files"]["ToAdd"] == 1])
+        all_data (pd.DataFrame): Dataframe containing all the data to normalize
 
+    Returns:
+        pd.DataFrame: Normalized dataframe
+    """
+    # Delete all rows with only NA values
+    all_data = all_data.dropna(how="all",axis="index")
+
+    # Normalize data
+    all_data, all_errors = norm_data(all_data)
+
+    return all_data, all_errors
+
+app = typer.Typer()
+
+@app.command()
+def main(
+    path: str = typer.Argument(..., help="Path to the main file to use."),
+    normalize: bool = typer.Option(False, "--normalize", "-n", help="Normalize the data after concatenation."),
+    output_folder: str = typer.Option("./DataGenerated", "--output", "-o", help="Output directory for the generated files."),
+    output_files_prefix: str = typer.Option("AllID", "--prefix", "-p", help="Prefix for the output files.")
+):
+    """Main function of the concatenation script."""
+
+    start()
+    db_orga = load_file_orga()
+    db_get = get_db_from_path(path, db_orga)
+    
+    if db_get is None:
+        logging.error("No database found. Please check the file path and format.")
+        return
+
+    logging.info("Database loaded successfully")
+
+    try:
+        check_files_exist(db_get["Files"]["FilePath"])
+    except FileNotFoundError :
+        logging.error("One or more files could not be found. Please check the file paths.")
+        return
+    
+    try:
+        all_data_raw = iterate_file(db_get["Files"].loc[db_get["Files"]["ToAdd"] == 1])
+        print(all_data_raw)
+    except Exception as e:
+        logging.error("An error occurred while iterating through the files: %s", e)
+        return
+    
+    # Check if output folder exists, if not create it
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+        logging.info("Output folder created: %s", output_folder)
+
+    # Save RAW as csv
+    save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}_raw.csv")
+    all_data_raw.to_csv(get_file_path(save_path),sep=";")
+    
+    # Normalize data
+    if normalize:
+        logging.info("Normalizing data...")
+        all_data, all_errors = norm_data(all_data_raw)
+        
+        # Save normalized data
+        save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}.csv")
+        all_data.to_csv(get_file_path(save_path),sep=";")
+        logging.info("Data saved to %s", save_path)
+
+        # Save errors
+        if len(all_errors) > 0:
+            save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}_errors.csv")
+            all_errors.to_csv(get_file_path(save_path),sep=";")
+            logging.info("Errors saved to %s", save_path)
+        else:
+            logging.info("No errors found in the data")
+
+    logging.info("Concatenation completed successfully")
 
 if __name__=="__main__":
-    typer.run(main)
+    app()

@@ -9,9 +9,74 @@ import re
 import logging
 import pandas as pd
 
+def columns_convert(col):
+    """Convert column letters to integers."""
+    if isinstance(col, str):
+        if re.match(r'^\d+$', col):
+            return int(col)
+        elif re.match(r'^[A-Z]+$', col):
+            col_index = [ord(c) - ord('A') + 1 for c in col.upper()]
+            col_index = sum([c * (26 ** i) for i, c in enumerate(reversed(col_index))])
+            return col_index
+        else:
+            raise TypeError("col should be a string of letters or an integer")
+    elif not isinstance(col, int):
+        raise TypeError("col should be a string or an integer")
+    return col
+
+def columns_to_int(col_start, col_end, df_shape=None):
+    """Convert column letters to integers."""
+    if df_shape is None:
+        raise ValueError("df_shape should be provided to check column numbers")
+    if col_start is None:
+        col_start = 1
+    if col_end is None:
+        col_end = df_shape[1] + 1
+    
+    col_start = columns_convert(col_start)
+    col_end = columns_convert(col_end)
+
+    if col_start > col_end:
+        raise ValueError("col_start should be smaller than col_end")
+    
+    if col_start - 1 > df_shape[1]:
+        raise ValueError("ColStart should be smaller than the number of columns")
+
+    if col_end - 1 > df_shape[1]:
+        raise ValueError("ColEnd should be smaller than the number of columns")
+
+    return col_start, col_end
+
+def lines_to_int(line_start, line_end, header, df_shape=None):
+    """Convert line numbers to integers."""
+    if df_shape is None:
+        raise ValueError("df_shape should be provided to check line numbers")
+
+    if header is None:
+        header = 1
+    if line_start is None:
+        line_start = header + 1
+    if line_end is None:
+        line_end = df_shape[0] + 1
+
+    if line_start < 1:
+        logging.error("line_start should be greater than 0")
+        raise ValueError("line_start should be greater than 0")
+    
+    if header >= line_start:
+        raise ValueError("header should be smaller than line_start")
+
+    if line_start > line_end:
+        raise ValueError("line_start should be smaller than line_end")
+
+    if line_end - 1 > df_shape[0]:
+        raise ValueError("line_end should be smaller than the number of rows")
+
+    return line_start, line_end, header
+
 def read_file(
     file_to_add_path:str, header = 1, line_start = 2, line_end = None,
-    col_start = 1, col_end = None, sheet_name = None, encoding = "utf8",
+    col_start:str = "A", col_end:str = None, sheet_name = None, encoding = "utf8",
     sep = None
 ):
     """Read dataframe file from path and export it in pandas DataFrame.
@@ -23,8 +88,6 @@ def read_file(
     ----------
     file_to_add_path : str
         Path to excel or csv file.
-    file_infos : pd.Series
-        All the infos about the file to read.
 
     Returns
     -------
@@ -64,64 +127,28 @@ def read_file(
             raise KeyError(f"No separator available for {file_to_add_path}")
         file_read = pd.read_csv(
             file_to_add_path, sep=sep, encoding=encoding,
-            header=None, dtype="object"
+            header=None, dtype="str"
         )
     elif re.search(string=file_to_add_path,pattern=r"\.(xlsx|xls|xlsm)$"):
         if sheet_name is None:
-            logging.error(
-                "No sheet available please complete data in repertory %s",
-                sheet_name
-            )
+            logging.error("No sheet available please complete data in repertory")
             raise KeyError(f"No sheet available for {file_to_add_path}")
         file_read = pd.read_excel(
             file_to_add_path, sheet_name=sheet_name,
-            header=None, dtype="object"
+            header=None, dtype="str"
         )
     else:
         raise TypeError(
             f"File {file_to_add_path} should be either an .xlsx, .xls, xlsm or a .csv"
         )
 
-    if col_end is None:
-        col_end = file_read.shape[1] + 1
-    if line_end is None:
-        line_end = file_read.shape[0] + 1
-
-    # Check for correct values
-    if header > line_start:
-        logging.error(
-            "header should be smaller than line_start in file %s",
-            file_to_add_path
-        )
-        raise ValueError("header should be smaller than line_start")
-
-    if line_start > line_end:
-        logging.error(
-            "line_start should be smaller than line_end in file %s",
-            file_to_add_path
-        )
-        raise ValueError("line_start should be smaller than line_end")
-
-    if col_start > col_end:
-        logging.error(
-            "col_start should be smaller than col_end in file %s",
-            file_to_add_path
-        )
-        raise ValueError("col_start should be smaller than col_end")
-
-    if col_end - 1 > file_read.shape[1]:
-        logging.error(
-            "col_end should be smaller than the number of columns in file %s",
-            file_to_add_path
-        )
-        raise ValueError("ColEnd should be smaller than the number of columns")
-
-    if line_end - 1 > file_read.shape[0]:
-        logging.error(
-            "line_end should be smaller than the number of rows in file %s",
-            file_to_add_path
-        )
-        raise ValueError("line_end should be smaller than the number of rows")
+    # Check for column and line start and end
+    col_start, col_end = columns_to_int(
+        col_start, col_end, df_shape=file_read.shape
+    )
+    line_start, line_end, header = lines_to_int(
+        line_start, line_end, header, df_shape=file_read.shape   
+    )
 
     # Set the header
     file_read.columns = file_read.iloc[header - 1]
@@ -137,7 +164,6 @@ def read_file(
     file_to_add = file_read.iloc[ : , col_start - 1 : col_end]
 
     return file_to_add
-
 
 def get_columns(file_to_add, field_orga):
     """
