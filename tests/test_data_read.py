@@ -34,6 +34,10 @@ class TestingClass(unittest.TestCase):
         # Test raising ValueError for invalid range
         with self.assertRaises(TypeError):
             columns_convert("A1")
+        
+        # Test raising ValueError for invalid range
+        with self.assertRaises(TypeError):
+            columns_convert([1, 2, 3])
 
     def test_columns_to_int(self):
         """Test columns_to_int"""
@@ -63,9 +67,12 @@ class TestingClass(unittest.TestCase):
         # Test raising ValueError for col_end out of range
         with self.assertRaises(ValueError):
             columns_to_int(1, 10, 5)
+        # Test raising ValueError for col_start > col_end
+        with self.assertRaises(ValueError):
+            columns_to_int(4, 3, 5)
         # Test raising ValueError for col_start out of range
         with self.assertRaises(ValueError):
-            columns_to_int(15, 10, 5)
+            columns_to_int(15, 20, 5)
         # Test raising TypeError for absence of max_col
         with self.assertRaises(TypeError):
             columns_to_int(1, 10)
