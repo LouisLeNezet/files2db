@@ -5,13 +5,13 @@ channels:
   - anaconda
   - defaults
 dependencies:
-  - python >= 3.8
-  - pandas
+  - python >= 3.13.0
+  - pandas >= 2.2.0 
   - xlrd
+  - typer >= 0.16.0
   - openpyxl
   - pep8
   - pylint
   - pytest
   - pytest-cov
-  - typer
   - pip

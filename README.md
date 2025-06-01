@@ -1,3 +1,7 @@
+[![codecov](https://codecov.io/gh/louislenezet/files2db/branch/deb/graph/badge.svg)](https://codecov.io/gh/louislenezet/files2db)
+[![Python Version](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 # Files2DB
 
 The goal of this project is to be able to concatenate a multitude of flat plain files (.csv, .xlsx) into a single, standardized database. 
