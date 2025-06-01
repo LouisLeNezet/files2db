@@ -24,14 +24,14 @@ def columns_convert(col):
         raise TypeError("col should be a string or an integer")
     return col
 
-def columns_to_int(col_start, col_end, df_shape=None):
+def columns_to_int(col_start, col_end, max_col=None):
     """Convert column letters to integers."""
-    if df_shape is None:
-        raise ValueError("df_shape should be provided to check column numbers")
+    if max_col is None:
+        raise TypeError("max_col should be provided to check column numbers")
     if col_start is None:
         col_start = 1
     if col_end is None:
-        col_end = df_shape[1] + 1
+        col_end = max_col
     
     col_start = columns_convert(col_start)
     col_end = columns_convert(col_end)
@@ -39,25 +39,25 @@ def columns_to_int(col_start, col_end, df_shape=None):
     if col_start > col_end:
         raise ValueError("col_start should be smaller than col_end")
     
-    if col_start - 1 > df_shape[1]:
+    if col_start > max_col:
         raise ValueError("ColStart should be smaller than the number of columns")
 
-    if col_end - 1 > df_shape[1]:
+    if col_end > max_col:
         raise ValueError("ColEnd should be smaller than the number of columns")
 
     return col_start, col_end
 
-def lines_to_int(line_start, line_end, header, df_shape=None):
+def lines_to_int(line_start, line_end, header, max_lines=None):
     """Convert line numbers to integers."""
-    if df_shape is None:
-        raise ValueError("df_shape should be provided to check line numbers")
-
+    if max_lines is None:
+        raise TypeError("max_lines should be provided to check line numbers")
+    
     if header is None:
         header = 1
     if line_start is None:
         line_start = header + 1
     if line_end is None:
-        line_end = df_shape[0] + 1
+        line_end = max_lines
 
     if line_start < 1:
         logging.error("line_start should be greater than 0")
@@ -69,7 +69,7 @@ def lines_to_int(line_start, line_end, header, df_shape=None):
     if line_start > line_end:
         raise ValueError("line_start should be smaller than line_end")
 
-    if line_end - 1 > df_shape[0]:
+    if line_end > max_lines:
         raise ValueError("line_end should be smaller than the number of rows")
 
     return line_start, line_end, header
@@ -144,10 +144,10 @@ def read_file(
 
     # Check for column and line start and end
     col_start, col_end = columns_to_int(
-        col_start, col_end, df_shape=file_read.shape
+        col_start, col_end, file_read.shape[1] + 1
     )
     line_start, line_end, header = lines_to_int(
-        line_start, line_end, header, df_shape=file_read.shape   
+        line_start, line_end, header, file_read.shape[0] + 1
     )
 
     # Set the header
@@ -164,41 +164,3 @@ def read_file(
     file_to_add = file_read.iloc[ : , col_start - 1 : col_end]
 
     return file_to_add
-
-def get_columns(file_to_add, field_orga):
-    """
-    Found all the columns present inside DataFrame by category.
-
-    Parameters
-    ----------
-    file_to_add : DataFrame
-        Data to analyse.
-    field_orga : DataFrame
-        Organisation of the data.
-
-    Returns
-    -------
-    all_columns : Dict
-        Dict of all the column names present in the data frame in a list for each field category
-    """
-    genealogy_col = list(set(file_to_add.columns) &
-                            set(field_orga.loc[field_orga["Category"] == "Genealogy", "Field"]))
-    dcf_col = [col for col in file_to_add.columns if "Dys_" in col]
-    infos_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "Infos", "Field"]))
-    cani_dna_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "CaniDNA", "Field"]))
-    adress_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "Adresse", "Field"]))
-    id_col = list(set(file_to_add.columns) &
-                    set(field_orga.loc[field_orga["Category"] == "Identity", "Field"]))
-    id_supl_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "IdentitySupl", "Field"]))
-    all_cols = {"Genealogy": genealogy_col,
-                "DCF": dcf_col,
-                "Infos": infos_col,
-                "CaniDNA": cani_dna_col,
-                "Adress": adress_col,
-                "Id": id_col,
-                "IdSupl": id_supl_col}
-    return all_cols
