@@ -67,7 +67,7 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
             cols_sup=orga_dict[file]["columns_sup"]
         )
         # Transform to integer needed columns
-        if ("integer" in orga_dict[file]) & isinstance(orga_dict[file]["integer"], str):
+        if ("integer" in orga_dict[file]) and isinstance(orga_dict[file]["integer"], str):
             for col in orga_dict[file]["integer"].split(","):
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')

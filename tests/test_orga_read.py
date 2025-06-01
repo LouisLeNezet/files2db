@@ -13,7 +13,7 @@ from openpyxl import Workbook
 
 from files2db.read_file.orga_read import load_file_orga, validate_files_presence
 from files2db.read_file.orga_read import validate_columns, validate_columns_orga
-from files2db.read_file.orga_read import get_db_from_csv, get_db_from_excel
+from files2db.read_file.orga_read import get_db_from_csv, get_db_from_excel, get_db_from_path
 
 class TestValidateFiles(unittest.TestCase):
     """Check that the validate_files_presence function works as expected."""
@@ -50,7 +50,7 @@ class TestingLoadFileOrga(unittest.TestCase):
         )
         self.assertEqual(
             list(db_orga['Files'].keys()),
-            ['columns_needed', 'columns_sup']
+            ['columns_needed', 'columns_sup', 'integer']
         )
         self.assertEqual(
             db_orga['Files']['columns_needed'],
@@ -157,10 +157,10 @@ class TestGetDBFromExcel(unittest.TestCase):
         self.assertIn("Missing files [\'FieldsOrga\',", str(context.exception))
 
     @patch('logging.warning')
-    def test_get_db_from_excel_correct(self, mock_log):
+    def test_get_db_from_path_correct(self, mock_log):
         """Test missing sheet error."""
         file_path = os.path.join(self.test_data_path, "RepTest_correct.xlsx")
-        db_orga = get_db_from_excel(file_path, load_file_orga())
+        db_orga = get_db_from_path(file_path, load_file_orga())
         mock_log.assert_called_once_with(
             "Extra columns %s in %s and won't be used", {'OptColToNotUse'}, 'Formats'
         )
@@ -204,7 +204,7 @@ class TestGetDBFromCSV(unittest.TestCase):
         )
         self.assertEqual(
             db_orga['Files'].shape,
-            (2, 17)
+            (2, 15)
         )
 
 if __name__ == '__main__':
