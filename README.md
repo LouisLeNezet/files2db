@@ -90,8 +90,8 @@ conda env update --file environment.yml
 To launch the script
 
 ```bash
-python files2db/cli.py --help
-python files2db/cli.py "file/path"
+python -m files2db.cli --help
+python -m files2db.cli "file/path"
 ```
 
 This command line will launch the script directly in the command prompt with the file `file/path` that you have chosen.
