@@ -14,7 +14,7 @@ import pandas as pd
 import typer
 
 from .read_file.data_read import read_file
-from .data_mg.norm_data import norm_data
+from .data_mg.normdata_old import norm_data
 from .read_file.orga_read import get_db_from_path, load_file_orga
 from .ui.get_infos import get_file_path, get_os, welcome
 from .data_process.null_values import not_null

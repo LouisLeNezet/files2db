@@ -15,10 +15,14 @@ class TestingClass(unittest.TestCase):
     """ Class for testing """
     def test_date_convert(self):
         """Test function date_convert"""
-        test_values = ["06.12.2022","06/12/2022","2022/12/06",
-                       "2022.12.06","2022-12-0600:00:00","00:00:00",0]
-        test_result = ["06.12.2022","06.12.2022","06.12.2022",
-                       "06.12.2022","06.12.2022",None,None]
+        test_values = [
+            "06.12.2022","06/12/2022","2022/12/06",
+            "2022.12.06","2022-12-0600:00:00","00:00:00",0
+        ]
+        test_result = [
+            "06.12.2022","06.12.2022","06.12.2022",
+            "06.12.2022","06.12.2022",None,None
+        ]
         for value, result in zip(test_values, test_result):
             with self.subTest(line=value):
                 self.assertEqual(date_convert(value),result)
@@ -31,8 +35,10 @@ class TestingClass(unittest.TestCase):
 
     def test_num_convert(self):
         """Test function num_convert"""
-        test_values = [pd.Series({"A":0,"B":None,"C":[1,0],"D":"N A","E":"4.50001",
-                                  "F":'4E-05', "G": np.nan, "H":5.6498798 })]
+        test_values = [pd.Series({
+            "A":0,"B":None,"C":[1,0],"D":"N A","E":"4.50001",
+            "F":'4E-05', "G": np.nan, "H":5.6498798
+        })]
         test_result_int = [pd.Series([0,np.nan,np.nan,np.nan,5,0,np.nan,6])]
         test_result_float = [pd.Series([0,np.nan,np.nan,np.nan,4.50001,0.00004,np.nan,5.6498798])]
         error_num = 'Cannot be converted to Numeric'
@@ -55,10 +61,14 @@ class TestingClass(unittest.TestCase):
 
     def test_check_numeric(self):
         """Test function check_numeric"""
-        test_values = [0, np.nan, 1, 5.41656541, "A", "1", "5.41656541", [1,0],
-                       "N A","4.50001", '4E-05', 5.6498798 ]
-        test_result = [True, False, True, True, False, True, True, False,
-                       False, True, True, True]
+        test_values = [
+            0, np.nan, 1, 5.41656541, "A", "1", "5.41656541", [1,0],
+            "N A","4.50001", '4E-05', 5.6498798
+        ]
+        test_result = [
+            True, False, True, True, False, True,
+            True, False, False, True, True, True
+        ]
 
         for value, result in zip(test_values, test_result):
             with self.subTest(line=value):
