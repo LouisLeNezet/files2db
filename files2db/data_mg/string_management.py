@@ -3,7 +3,11 @@ import pandas as pd
 from typing import Optional, List
 from ..ui.print_infos import print_exception
 
-def data_replace(data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True):
+def data_replace(
+    data_se: pd.Series,
+    equiv_data: dict[str, list[str]],
+    to_lower: bool = True
+):
     """
     Replace all values in a Series based on equivalency mappings.
 
@@ -96,30 +100,70 @@ def data_del(
     data_se.name = original_name
     return data_se
 
+
 def data_sep(
-    data_df: pd.DataFrame,
+    data_se: pd.Series,
     sep: Optional[List[str]] = None,
 ) -> pd.DataFrame:
-    data_df = data_df.copy()
+    data_se = data_se.copy()
 
-    if data_df.empty:
-        return data_df
+    if data_se.empty:
+        return pd.DataFrame(data_se)
     if sep is None:
-        return data_df
+        return pd.DataFrame(data_se)
 
     # Combine all separators into a single regex pattern
     regex_pattern = '|'.join(map(re.escape, sep))
 
-    new_cols = []
+    data_se = data_se.astype(str)
+    col = data_se.name
 
-    for col in data_df.columns:
-        data_se = data_df[col].astype(str)
-        # Split using the combined regex pattern
-        data_exp = data_se.str.split(regex_pattern, expand=True)
+    # Split using the combined regex pattern
+    data_exp = data_se.str.split(regex_pattern, expand=True)
 
-        # Rename split columns
-        data_exp.columns = [f"{col}_{i}" for i in range(data_exp.shape[1])]
-        new_cols.append(data_exp)
+    # Rename split columns
+    data_exp.columns = [f"{col}_{i}" for i in range(data_exp.shape[1])]
 
     # Concatenate all new columns and return
-    return pd.concat(new_cols, axis=1)
+    return data_exp
+
+
+def data_sep_pattern(
+    data_se: pd.Series,
+    pattern: Optional[str] = None,
+    ignore_case: bool = True,
+) -> pd.DataFrame:
+    """
+    Separate data given into different columns based on regex patterns.
+
+    Parameters
+    ----------
+    data_se : pd.Series
+        Series to separate.
+    pattern : str, optional
+        Regex pattern to use for separation. If None, no separation is performed.
+        Patterns should be of the form (?P<column_name>)(?P<column_name2>).
+        Unnamed groups will be ignored.
+
+    Raises
+    ------
+    Wrong pattern group name
+        Group name in regex patters should only be Data or Other.
+    """
+    if data_se.empty:
+        return pd.DataFrame(data_se)
+    if pattern is None:
+        return pd.DataFrame(data_se)
+
+    # Extract named groups from the pattern
+    named_groups = re.findall(r'\(\?P<(\w+)>', pattern)
+    
+    flags = re.IGNORECASE if ignore_case else 0
+
+    try:
+        # Extract based on pattern with named groups
+        data_match = data_se.astype(str).str.extract(pattern, flags=flags)
+    except re.error as exc:
+        raise ValueError(f"Invalid regex pattern: {exc}")
+
+    return data_match.loc[:, named_groups]
