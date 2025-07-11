@@ -12,8 +12,7 @@ sys.path.append(
     r"D:\Documents\IGDR-Dysplasie\Normalisation\file-concatenation-to-database\PythonScript"
 )
 from settings import set_value, init, PARAMS
-from normdata2 import norm_data2, data_conv
-from datatools import intersect, array_not_null, not_null
+from normdata2 import norm_data2
 
 init()
 

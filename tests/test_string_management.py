@@ -141,7 +141,7 @@ class TestDataSepPattern(unittest.TestCase):
         )
         assert_frame_equal(df, expected)
 
-    def test_basic_separation_multiple_alpha(self):
+    def test_basic_separation_multiple_alpha_num(self):
         s = pd.Series(["250268720147419", "985154000245240 2DVT608", "2DVT608"])
         pattern = r"(?P<Puce>[0-9]{12,19})*(\s)*(?P<Tatouage>[A-Z0-9]+[A-Z][A-Z0-9]*)*"
         df = data_sep_pattern(s, pattern)

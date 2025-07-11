@@ -10,7 +10,7 @@ import sys
 
 sys.path.append("..")
 
-from normdata2 import norm_data2, format_float, nested_serie_test
+from normdata2 import norm_data2, format_float
 from settings import set_value, init, PARAMS
 
 init()

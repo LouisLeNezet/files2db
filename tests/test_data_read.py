@@ -8,7 +8,6 @@ Testing scripts for the different common functions.
 
 import os
 import unittest
-import pandas as pd
 from files2db.read_file.data_read import read_file, columns_to_int, lines_to_int
 from files2db.read_file.data_read import columns_convert
 

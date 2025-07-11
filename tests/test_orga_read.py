@@ -10,7 +10,6 @@ import unittest
 import os
 from unittest.mock import patch
 import pandas as pd
-from openpyxl import Workbook
 
 from files2db.read_file.orga_read import load_file_orga, validate_files_presence
 from files2db.read_file.orga_read import validate_columns, validate_columns_orga

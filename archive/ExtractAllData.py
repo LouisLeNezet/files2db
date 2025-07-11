@@ -6,13 +6,11 @@ Created on Fri Oct 22 13:00:59 2021
 @author: louisln
 """
 
-import re
 import pandas as pd
 import numpy as np
-from datatools import get_not_null, not_null, is_null
+from datatools import not_null
 from datareading import read_file
-from normdata import convert_to_num, norm_data
-from printconsole import print_d
+from normdata import norm_data
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")

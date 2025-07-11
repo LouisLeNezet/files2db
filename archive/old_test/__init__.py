@@ -6,7 +6,7 @@ Created on 23/11/2022
 Initialisation script
 """
 
-from os.path import dirname, abspath, join, sep
+from os.path import dirname, abspath
 
 path = dirname(dirname(abspath(__file__)))
 

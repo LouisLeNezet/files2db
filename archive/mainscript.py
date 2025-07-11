@@ -9,12 +9,11 @@ Created on Mon Dec 07 09:30:41 2020
 
 import os
 import platform
-import re
 import pandas as pd
 import numpy as np
 import settings
 from printconsole import print_exception, menu, print_d
-from datareading import read_file, get_columns
+from datareading import read_file
 from datatools import intersect, joint, not_null
 from normdata import check_columns
 from mongodb import MongoClass

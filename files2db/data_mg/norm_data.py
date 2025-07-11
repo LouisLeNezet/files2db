@@ -14,6 +14,11 @@ from ..data_process.set_operation import intersect, joint, match
 from ..data_process.null_values import array_not_null, not_null, is_null
 from ..data_process.null_values import get_not_null, any_nested_list
 from .convert import date_convert, num_convert
+from .string_management import (
+    data_replace,
+    data_sep_del,
+    data_sep_pattern
+)
 
 pd.set_option("display.max_columns", None)
 
@@ -56,7 +61,7 @@ def conca_simplify(data_df, col_names=None):
             return nest_array
         else:
             for col_main, col_all_sub in col_names.items():
-                if not col_all_sub is None:
+                if col_all_sub is not None:
                     all_col = {
                         col_main + "_" + col_sub: col_sub
                         for col_sub in col_all_sub
@@ -150,6 +155,7 @@ def data_conv(data_df, params):
         print_exception()
         raise RuntimeError("Error while converting data") from exc
 
+long_date_f = re.compile(r"\d\d\.\d\d\.\d\d\d\d")
 
 def data_vali(data_df, params):
     try:
@@ -189,7 +195,7 @@ def data_vali(data_df, params):
                 ]
 
             all_num = [isinstance(x, (int, float)) for x in data]
-            types = [type(x) for x in data]
+
             check_min = "Min" in params.keys() and not_null(params["Min"])
             check_max = "Max" in params.keys() and not_null(params["Max"])
 
@@ -291,7 +297,7 @@ def data_manage(df, col_to_use, all_params, col_not_to_add):
         col_for_rename = {col_name: None for col_name in data_df.columns}
         for norm_by in all_params.keys():
             params = all_params[norm_by]
-            data_df, df, err[norm_by + "_Sep"], col_for_rename = data_sep_pat(
+            data_df, df, err[norm_by + "_Sep"], col_for_rename = data_sep_pattern(
                 data_df, df, col_for_rename, params
             )
         print("SepDone")

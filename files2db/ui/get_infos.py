@@ -59,7 +59,7 @@ def get_os():
     operating_system = platform.uname()[0]
     if operating_system == "Darwin":
         operating_system = "Mac"
-    elif not operating_system in ["Windows", "Linux"]:
+    elif operating_system not in ["Windows", "Linux"]:
         logging.info(
             "Please contact creator !!, operating system %s not supported.",
             operating_system,
@@ -133,9 +133,9 @@ def get_file_path(file_path, cwd_os="", file_os=""):
     file_path : str
         Full path converted to current os
     """
-    if cwd_os is "":
+    if cwd_os == "":
         cwd_os = get_os()[0]
-    if file_os is "":
+    if file_os == "":
         file_os = get_path_os(file_path)
     if cwd_os != file_os and all(
         [os_path in ["Windows", "Wsl"] for os_path in [cwd_os, file_os]]
