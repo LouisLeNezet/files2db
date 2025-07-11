@@ -9,10 +9,17 @@ import unittest
 import pandas as pd
 from pandas.testing import assert_series_equal, assert_frame_equal
 
-from files2db.data_mg.string_management import data_replace, data_del, data_sep, data_sep_pattern
+from files2db.data_mg.string_management import (
+    data_replace,
+    data_del,
+    data_sep,
+    data_sep_pattern,
+)
+
 
 class TestingClass(unittest.TestCase):
-    """ Class for testing """
+    """Class for testing"""
+
     def test_data_replace(self):
         """Test function date_convert"""
         test_values = pd.Series(["A", "a", "b", "E", "f", "Z"])
@@ -27,8 +34,8 @@ class TestingClass(unittest.TestCase):
         result = data_replace(test_values, equiv_data, to_lower=True)
         assert_series_equal(result, test_result)
 
-class TestDataDel(unittest.TestCase):
 
+class TestDataDel(unittest.TestCase):
     def test_del_match_only(self):
         s = pd.Series(["remove", "keep", "remove", "test", "test2"])
         expected = pd.Series([None, "keep", None, None, "test2"])
@@ -55,7 +62,7 @@ class TestDataDel(unittest.TestCase):
             del_match=["REMOVE"],
             strip_from=["=", ":"],
             del_in=["other", "foo"],
-            na_value=""
+            na_value="",
         )
         assert_series_equal(result, expected)
 
@@ -71,15 +78,12 @@ class TestDataDel(unittest.TestCase):
         result = data_del(s, del_in=["789"], strip_from=["3", "5"])
         assert_series_equal(result, expected)
 
-class TestDataSep(unittest.TestCase):
 
+class TestDataSep(unittest.TestCase):
     def test_basic_separation(self):
         s = pd.Series(["a,b", "c,d", "e"], name="col1")
 
-        expected = pd.DataFrame({
-            "col1_0": ["a", "c", "e"],
-            "col1_1": ["b", "d", None]
-        })
+        expected = pd.DataFrame({"col1_0": ["a", "c", "e"], "col1_1": ["b", "d", None]})
 
         result = data_sep(s, sep=[","])
         assert_frame_equal(result, expected)
@@ -87,11 +91,9 @@ class TestDataSep(unittest.TestCase):
     def test_multiple_separators(self):
         s = pd.Series(["a|b,c", "d,e|f"], name="col1")
 
-        expected = pd.DataFrame({
-            "col1_0": ["a", "d"],
-            "col1_1": ["b", "e"],
-            "col1_2": ["c", "f"]
-        })
+        expected = pd.DataFrame(
+            {"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", "f"]}
+        )
 
         result = data_sep(s, sep=["|", ","])
         assert_frame_equal(result, expected)
@@ -99,9 +101,7 @@ class TestDataSep(unittest.TestCase):
     def test_no_separator_provided(self):
         s = pd.Series(["abc", "def"], name="col1")
 
-        expected = pd.DataFrame({
-            "col1": ["abc", "def"]
-        })
+        expected = pd.DataFrame({"col1": ["abc", "def"]})
         result = data_sep(s, sep=None)
         assert_frame_equal(result, expected)
 
@@ -114,50 +114,46 @@ class TestDataSep(unittest.TestCase):
     def test_numeric_data(self):
         s = pd.Series([1, 2], name="col1")
 
-        expected = pd.DataFrame({
-            "col1_0": ["1", "2"]
-        })
+        expected = pd.DataFrame({"col1_0": ["1", "2"]})
 
         result = data_sep(s, sep=[","])
         assert_frame_equal(result, expected)
 
-class TestDataSepPattern(unittest.TestCase):
 
+class TestDataSepPattern(unittest.TestCase):
     def test_basic_separation_num_alpha(self):
         s = pd.Series(["123-abc", "456-def", "789-ghi"])
         pattern = r"(?P<num>\d+)-(?P<word>[a-zA-Z]+)"
         df = data_sep_pattern(s, pattern)
 
-        expected = pd.DataFrame({
-            "num": ["123", "456", "789"],
-            "word": ["abc", "def", "ghi"]
-        })
+        expected = pd.DataFrame(
+            {"num": ["123", "456", "789"], "word": ["abc", "def", "ghi"]}
+        )
         assert_frame_equal(df, expected)
-    
+
     def test_basic_separation_multiple_alpha(self):
         s = pd.Series(["A/E", "aA", "D"])
         pattern = r"((?P<G>[A-E])(\/*)(?P<D>[A-E]))|(?P<DG>[A-E])"
         df = data_sep_pattern(s, pattern)
 
-        expected = pd.DataFrame({
-            "G": ["A", "A", None],
-            "D": ["E", "A", None],
-            "DG": [None, None, "D"]
-        })
+        expected = pd.DataFrame(
+            {"G": ["A", "A", None], "D": ["E", "A", None], "DG": [None, None, "D"]}
+        )
         assert_frame_equal(df, expected)
-    
 
     def test_basic_separation_multiple_alpha(self):
         s = pd.Series(["250268720147419", "985154000245240 2DVT608", "2DVT608"])
         pattern = r"(?P<Puce>[0-9]{12,19})*(\s)*(?P<Tatouage>[A-Z0-9]+[A-Z][A-Z0-9]*)*"
         df = data_sep_pattern(s, pattern)
 
-        expected = pd.DataFrame({
-            "Puce": ["250268720147419", "985154000245240", None],
-            "Tatouage": [None, "2DVT608", "2DVT608"]
-        })
+        expected = pd.DataFrame(
+            {
+                "Puce": ["250268720147419", "985154000245240", None],
+                "Tatouage": [None, "2DVT608", "2DVT608"],
+            }
+        )
         assert_frame_equal(df, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -5,6 +5,7 @@ Created on 22/01/2021
 @author: LouisLeNezet
 Module for all functions to analyse set of data.
 """
+
 from collections import abc as class_name
 import logging
 import numpy as np
@@ -12,6 +13,7 @@ import pandas as pd
 from ..data_process.null_values import bool_invert, not_null, is_null
 from ..data_process.null_values import get_not_null, all_modify
 from ..ui.print_infos import print_exception
+
 
 def convert_to_set(values, alter=False, to_list=False):
     """
@@ -52,8 +54,11 @@ def convert_to_set(values, alter=False, to_list=False):
             raise ValueError(f"Instance of {values} not recognised")
 
         if not_null(set_values) and alter:  # Delete spaces and put it to UPPER case
-            set_values = [elem.replace(" ", "").upper() if isinstance(elem, str)
-                else elem for elem in set_values if not_null(elem, alter=alter)]
+            set_values = [
+                elem.replace(" ", "").upper() if isinstance(elem, str) else elem
+                for elem in set_values
+                if not_null(elem, alter=alter)
+            ]
 
         if to_list:
             return list(set(set_values))
@@ -84,18 +89,20 @@ def percent_error(str_a, str_b, alter=False):
     """
     try:
         instance_ok = (int, str)
-        if not isinstance(str_a,instance_ok) or not isinstance(str_b,instance_ok):
+        if not isinstance(str_a, instance_ok) or not isinstance(str_b, instance_ok):
             raise ValueError(f"{str_a} or {str_b} not recognised")
         str_a = str(str_a)
         str_b = str(str_b)
         if alter:
             str_a = str_a.replace(".", "").replace(" ", "").upper()
             str_b = str_b.replace(".", "").replace(" ", "").upper()
-        values = sum(1 for value_a, value_b in zip(str(str_a), str(str_b)) if value_a != value_b)
+        values = sum(
+            1 for value_a, value_b in zip(str(str_a), str(str_b)) if value_a != value_b
+        )
         len_a = len(str(str_a))
         len_b = len(str(str_b))
         values = values + abs(len_a - len_b)
-        diff_size = int(values/max(len_a, len_b)*100)
+        diff_size = int(values / max(len_a, len_b) * 100)
         return diff_size
     except Exception as error:
         print_exception()
@@ -128,11 +135,14 @@ def difference(values_a, values_b, alter=False):
     try:
         values_a = convert_to_set(values_a, alter)
         values_b = convert_to_set(values_b, alter)
-        return list(values_a-values_b)
+        return list(values_a - values_b)
     except Exception as error:
         logging.info(
             "Difference failed: %s, %s, %s, %s",
-            values_a, type(values_a), values_b, type(values_b)
+            values_a,
+            type(values_a),
+            values_b,
+            type(values_b),
         )
         print_exception()
         raise ValueError(
@@ -237,6 +247,7 @@ def intersect(values_a, values_b, alter=False):
         raise ValueError(
             f"Error while getting the intersect between {values_a} and {values_b}"
         ) from error
+
 
 def union(values_a, values_b, alter=False):
     """

@@ -4,6 +4,7 @@ Created on Tue Jul  6 12:28:13 2021
 
 @author: LouisLeNezet
 """
+
 import re
 import logging
 import numpy as np
@@ -14,11 +15,12 @@ from ..data_process.null_values import array_not_null, not_null, is_null
 from ..data_process.null_values import get_not_null, any_nested_list
 from .convert import date_convert, num_convert
 
-pd.set_option('display.max_columns', None)
+pd.set_option("display.max_columns", None)
+
 
 def conca_simplify(data_df, col_names=None):
     """Simplify a nested dataframe into a single column.
-    
+
     In the case of supplied col_names the columns
 
     Parameters
@@ -32,7 +34,7 @@ def conca_simplify(data_df, col_names=None):
     ----------
     Exception
         Error while trying to simplify the data
-        
+
     Returns
     -------
     A vector of the simplified columns
@@ -40,20 +42,30 @@ def conca_simplify(data_df, col_names=None):
     try:
         if col_names is None:
             nest_array = data_df.values.tolist()
-            nest_array = [get_not_null(x)
-                        for x in nest_array]
-            nest_array = [None if is_null(x)
-                        else x if len(x) > 1
-                        else x[0] if len(x) == 1
-                        else None for x in nest_array]
+            nest_array = [get_not_null(x) for x in nest_array]
+            nest_array = [
+                None
+                if is_null(x)
+                else x
+                if len(x) > 1
+                else x[0]
+                if len(x) == 1
+                else None
+                for x in nest_array
+            ]
             return nest_array
         else:
             for col_main, col_all_sub in col_names.items():
                 if not col_all_sub is None:
-                    all_col = {col_main+"_"+col_sub: col_sub for col_sub in col_all_sub
-                                if col_main+"_"+col_sub in data_df.columns}
+                    all_col = {
+                        col_main + "_" + col_sub: col_sub
+                        for col_sub in col_all_sub
+                        if col_main + "_" + col_sub in data_df.columns
+                    }
                     data_df.rename(columns=all_col, inplace=True)
-                    data_df[col_main] = pd.Series(data_df[all_col.values()].to_dict('records'))
+                    data_df[col_main] = pd.Series(
+                        data_df[all_col.values()].to_dict("records")
+                    )
                     data_df.drop(all_col.values(), axis=1, inplace=True)
             return conca_simplify(data_df)
     except Exception as exc:
@@ -93,10 +105,10 @@ def data_conv(data_df, params):
             err_conv = [None for x in data_df.index]
             if "DelStart" in params.keys() and not_null(params["DelStart"], True):
                 for mod_del in params["DelStart"].split(","):
-                    data = data.str.replace(f'^{mod_del}', "", regex=True)
+                    data = data.str.replace(f"^{mod_del}", "", regex=True)
             if "DelEnd" in params.keys() and not_null(params["DelEnd"], True):
                 for mod_del in params["DelEnd"].split(","):
-                    data = data.str.replace(f'{mod_del}$', "", regex=True)
+                    data = data.str.replace(f"{mod_del}$", "", regex=True)
 
             if "Corres" in params.keys() and not_null(params["Corres"]):
                 data = data_replace(data, params["Corres"])
@@ -119,11 +131,14 @@ def data_conv(data_df, params):
                 else:
                     raise ValueError("Error while converting to numeric, no type given")
 
-            errors.append([{"When": "Converting",
-                            "Which": data_df.loc[ind, col],
-                            "Error": err} if not_null(err)
-                            else {}
-                            for ind, err in zip(data_df.index, err_conv)])
+            errors.append(
+                [
+                    {"When": "Converting", "Which": data_df.loc[ind, col], "Error": err}
+                    if not_null(err)
+                    else {}
+                    for ind, err in zip(data_df.index, err_conv)
+                ]
+            )
 
             data_df[col] = data
 
@@ -135,6 +150,7 @@ def data_conv(data_df, params):
         print_exception()
         raise RuntimeError("Error while converting data") from exc
 
+
 def data_vali(data_df, params):
     try:
         all_errors = None
@@ -144,11 +160,13 @@ def data_vali(data_df, params):
             err_content = err_min = err_max = [None for x in data]
             if "Contains" in params.keys() and not_null(params["Contains"]):
                 if params["Contains"] == "LETTERS":
-                    err_content = data.str.fullmatch('[A-Z]+', case=True, na=False)
+                    err_content = data.str.fullmatch("[A-Z]+", case=True, na=False)
                 elif params["Contains"] == "letters":
-                    err_content = data.str.fullmatch('[a-z]+', case=True, na=False)
+                    err_content = data.str.fullmatch("[a-z]+", case=True, na=False)
                 elif params["Contains"] == "Letters":
-                    err_content = data.str.fullmatch(r'([A-Z][a-z]+)(\s[A-Z][a-z]+)*', case=True, na=False)
+                    err_content = data.str.fullmatch(
+                        r"([A-Z][a-z]+)(\s[A-Z][a-z]+)*", case=True, na=False
+                    )
                 elif params["Contains"] == "Date":
                     err_content = data.str.fullmatch(long_date_f, case=True, na=False)
                 elif params["Contains"] == "ALPHANUM":
@@ -160,9 +178,15 @@ def data_vali(data_df, params):
                 elif params["Contains"] == "Float":
                     err_content = [isinstance(x, float) for x in data]
                 else:
-                    err_content = data.str.fullmatch(params["Contains"].replace(",", "|"), case=True, na=False)
-                err_content = ["No corres with " + params["Contains"] if (not err and not_null(val))
-                                else None for err, val in zip(err_content, data)]
+                    err_content = data.str.fullmatch(
+                        params["Contains"].replace(",", "|"), case=True, na=False
+                    )
+                err_content = [
+                    "No corres with " + params["Contains"]
+                    if (not err and not_null(val))
+                    else None
+                    for err, val in zip(err_content, data)
+                ]
 
             all_num = [isinstance(x, (int, float)) for x in data]
             types = [type(x) for x in data]
@@ -171,23 +195,40 @@ def data_vali(data_df, params):
 
             if not all(all_num):
                 if check_min:
-                    err_min = ["InfToMin" if (not_null(x) and len(x) < params["Min"]) else None for x in data]
+                    err_min = [
+                        "InfToMin" if (not_null(x) and len(x) < params["Min"]) else None
+                        for x in data
+                    ]
                 if check_max:
-                    err_max = ["SupToMax" if (not_null(x) and len(x) > params["Max"]) else None for x in data]
+                    err_max = [
+                        "SupToMax" if (not_null(x) and len(x) > params["Max"]) else None
+                        for x in data
+                    ]
             else:
                 if check_min:
-                    err_min = ["InfToMin" if (not_null(x) and x < params["Min"]) else None for x in data]
+                    err_min = [
+                        "InfToMin" if (not_null(x) and x < params["Min"]) else None
+                        for x in data
+                    ]
                 if check_max:
-                    err_max = ["SupToMax" if (not_null(x) and x > params["Max"]) else None for x in data]
+                    err_max = [
+                        "SupToMax" if (not_null(x) and x > params["Max"]) else None
+                        for x in data
+                    ]
 
-            err = [get_not_null([e_cont, e_min, e_max])
-                    for e_cont, e_min, e_max in zip(err_content, err_min, err_max)]
+            err = [
+                get_not_null([e_cont, e_min, e_max])
+                for e_cont, e_min, e_max in zip(err_content, err_min, err_max)
+            ]
 
-            errors.append([{"When": "Validating",
-                            "Which": data_df.loc[ind, col],
-                            "Error": err} if not_null(err)
-                            else {}
-                            for ind, err in zip(data_df.index, err)])
+            errors.append(
+                [
+                    {"When": "Validating", "Which": data_df.loc[ind, col], "Error": err}
+                    if not_null(err)
+                    else {}
+                    for ind, err in zip(data_df.index, err)
+                ]
+            )
 
         if not_null(errors):
             all_errors = [value for value in np.column_stack(errors).tolist()]
@@ -195,6 +236,7 @@ def data_vali(data_df, params):
     except Exception as exc:
         print_exception()
         raise RuntimeError("Error while validating") from exc
+
 
 def data_manage(df, col_to_use, all_params, col_not_to_add):
     """
@@ -220,10 +262,27 @@ def data_manage(df, col_to_use, all_params, col_not_to_add):
         err = pd.DataFrame(index=data_df.index)
 
         for norm_by in all_params.keys():
-            key_keep_case = [k for k in all_params[norm_by].keys() if re.match(r"Sep\dName|Sep\dPat", k)]
-            key_keep_case = key_keep_case+["Contains", "Case", "Value", "ToDate", "ToNum", "ToSep", "Types", "SepKeepLink"]
-            all_params[norm_by] = dict((k, v.lower()) if (k not in key_keep_case and isinstance(v, str))
-                                        else (k, v) for k, v in all_params[norm_by].items())
+            key_keep_case = [
+                k
+                for k in all_params[norm_by].keys()
+                if re.match(r"Sep\dName|Sep\dPat", k)
+            ]
+            key_keep_case = key_keep_case + [
+                "Contains",
+                "Case",
+                "Value",
+                "ToDate",
+                "ToNum",
+                "ToSep",
+                "Types",
+                "SepKeepLink",
+            ]
+            all_params[norm_by] = dict(
+                (k, v.lower())
+                if (k not in key_keep_case and isinstance(v, str))
+                else (k, v)
+                for k, v in all_params[norm_by].items()
+            )
 
         for norm_by in all_params.keys():
             params = all_params[norm_by]
@@ -232,15 +291,17 @@ def data_manage(df, col_to_use, all_params, col_not_to_add):
         col_for_rename = {col_name: None for col_name in data_df.columns}
         for norm_by in all_params.keys():
             params = all_params[norm_by]
-            data_df, df, err[norm_by+"_Sep"], col_for_rename = data_sep_pat(data_df, df, col_for_rename, params)
+            data_df, df, err[norm_by + "_Sep"], col_for_rename = data_sep_pat(
+                data_df, df, col_for_rename, params
+            )
         print("SepDone")
         for norm_by in all_params.keys():
             params = all_params[norm_by]
-            data_df, err[norm_by+"_Conv"] = data_conv(data_df, params)
+            data_df, err[norm_by + "_Conv"] = data_conv(data_df, params)
         print("ConvDone")
         for norm_by in all_params.keys():
             params = all_params[norm_by]
-            err[norm_by+"_Vali"] = data_vali(data_df, params)
+            err[norm_by + "_Vali"] = data_vali(data_df, params)
         print("ValiDone")
         if col_for_rename is None:
             col_not_to_add.append(col_to_use)
@@ -263,6 +324,7 @@ def data_manage(df, col_to_use, all_params, col_not_to_add):
     except Exception as exc:
         print_exception()
         raise RuntimeError("Error while converting") from exc
+
 
 def conca_data(row):
     """
@@ -295,6 +357,7 @@ def conca_data(row):
         print_exception()
         return f"Error: {exc}"
 
+
 def nested_serie_test(data, value, test):
     """
     Test for each value at first level if all value present pass the test with a value given.
@@ -315,19 +378,36 @@ def nested_serie_test(data, value, test):
 
     """
     if test == "Sup":
-        return [x > value if not isinstance(x, list)
-                else (all(nested_serie_test(x, value, test))) for x in data]
+        return [
+            x > value
+            if not isinstance(x, list)
+            else (all(nested_serie_test(x, value, test)))
+            for x in data
+        ]
     elif test == "Inf":
-        return [x < value if not isinstance(x, list)
-                else (all(nested_serie_test(x, value, test))) for x in data]
+        return [
+            x < value
+            if not isinstance(x, list)
+            else (all(nested_serie_test(x, value, test)))
+            for x in data
+        ]
     elif test == "Equal":
-        return [x == value if not isinstance(x, list)
-                else (all(nested_serie_test(x, value, test))) for x in data]
+        return [
+            x == value
+            if not isinstance(x, list)
+            else (all(nested_serie_test(x, value, test)))
+            for x in data
+        ]
     elif test == "Diff":
-        return [x != value if not isinstance(x, list)
-                else (all(nested_serie_test(x, value, test))) for x in data]
+        return [
+            x != value
+            if not isinstance(x, list)
+            else (all(nested_serie_test(x, value, test)))
+            for x in data
+        ]
     else:
         raise ValueError(f"Test {test} given isn't recognize")
+
 
 def error_register(df_errors):
     """
@@ -357,6 +437,7 @@ def error_register(df_errors):
     except Exception as exc:
         print_exception()
         raise RuntimeError("Error while registering error") from exc
+
 
 def get_col_infos(columns, db_orga):
     """
@@ -396,9 +477,14 @@ def get_col_infos(columns, db_orga):
             field_match = match(db_orga["Fields"]["Fields"], col_field)
             if sum(field_match) == 1:
                 col_infos["Types"] = db_orga["Fields"]["Types"].values[field_match][0]
-                col_infos["Categories"] = db_orga["Fields"]["Categories"].values[field_match][0]
-                col_infos["Contains"] = db_orga["Fields"].loc[field_match,
-                                                            ["Min", "Max", "Contains"]].squeeze()
+                col_infos["Categories"] = db_orga["Fields"]["Categories"].values[
+                    field_match
+                ][0]
+                col_infos["Contains"] = (
+                    db_orga["Fields"]
+                    .loc[field_match, ["Min", "Max", "Contains"]]
+                    .squeeze()
+                )
                 col_infos["Fields"] = col_field[0]
                 col_infos["Field_match"] = field_match
                 all_col_infos.append(col_infos)
@@ -414,6 +500,7 @@ def get_col_infos(columns, db_orga):
     except Exception as exc:
         print_exception()
         raise RuntimeError(f"Error while getting info for {col}") from exc
+
 
 def norm_data2(file, db_orga):
     """
@@ -435,14 +522,19 @@ def norm_data2(file, db_orga):
         logging.info("Starting normalization of the datas")
         all_errors = {}
         # Delete empty columns
-        file.dropna(how='all', axis='columns', inplace=True)
+        file.dropna(how="all", axis="columns", inplace=True)
         file.columns = file.columns.str.replace(".", "_", regex=False)
         # Normalize all accent and lower all data
         file.fillna("", inplace=True)
-        file = file.apply(lambda x: (x.astype(str).str.normalize('NFKD')
-                                    .str.lower()
-                                    .str.encode('ascii', errors='ignore')
-                                    .str.decode('utf-8')))
+        file = file.apply(
+            lambda x: (
+                x.astype(str)
+                .str.normalize("NFKD")
+                .str.lower()
+                .str.encode("ascii", errors="ignore")
+                .str.decode("utf-8")
+            )
+        )
 
         col_checked = {x: False for x in file.columns}
         col_not_to_add = []
@@ -458,28 +550,54 @@ def norm_data2(file, db_orga):
                 #  Data wil be normalize by each sub_field
                 for col_infos in all_col_infos:
                     #  Data will be normalize by Type -> Category -> Field
-                    for norm_by, params_in in zip(["Types", "Categories", "Fields"],
-                                                ["Types", "Types", "Fields"]):
+                    for norm_by, params_in in zip(
+                        ["Types", "Categories", "Fields"], ["Types", "Types", "Fields"]
+                    ):
                         print(col_infos[norm_by], norm_by)
                         if joint(col_infos[norm_by], db_orga[params_in][params_in]):
-                            params = db_orga[params_in].loc[match(db_orga[params_in][params_in],
-                                                                col_infos[norm_by]), ].squeeze().to_dict()
+                            params = (
+                                db_orga[params_in]
+                                .loc[
+                                    match(
+                                        db_orga[params_in][params_in],
+                                        col_infos[norm_by],
+                                    ),
+                                ]
+                                .squeeze()
+                                .to_dict()
+                            )
                             params = get_not_null(params)
                             if col in list(db_orga["Corres"]["Fields"]):
-                                corres = db_orga["Corres"].loc[match(db_orga["Corres"]["Fields"],
-                                                                    col_infos[norm_by]), ["Eq", "Value"]]
+                                corres = db_orga["Corres"].loc[
+                                    match(
+                                        db_orga["Corres"]["Fields"], col_infos[norm_by]
+                                    ),
+                                    ["Eq", "Value"],
+                                ]
                                 params.update({"Corres": corres.to_dict("records")})
-                            all_params.update({norm_by+"_"+params[norm_by]: params})
-                file, errors_present, col_not_to_add = data_manage(file, col_to_use, all_params, col_not_to_add)
+                            all_params.update({norm_by + "_" + params[norm_by]: params})
+                file, errors_present, col_not_to_add = data_manage(
+                    file, col_to_use, all_params, col_not_to_add
+                )
 
                 errors_to_add = [not_null(lvl1) for lvl1 in errors_present.values()]
                 if any(errors_to_add):
                     file[str(col_to_use + "_Error")] = errors_present.values()
                     if col_to_use != "NomChien":
-                        cols_to_use = ["NomChien", col_to_use, str(col_to_use + "_Error")]
+                        cols_to_use = [
+                            "NomChien",
+                            col_to_use,
+                            str(col_to_use + "_Error"),
+                        ]
                     else:
                         cols_to_use = ["NomChien", str(col_to_use + "_Error")]
-                    all_errors.update({col_to_use: error_register(file.loc[errors_to_add, cols_to_use])})
+                    all_errors.update(
+                        {
+                            col_to_use: error_register(
+                                file.loc[errors_to_add, cols_to_use]
+                            )
+                        }
+                    )
                     del file[str(col_to_use + "_Error")]
                     file.loc[errors_to_add, col_to_use] = None
                 col_checked[col_to_use] = True
@@ -490,7 +608,7 @@ def norm_data2(file, db_orga):
             else:
                 logging.info("No information found to normalize this column")
         col_to_add = [col for col in file.columns if col not in col_not_to_add]
-        return(file[col_to_add], all_errors)
+        return (file[col_to_add], all_errors)
     except Exception as exc:
         print_exception()
         raise RuntimeError("Could not normalize") from exc

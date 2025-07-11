@@ -5,11 +5,13 @@ Created on 18/11/2022
 @author: LouisLeNezet
 Modules for all tools needed to test presence / absence of null values
 """
+
 import logging
 from collections import abc as class_name
 import numpy as np
 import pandas as pd
 from ..ui.print_infos import print_exception
+
 
 def modify(value, alter=True):
     """Modify value given if asked and change all null value to None.
@@ -34,7 +36,7 @@ def modify(value, alter=True):
     """
     try:
         if alter:
-            if isinstance(value,str):
+            if isinstance(value, str):
                 value = value.replace(" ", "").upper()
         if is_null(value, alter=alter):
             return None
@@ -42,6 +44,7 @@ def modify(value, alter=True):
     except ValueError as error:
         print_exception()
         raise ValueError(f"Error while modifying {value}") from error
+
 
 def all_modify(values, alter=True):
     """Apply modify function to all elements of values
@@ -68,20 +71,33 @@ def all_modify(values, alter=True):
     """
     try:
         all_array_types = (set, tuple, list, dict, pd.Series, np.ndarray)
-        all_empty_types = {"set":set(),"tuple":(),"list":[],
-        "dict":{},"Series":pd.Series([], dtype=object), "ndarray":[]}
+        all_empty_types = {
+            "set": set(),
+            "tuple": (),
+            "list": [],
+            "dict": {},
+            "Series": pd.Series([], dtype=object),
+            "ndarray": [],
+        }
         if alter:
-            if not_null(values, alter=alter) :
+            if not_null(values, alter=alter):
                 if values.__class__.__name__ in all_empty_types:
                     dnn = all_empty_types[values.__class__.__name__]
                     if isinstance(values, pd.Series):
                         for key, value in values.items():
                             if isinstance(value, all_array_types):
-                                dnn = pd.concat([
-                                    dnn,pd.Series({key: all_modify(value, alter=alter)})
-                                ])
+                                dnn = pd.concat(
+                                    [
+                                        dnn,
+                                        pd.Series(
+                                            {key: all_modify(value, alter=alter)}
+                                        ),
+                                    ]
+                                )
                             else:
-                                dnn = pd.concat([dnn,pd.Series({key: modify(value, alter)})])
+                                dnn = pd.concat(
+                                    [dnn, pd.Series({key: modify(value, alter)})]
+                                )
                         return dnn
                     if isinstance(values, dict):
                         for key, value in values.items():
@@ -90,7 +106,7 @@ def all_modify(values, alter=True):
                             else:
                                 dnn.update({key: modify(value, alter)})
                         return dnn
-                    if isinstance(values, (list,np.ndarray)):
+                    if isinstance(values, (list, np.ndarray)):
                         for value in values:
                             if isinstance(value, all_array_types):
                                 dnn.append(all_modify(value, alter=alter))
@@ -112,7 +128,7 @@ def all_modify(values, alter=True):
                                 dnn.add(modify(value, alter))
                         return dnn
 
-                elif hasattr(values, '__iter__') and not isinstance(values,str):
+                elif hasattr(values, "__iter__") and not isinstance(values, str):
                     logging.info(values, type(values))
                     logging.info(values.__class__.__name__)
                     raise ValueError("Values is iterable but not recognize")
@@ -125,6 +141,7 @@ def all_modify(values, alter=True):
     except ValueError as error:
         print_exception()
         raise ValueError("Error while modifying all values from iterable") from error
+
 
 def not_null(value, str_size=False, alter=True):
     """
@@ -164,7 +181,7 @@ def not_null(value, str_size=False, alter=True):
         if value is None:
             return False
 
-        if isinstance(value,bool):
+        if isinstance(value, bool):
             return True
 
         if isinstance(value, (int, np.integer)):
@@ -173,7 +190,7 @@ def not_null(value, str_size=False, alter=True):
         if isinstance(value, class_name.KeysView):
             return value != {}.keys()
 
-        if isinstance(value, (type(pd.NaT),type(pd.NA))):
+        if isinstance(value, (type(pd.NaT), type(pd.NA))):
             return bool(not pd.isnull(value))
 
         if isinstance(value, type(pd.Timestamp("2022"))):
@@ -185,6 +202,7 @@ def not_null(value, str_size=False, alter=True):
         logging.info(value, type(value))
         print_exception()
         raise ValueError("Error, while checking for null values") from error
+
 
 def array_not_null(values, recursive=False, alter=True):
     """
@@ -212,7 +230,7 @@ def array_not_null(values, recursive=False, alter=True):
         res = []
         if not_null(values, alter=alter):
             if recursive:
-                if isinstance(values, (list,pd.Series,pd.DataFrame,set,tuple)):
+                if isinstance(values, (list, pd.Series, pd.DataFrame, set, tuple)):
                     for value in values:
                         res.append(array_not_null(value, recursive=recursive))
                 elif isinstance(values, (dict)):
@@ -221,7 +239,7 @@ def array_not_null(values, recursive=False, alter=True):
                 else:
                     return True
             else:
-                if isinstance(values, (list,pd.Series,pd.DataFrame,set,tuple)):
+                if isinstance(values, (list, pd.Series, pd.DataFrame, set, tuple)):
                     for value in values:
                         res.append(not_null(value, alter=alter))
                 elif isinstance(values, (dict)):
@@ -236,6 +254,7 @@ def array_not_null(values, recursive=False, alter=True):
         logging.info(values)
         print_exception()
         raise ValueError("Error while checking null values in array") from error
+
 
 def is_null(value, alter=True):
     """
@@ -253,6 +272,7 @@ def is_null(value, alter=True):
 
     """
     return bool_invert(not_null(value, alter=alter))
+
 
 def bool_invert(values, alter=True):
     """
@@ -291,6 +311,7 @@ def bool_invert(values, alter=True):
         print_exception()
         raise ValueError("Error, while inverting boolean values") from error
 
+
 def get_not_null(values, alter=True):
     """
     Simplify nested list/dictionary by deleting null values with its respective structure.
@@ -310,33 +331,54 @@ def get_not_null(values, alter=True):
     """
     try:
         all_array_types = (set, tuple, list, dict, pd.Series, np.ndarray)
-        all_empty_types = {"set":set(),"tuple":(),"list":[],
-            "dict":{},"Series":pd.Series([], dtype=object), "ndarray":[]}
+        all_empty_types = {
+            "set": set(),
+            "tuple": (),
+            "list": [],
+            "dict": {},
+            "Series": pd.Series([], dtype=object),
+            "ndarray": [],
+        }
         if not_null(values, alter=alter):
             if values.__class__.__name__ in all_empty_types:
                 dnn = all_empty_types[values.__class__.__name__]
                 if isinstance(values, pd.Series):
                     for key, value in values.items():
                         if isinstance(value, all_array_types):
-                            if any_nested_list(array_not_null(value, recursive=True, alter=alter), True):
-                                dnn = pd.concat([dnn,pd.Series({key: get_not_null(value, alter=alter)})])
+                            if any_nested_list(
+                                array_not_null(value, recursive=True, alter=alter), True
+                            ):
+                                dnn = pd.concat(
+                                    [
+                                        dnn,
+                                        pd.Series(
+                                            {key: get_not_null(value, alter=alter)}
+                                        ),
+                                    ]
+                                )
                         else:
                             if not_null(value, alter=alter):
-                                dnn = pd.concat([dnn,pd.Series({key: modify(value, alter)})])
+                                dnn = pd.concat(
+                                    [dnn, pd.Series({key: modify(value, alter)})]
+                                )
                     return dnn
                 if isinstance(values, dict):
                     for key, value in values.items():
                         if isinstance(value, all_array_types):
-                            if any_nested_list(array_not_null(value, recursive=True, alter=alter), True):
+                            if any_nested_list(
+                                array_not_null(value, recursive=True, alter=alter), True
+                            ):
                                 dnn.update({key: get_not_null(value, alter=alter)})
                         else:
                             if not_null(value, alter=alter):
                                 dnn.update({key: modify(value, alter)})
                     return dnn
-                if isinstance(values, (list,np.ndarray)):
+                if isinstance(values, (list, np.ndarray)):
                     for value in values:
                         if isinstance(value, all_array_types):
-                            if any_nested_list(array_not_null(value, recursive=True, alter=alter), True):
+                            if any_nested_list(
+                                array_not_null(value, recursive=True, alter=alter), True
+                            ):
                                 dnn.append(get_not_null(value, alter=alter))
                         else:
                             if not_null(value, alter=alter):
@@ -345,7 +387,9 @@ def get_not_null(values, alter=True):
                 if isinstance(values, (tuple)):
                     for value in values:
                         if isinstance(value, all_array_types):
-                            if any_nested_list(array_not_null(value, recursive=True, alter=alter), True):
+                            if any_nested_list(
+                                array_not_null(value, recursive=True, alter=alter), True
+                            ):
                                 dnn = dnn + ((get_not_null(value, alter=alter)),)
                         else:
                             if not_null(value, alter=alter):
@@ -354,14 +398,16 @@ def get_not_null(values, alter=True):
                 if isinstance(values, (set)):
                     for value in values:
                         if isinstance(value, all_array_types):
-                            if any_nested_list(array_not_null(value, recursive=True, alter=alter), True):
+                            if any_nested_list(
+                                array_not_null(value, recursive=True, alter=alter), True
+                            ):
                                 dnn.add(get_not_null(value, alter=alter))
                         else:
                             if not_null(value, alter=alter):
                                 dnn.add(modify(value, alter))
                     return dnn
 
-            elif hasattr(values, '__iter__') and not isinstance(values,str):
+            elif hasattr(values, "__iter__") and not isinstance(values, str):
                 logging.info(values, type(values))
                 logging.info(values.__class__.__name__)
                 raise TypeError("Values is iterable but not recognize")
@@ -371,7 +417,10 @@ def get_not_null(values, alter=True):
             return None
     except Exception as error:
         print_exception()
-        raise ValueError(f"Error while filtering null value from iterable {error}") from error
+        raise ValueError(
+            f"Error while filtering null value from iterable {error}"
+        ) from error
+
 
 def any_nested_list(my_list, item):
     """
@@ -385,15 +434,21 @@ def any_nested_list(my_list, item):
         if item in my_list:
             return True
         else:
-            return any([
-                any_nested_list(sublist, item) for sublist in my_list
-                if isinstance(sublist, (list,tuple,set))
-            ])
+            return any(
+                [
+                    any_nested_list(sublist, item)
+                    for sublist in my_list
+                    if isinstance(sublist, (list, tuple, set))
+                ]
+            )
     except Exception as error:
         print_exception()
-        raise ValueError(f"Error while testing for presence of {item} in {my_list}") from error
+        raise ValueError(
+            f"Error while testing for presence of {item} in {my_list}"
+        ) from error
 
-def simplify_array(values,alter=True):
+
+def simplify_array(values, alter=True):
     """
     List all unique non null value of an array and simplify to None or unique Item.
 
@@ -409,7 +464,7 @@ def simplify_array(values,alter=True):
 
     """
     try:
-        all_val_check = get_not_null(values,alter=alter)
+        all_val_check = get_not_null(values, alter=alter)
         if all_val_check is None:
             return None
         if isinstance(all_val_check, (set, tuple, list)):

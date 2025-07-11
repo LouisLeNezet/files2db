@@ -3,10 +3,9 @@ import pandas as pd
 from typing import Optional, List
 from ..ui.print_infos import print_exception
 
+
 def data_replace(
-    data_se: pd.Series,
-    equiv_data: dict[str, list[str]],
-    to_lower: bool = True
+    data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True
 ):
     """
     Replace all values in a Series based on equivalency mappings.
@@ -47,7 +46,9 @@ def data_replace(
 
     except Exception as exc:
         print_exception()
-        raise RuntimeError("Error while replacing values using equivalency mappings") from exc
+        raise RuntimeError(
+            "Error while replacing values using equivalency mappings"
+        ) from exc
 
 
 def data_del(
@@ -55,8 +56,8 @@ def data_del(
     del_match: Optional[List[str]] = None,
     strip_from: Optional[List[str]] = None,
     del_in: Optional[List[str]] = None,
-    na_value=None
-) -> pd.Series :
+    na_value=None,
+) -> pd.Series:
     """
     Clean and normalize string data in a Pandas Series.
 
@@ -113,7 +114,7 @@ def data_sep(
         return pd.DataFrame(data_se)
 
     # Combine all separators into a single regex pattern
-    regex_pattern = '|'.join(map(re.escape, sep))
+    regex_pattern = "|".join(map(re.escape, sep))
 
     data_se = data_se.astype(str)
     col = data_se.name
@@ -156,8 +157,8 @@ def data_sep_pattern(
         return pd.DataFrame(data_se)
 
     # Extract named groups from the pattern
-    named_groups = re.findall(r'\(\?P<(\w+)>', pattern)
-    
+    named_groups = re.findall(r"\(\?P<(\w+)>", pattern)
+
     flags = re.IGNORECASE if ignore_case else 0
 
     try:

@@ -4,6 +4,7 @@
 Created on Fri Jan 22 10:04:30 2021
 @author: LouisLeNezet
 """
+
 import os
 import settings
 from mainscript import main_loop
@@ -11,7 +12,7 @@ from printconsole import question_to_user, print_d
 from tkinter_gui import MainWindow
 
 
-class App():
+class App:
     """Class for starting the app and select the directory."""
 
     def __init__(self):
@@ -83,6 +84,7 @@ class App():
 
         return settings.PARAMS["PATH_TO_ORGA"]
 
+
 def runApp():
     app = App()
     app.setup()
@@ -91,6 +93,7 @@ def runApp():
     else:
         app.start_script()
     print("End of run module")
+
 
 if __name__ == "__main__":
     runApp()

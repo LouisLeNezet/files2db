@@ -5,6 +5,7 @@ Created on 09/12/2022
 @author: LouisLeNezet
 Modules for all converting functions
 """
+
 import re
 import logging
 import pandas as pd
@@ -36,27 +37,42 @@ def date_convert(date_to_convert):
     """
     try:
         if not_null(date_to_convert):
-            global super_short_date_f, short_date_f, long_date_f, long_date_f_inv, long_date_f_time
-            date_to_convert = date_to_convert.replace("/",".")
+            global \
+                super_short_date_f, \
+                short_date_f, \
+                long_date_f, \
+                long_date_f_inv, \
+                long_date_f_time
+            date_to_convert = date_to_convert.replace("/", ".")
             if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
                 new_date = None
             else:
                 if short_date_f.fullmatch(date_to_convert):
-                    raise TypeError("Format is not reliable please modify it to full year format")
-                    #if date_to_convert[-2:] > "80":  # Siecle dernier
+                    raise TypeError(
+                        "Format is not reliable please modify it to full year format"
+                    )
+                    # if date_to_convert[-2:] > "80":  # Siecle dernier
                     #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
-                    #else:
+                    # else:
                     #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
                 elif long_date_f_time.fullmatch(date_to_convert):
-                    new_date = str(date_to_convert[8:10] + "." +
-                                    date_to_convert[5:7] + "." +
-                                    date_to_convert[0:4])
+                    new_date = str(
+                        date_to_convert[8:10]
+                        + "."
+                        + date_to_convert[5:7]
+                        + "."
+                        + date_to_convert[0:4]
+                    )
                 elif long_date_f.fullmatch(date_to_convert):
                     new_date = str(date_to_convert)
                 elif long_date_f_inv.fullmatch(date_to_convert):
-                    new_date = str(date_to_convert[8:10] + "." +
-                                    date_to_convert[5:7] + "." +
-                                    date_to_convert[0:4])
+                    new_date = str(
+                        date_to_convert[8:10]
+                        + "."
+                        + date_to_convert[5:7]
+                        + "."
+                        + date_to_convert[0:4]
+                    )
                 else:
                     raise TypeError(f"Format not recognised {date_to_convert}")
 
@@ -70,6 +86,7 @@ def date_convert(date_to_convert):
         logging.info(date_to_convert)
         print_exception()
         raise RuntimeError("Error while converting date") from error
+
 
 def check_numeric(value):
     """Check if value is numeric.
@@ -89,6 +106,7 @@ def check_numeric(value):
         return False
     except TypeError:
         return False
+
 
 def num_convert(data, to_type):
     """
@@ -119,13 +137,17 @@ def num_convert(data, to_type):
         num_conv = data.apply(check_numeric)
         data_conv = pd.Series()
         if to_type == "int":
-            data_conv = pd.Series([
-                round(float(x),0) if num else None for x, num in zip(data, num_conv)
-            ])
+            data_conv = pd.Series(
+                [round(float(x), 0) if num else None for x, num in zip(data, num_conv)]
+            )
         if to_type == "float":
-            data_conv = pd.Series([float(x) if num else None for x, num in zip(data, num_conv)])
+            data_conv = pd.Series(
+                [float(x) if num else None for x, num in zip(data, num_conv)]
+            )
 
-        error_conv = ["Cannot be converted to Numeric" if not num else None for num in num_conv]
+        error_conv = [
+            "Cannot be converted to Numeric" if not num else None for num in num_conv
+        ]
         return data_conv, error_conv
     except Exception as error:
         print_exception()
