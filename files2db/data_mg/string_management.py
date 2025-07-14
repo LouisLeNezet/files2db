@@ -2,10 +2,13 @@ import re
 import pandas as pd
 from typing import Optional, List
 from ..ui.print_infos import print_exception
+from .data_convert import date_convert, num_convert
 
 
 def data_replace(
-    data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True
+    data_se: pd.Series,
+    equiv_data: dict[str, list[str]],
+    to_lower: bool = True
 ):
     """
     Replace all values in a Series based on equivalency mappings.
@@ -51,9 +54,11 @@ def data_replace(
         ) from exc
 
 
-def data_del(
+def data_clean(
     data_se: pd.Series,
     del_match: Optional[List[str]] = None,
+    del_start: Optional[List[str]] = None,
+    del_end: Optional[List[str]] = None,
     strip_from: Optional[List[str]] = None,
     del_in: Optional[List[str]] = None,
     na_value=None,
@@ -88,6 +93,13 @@ def data_del(
     if del_match:
         data_se = data_se.replace(del_match, na_value)
 
+    if del_start is not None:
+        for mod_del in del_start:
+            data_se = data_se.str.replace(f"^{mod_del}", "", regex=True)
+    if del_end is not None:
+        for mod_del in del_end:
+            data_se = data_se.str.replace(f"{mod_del}$", "", regex=True)
+
     # Strip after substring
     if strip_from:
         for delim in strip_from:
@@ -99,6 +111,31 @@ def data_del(
             pattern = re.escape(sub)
             data_se = data_se.str.replace(pattern, "", regex=True)
     data_se.name = original_name
+    return data_se
+
+
+def data_conv(
+    data_se : pd.Series,
+    data_type: Optional[str] = None,
+) -> pd.Series:
+    if data_se.empty:
+        return data_se
+
+    if data_type is not None:
+        if data_type == "lower":
+            data_se = data_se.str.lower()
+        elif data_type == "UPPER":
+            data_se = data_se.str.upper()
+        elif data_type == "Title":
+            data_se = data_se.str.title()
+        elif data_type == "date":
+            data_se = data_se.str.replace("-", ".", regex=False)
+            data_se = data_se.apply(lambda row: date_convert(row))
+        elif data_type in ["int", "float"]:
+            data_se = num_convert(data_se, to_type=data_type)
+        else:
+            raise ValueError(f"Unknown case type: {data_type}")
+
     return data_se
 
 
@@ -132,6 +169,7 @@ def data_sep(
 def data_sep_pattern(
     data_se: pd.Series,
     pattern: Optional[str] = None,
+    keep_link: bool = False,
     ignore_case: bool = True,
 ) -> pd.DataFrame:
     """
@@ -159,6 +197,9 @@ def data_sep_pattern(
     # Extract named groups from the pattern
     named_groups = re.findall(r"\(\?P<(\w+)>", pattern)
 
+    if not named_groups:
+        raise ValueError("No named groups found in the regex pattern.")
+
     flags = re.IGNORECASE if ignore_case else 0
 
     try:
@@ -166,5 +207,15 @@ def data_sep_pattern(
         data_match = data_se.astype(str).str.extract(pattern, flags=flags)
     except re.error as exc:
         raise ValueError(f"Invalid regex pattern: {exc}")
+    
+    # Keep only named groups
+    data_match = data_match.loc[:, named_groups]
 
-    return data_match.loc[:, named_groups]
+    if keep_link:
+        # Add the column original name to the new columns
+        data_match.columns = [
+            f"{data_se.name}_{col}"
+            for col in data_match.columns
+        ]
+
+    return data_match

@@ -154,6 +154,18 @@ class TestDataSepPattern(unittest.TestCase):
         )
         assert_frame_equal(df, expected)
 
+    def test_no_named_groups(self):
+        s = pd.Series(["abc", "def"])
+        pattern = r"\d+"
+        with self.assertRaises(ValueError):
+            data_sep_pattern(s, pattern)
+
+    def test_keep_link_to_column(self):
+        s = pd.Series(["abc", "def"], name="test_col")
+        pattern = r"(?P<letter>[a-z]+)"
+        df = data_sep_pattern(s, pattern, keep_link=True)
+        expected = pd.DataFrame({"test_col_letter": ["abc", "def"]})
+        assert_frame_equal(df, expected)
 
 if __name__ == "__main__":
     unittest.main()

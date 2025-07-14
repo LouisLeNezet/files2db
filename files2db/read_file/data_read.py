@@ -10,6 +10,8 @@ import re
 import logging
 import pandas as pd
 
+from ..ui.get_infos import get_file_path
+
 
 def columns_convert(col):
     """Convert column letters to integers."""
@@ -171,3 +173,30 @@ def read_file(
     file_to_add = file_read.iloc[:, col_start - 1 : col_end]
 
     return file_to_add
+
+
+def check_files_exist(files_path: pd.Series):
+    """Check for the existence of all files in the given series
+
+    Parameters
+    ----------
+    files_path : pd.Series
+        Series containing the files paths to check
+
+    Raises
+    ------
+    FileNotFoundError
+        File not found, could not access the file.
+    """
+    # Check for all file if accessible
+    for file_path in files_path:
+        # Change '/' to '\\'
+        file_path = get_file_path(file_path.replace("/", "\\"))
+        if int(os.path.isfile(file_path)):
+            pass
+        else:
+            logging.error(
+                "Couldn't access file:\n%s\nPlease make sure the file is present",
+                file_path,
+            )
+            raise FileNotFoundError("Couldn't access File")
