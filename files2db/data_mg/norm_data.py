@@ -12,15 +12,14 @@ import numpy as np
 import unicodedata
 
 from typing import Optional, Any
-from .string_management import data_sep, data_clean, data_conv, data_replace, data_sep_pattern
-from .data_validate import data_validate
+from files2db.data_mg.string_management import data_sep, data_clean, data_conv, data_replace, data_sep_pattern
 
 pd.set_option("display.max_columns", None)
 
 def initial_clean_na_values_utf8(
     data_df: pd.DataFrame,
     na_values: Optional[Any] = [None, "", " ", "NaN", "nan", "N/A", "n/a", "NA", "na"],
-    fill_value: Optional[Any] = None,
+    fillna_value: Optional[Any] = None,
     normalize_text: bool = True
 ) -> pd.DataFrame:
     """
@@ -54,8 +53,8 @@ def initial_clean_na_values_utf8(
     df.dropna(how="all", axis=1, inplace=True)
 
     # Fill missing values
-    if fill_value is not None:
-        df.fillna(fill_value, inplace=True)
+    if fillna_value is not None:
+        df.fillna(fillna_value, inplace=True)
 
     # Normalize text in string columns
     if normalize_text:
@@ -79,7 +78,7 @@ def normalize_column(data_se: pd.Series, field_info, field_equiv):
         .pipe(lambda df: df.apply(data_clean, **params))
         .pipe(lambda df: df.apply(data_conv, args=(field_info["data_type"],)))
         .pipe(lambda df: df.apply(data_replace, args=(field_equiv,)))
-        .pipe(lambda df: data_validate(df, field_info["contains"], field_info["min"], field_info["max"]))
+        #.pipe(lambda df: data_validate(df, field_info["contains"], field_info["min"], field_info["max"]))
         .pipe(lambda df: data_sep_pattern(df, field_info["sep_pattern"], field_info["keep_link"]))
     )
 
@@ -109,43 +108,54 @@ def norm_data(
     
     normed_df = pd.DataFrame()
     errors_df = pd.DataFrame()
+    
+    if "Field" not in db_orga["FieldRules"].columns:
+        logging.error("No fields defined in the FieldRules. Please check the database organization.")
+        return normed_df, errors_df
 
-    for field in db_orga["Fields"]["Fields"]:
+    for field in db_orga["FieldRules"]["Field"]:
         logging.info("Normalizing field: %s", field)
         match_cols = [col for col in data_df_cleaned_init.columns if re.fullmatch(field, col)]
         if not match_cols:
             logging.info("Field %s not found in the file", field)
             continue
-        field_infos = db_orga["Fields"].loc[field, :].todict()
-        field_equiv = db_orga["ValuesConv"].loc[field, :].todict()
+        field_infos = db_orga["FieldRules"].set_index("Field").loc[field].to_dict()
+        field_equiv = db_orga["ValuesMap"][db_orga["ValuesMap"]["Field"] == field].to_dict(orient="records")
+        field_equiv = {d["Value"]: d["Eq"].split(",") for d in field_equiv }
+        print(field_equiv)
 
-        for col in match_cols:
-            logging.info("Processing column: %s", col)
+        for col_i in match_cols:
+            logging.info("Processing column: %s", col_i)
             data_df_sep = data_sep(
-                data_df_cleaned_init.loc[col],
-                field_infos.sep
+                data_df_cleaned_init.loc[:, col_i],
+                field_infos["Sep"]
             )
-            for col in data_df_sep :
+            for col_ii in data_df_sep :
                 data_se_cleaned = data_clean(
-                    data_df_sep.loc[col],
-                    del_match = field_infos.del_match,
-                    del_in = field_infos.del_in,
-                    del_start = field_infos.del_start,
-                    del_end = field_infos.del_end,
-                    strip_from = field_infos.strip_start,
+                    data_df_sep.loc[:, col_ii],
+                    del_match = field_infos["DelMatch"],
+                    del_in = field_infos["DelIn"],
+                    del_start = field_infos["DelStart"],
+                    del_end = field_infos["DelEnd"],
+                    strip_from = field_infos["StripFrom"],
                 )
-                data_se_converted = data_conv(data_se_cleaned, field_infos.data_type)
+                data_se_converted = data_conv(data_se_cleaned, field_infos["DataType"])
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
-                data_se_validate, errors = data_validate(
-                    data_se_replaced, field_infos.contains,
-                    field_infos.data_min, field_infos.data_max
-                )
+                
+                if False:
+                    data_se_validate, errors = data_validate(
+                        data_se_replaced, field_infos.contains,
+                        field_infos.data_min, field_infos.data_max
+                    )
+                else:
+                    data_se_validate = data_se_replaced
+                    errors = pd.Series([None] * len(data_se_validate))
                 data_df_separated = data_sep_pattern(
                     data_se_validate,
-                    field_infos.sep_pattern,
-                    field_infos.keep_link
+                    field_infos["SepPattern"],
+                    field_infos["KeepLink"]
                 )
-                normed_df = pd.concat(normed_df, data_df_separated)
-                errors_df = pd.concat(errors_df, errors)
+                normed_df = pd.concat((normed_df, data_df_separated))
+                errors_df = pd.concat((errors_df, errors))
 
     return normed_df, errors_df

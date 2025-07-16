@@ -52,6 +52,16 @@ def iterate_file(file):
         
         logging.info("Processing file: %s", file_name)
 
+        # Set default for encoding and separator if not provided
+        encoding=file_infos.get("Encoding", "utf8")
+        sep=file_infos.get("Separator", "\t")
+
+        if pd.isna(sep) or sep == "":
+            sep = "\t"
+        
+        if pd.isna(encoding) or encoding == "":
+            encoding = "utf8"
+
         # Read  file
         try:
             file_data = read_file(
@@ -62,8 +72,8 @@ def iterate_file(file):
                 col_start=file_infos.get("ColStart"),
                 col_end=file_infos.get("ColEnd"),
                 sheet_name=file_infos.get("SheetName"),
-                encoding=file_infos.get("Encoding", "utf8"),
-                sep=file_infos.get("Sep", "\t"),
+                encoding=encoding,
+                sep=sep,
             )
         except FileNotFoundError as e:
             raise FileNotFoundError(f"File not found: {file_path}") from e
@@ -72,6 +82,8 @@ def iterate_file(file):
 
         if "FileName" not in file_data.columns:
             file_data["FileName"] = file_name
+
+        print(file_name)
 
         for col in metadata_columns:
             col_name = col.replace("meta_", "")

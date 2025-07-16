@@ -20,7 +20,10 @@ long_date_f_inv = re.compile(r"\d\d\d\d\.\d\d\.\d\d")
 long_date_f_time = re.compile(r"\d\d\d\d-\d\d-\d\d00:00:00")
 
 
-def date_convert(date_to_convert):
+def date_convert(
+    date_to_convert: str,
+    na_values: list = ["", None, "NaN", "nan"]
+) -> str:
     """
     Convert a string representing a date into a unique format.
 
@@ -35,57 +38,55 @@ def date_convert(date_to_convert):
         Date in the right format.
 
     """
-    try:
-        if not_null(date_to_convert):
-            global \
-                super_short_date_f, \
-                short_date_f, \
-                long_date_f, \
-                long_date_f_inv, \
-                long_date_f_time
-            date_to_convert = date_to_convert.replace("/", ".")
-            if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
-                new_date = None
-            else:
-                if short_date_f.fullmatch(date_to_convert):
-                    raise TypeError(
-                        "Format is not reliable please modify it to full year format"
-                    )
-                    # if date_to_convert[-2:] > "80":  # Siecle dernier
-                    #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
-                    # else:
-                    #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
-                elif long_date_f_time.fullmatch(date_to_convert):
-                    new_date = str(
-                        date_to_convert[8:10]
-                        + "."
-                        + date_to_convert[5:7]
-                        + "."
-                        + date_to_convert[0:4]
-                    )
-                elif long_date_f.fullmatch(date_to_convert):
-                    new_date = str(date_to_convert)
-                elif long_date_f_inv.fullmatch(date_to_convert):
-                    new_date = str(
-                        date_to_convert[8:10]
-                        + "."
-                        + date_to_convert[5:7]
-                        + "."
-                        + date_to_convert[0:4]
-                    )
-                else:
-                    raise TypeError(f"Format not recognised {date_to_convert}")
+    if not isinstance(date_to_convert, str):
+        raise TypeError("date_to_convert should be a string")
+    if date_to_convert in na_values:
+        return None
 
-            if not_null(new_date):
-                return new_date
-            else:
-                return None
+    global \
+        super_short_date_f, \
+        short_date_f, \
+        long_date_f, \
+        long_date_f_inv, \
+        long_date_f_time
+
+    date_to_convert = date_to_convert.replace("/", ".")
+    if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
+        new_date = None
+    else:
+        if short_date_f.fullmatch(date_to_convert):
+            raise TypeError(
+                "Format is not reliable please modify it to full year format"
+            )
+            # if date_to_convert[-2:] > "80":  # Siecle dernier
+            #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
+            # else:
+            #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
+        elif long_date_f_time.fullmatch(date_to_convert):
+            new_date = str(
+                date_to_convert[8:10]
+                + "."
+                + date_to_convert[5:7]
+                + "."
+                + date_to_convert[0:4]
+            )
+        elif long_date_f.fullmatch(date_to_convert):
+            new_date = str(date_to_convert)
+        elif long_date_f_inv.fullmatch(date_to_convert):
+            new_date = str(
+                date_to_convert[8:10]
+                + "."
+                + date_to_convert[5:7]
+                + "."
+                + date_to_convert[0:4]
+            )
         else:
-            return None
-    except Exception as error:
-        logging.info(date_to_convert)
-        print_exception()
-        raise RuntimeError("Error while converting date") from error
+            raise TypeError(f"Format not recognised {date_to_convert}")
+
+    if not_null(new_date):
+        return new_date
+    else:
+        return None
 
 
 def check_numeric(value):
@@ -108,7 +109,10 @@ def check_numeric(value):
         return False
 
 
-def num_convert(data, to_type):
+def num_convert(
+    data_se: pd.Series,
+    to_type: str = "float"  # Default to float, can be 'int' or 'float'
+)-> pd.Series:
     """
     Convert string pandas Series to numeric while checking for errors and setting the type.
 
@@ -132,23 +136,16 @@ def num_convert(data, to_type):
         List of the errors obtained.
 
     """
-    try:
-        data = data.astype(str).str.replace(",", ".")
-        num_conv = data.apply(check_numeric)
-        data_conv = pd.Series()
-        if to_type == "int":
-            data_conv = pd.Series(
-                [round(float(x), 0) if num else None for x, num in zip(data, num_conv)]
-            )
-        if to_type == "float":
-            data_conv = pd.Series(
-                [float(x) if num else None for x, num in zip(data, num_conv)]
-            )
+    data = data_se.astype(str).str.replace(",", ".")
+    num_conv = data.apply(check_numeric)
+    data_conv = pd.Series()
+    if to_type == "int":
+        data_conv = pd.Series(
+            [round(float(x), 0) if num else None for x, num in zip(data, num_conv)]
+        )
+    if to_type == "float":
+        data_conv = pd.Series(
+            [float(x) if num else None for x, num in zip(data, num_conv)]
+        )
 
-        error_conv = [
-            "Cannot be converted to Numeric" if not num else None for num in num_conv
-        ]
-        return data_conv, error_conv
-    except Exception as error:
-        print_exception()
-        raise ValueError("Error while converting to numeric") from error
+    return data_conv

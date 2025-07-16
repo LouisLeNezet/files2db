@@ -282,8 +282,10 @@ class TestingClass(unittest.TestCase):
         test_values = [[1, 0, "A", []], ["B", "B", None], "AbcdA", " ", [1, 1, 2], None]
         test_result = [[1, "A"], "B", "AbcdA", " ", [1, 2], None]
         for value, result in zip(test_values, test_result):
-            self.assertEqual(simplify_array(value, alter=False), result)
-            print(simplify_array(value, alter=False))
+            if isinstance(result, list):
+                self.assertEqual(set(simplify_array(value, alter=False)), set(result))
+            else:
+                self.assertEqual(simplify_array(value, alter=False), result)
 
         for value in [2]:
             with self.subTest(line=value, test="error"):

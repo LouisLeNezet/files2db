@@ -1,8 +1,6 @@
-﻿Field;Category;Sep;Del;DelIn;DelStart;DelEnd;StripFrom;Type;Contains;Min;Max;SepPattern;KeepLink
-Name;ID;;;;;;;string;;;;;
-FirstName;ID;;;;;;;string;;;;;
-Health;Health;;;;;;;string;;;;;
-Age;Infos;;;;;;;int;;;;;
-;;;;;;;;;;;;;
-;;;;;;;;;;;;;
-;;;;;;;;;;;;;
+﻿Field;Category;Sep;DelMatch;DelIn;DelStart;DelEnd;StripFrom;DataType;Contains;Min;Max;SepPattern;KeepLink
+ColE;Other;;;;;;;string;;;;;
+ColA;ID;;;;;;;int;;;;;
+ColB;ID;;DelMatchItIs;;;;;string;;;;;
+ColC;Infos;;;;;;;string;;;;;
+ColD;Date;;;;;;;date;;;;;

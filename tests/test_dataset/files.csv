@@ -1,3 +1,4 @@
-﻿meta_EmplacementOrigine;OlderFileName;FileName;FilePath;SheetName;LineStart;LineEnd;Header;ColStart;ColEnd;meta_Author;InfosSup;ToAdd;AsCorrection;meta_DateFileCreation
-Somewhere;MySpecialFile;FileA;./tests/test_dataset/files/fileA.xlsx;Feuil1;5;6;3;C;E;Myself;NA;1;;
-SomewhereElse;;FileB;./tests/test_dataset/files/fileB.csv;;2;3;1;A;C;NA;NA;1;;
+﻿meta_EmplacementOrigine;OlderFileName;FileName;FilePath;SheetName;Separator;LineStart;LineEnd;Header;ColStart;ColEnd;meta_Author;InfosSup;ToAdd;AsCorrection;meta_DateFileCreation
+Somewhere;MySpecialFile;FileA;./tests/test_dataset/files/fileA.xlsx;Feuil1;;5;6;3;C;E;Myself;NA;1;;
+SomewhereElse;;FileB;./tests/test_dataset/files/fileB.csv;;;2;3;1;A;C;NA;NA;1;;
+Elsewhere;;FileC;./tests/test_dataset/files/fileC.csv;;";";2;3;1;A;E;NA;NA;1;;

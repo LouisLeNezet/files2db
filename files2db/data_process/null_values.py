@@ -27,7 +27,7 @@ def modify(value, alter=True):
     Returns
     -------
     _type_
-       Modified value, if null replaced by None.
+        Modified value, if null replaced by None.
 
     Raises
     ------
@@ -60,7 +60,7 @@ def all_modify(values, alter=True):
     Returns
     -------
     _type_
-       All elements with same architecture modified
+        All elements with same architecture modified
 
     Raises
     ------

@@ -32,26 +32,35 @@ def data_replace(
     RuntimeError
         If replacement fails.
     """
-    try:
-        replace_dict = {}
+    print(data_se)
+    if data_se.empty:
+        return data_se
 
-        for norm_val, equivalents in equiv_data.items():
-            if to_lower:
-                norm_val = norm_val.lower()
-                equivalents = [val.lower() for val in equivalents]
-            for eq in equivalents:
-                replace_dict[eq] = norm_val
+    if not isinstance(equiv_data, dict):
+        raise TypeError("equiv_data should be a dictionary")
+    if not all(isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()):
+        raise TypeError("equiv_data should be a dictionary with string keys and list values")
+    if not all(isinstance(val, str) for sublist in equiv_data.values() for val in sublist):
+        raise TypeError("All values in equiv_data should be strings")
+    if equiv_data == {}:
+        return data_se
+    
+    if not isinstance(data_se, pd.Series):
+        raise TypeError("data_se should be a Pandas Series")
 
+    replace_dict = {}
+
+    for norm_val, equivalents in equiv_data.items():
         if to_lower:
-            data_se = data_se.str.lower()
+            norm_val = norm_val.lower()
+            equivalents = [val.lower() for val in equivalents]
+        for eq in equivalents:
+            replace_dict[eq] = norm_val
 
-        return data_se.replace(replace_dict)
+    if to_lower:
+        data_se = data_se.str.lower()
 
-    except Exception as exc:
-        print_exception()
-        raise RuntimeError(
-            "Error while replacing values using equivalency mappings"
-        ) from exc
+    return data_se.replace(replace_dict)
 
 
 def data_clean(
@@ -133,6 +142,11 @@ def data_conv(
             data_se = data_se.apply(lambda row: date_convert(row))
         elif data_type in ["int", "float"]:
             data_se = num_convert(data_se, to_type=data_type)
+        elif data_type == "string":
+            data_se = data_se.astype(str)
+        elif data_type == "bool":
+            data_se = data_se.str.lower().replace({"true": True, "false": False})
+            data_se = data_se.astype(bool)
         else:
             raise ValueError(f"Unknown case type: {data_type}")
 
@@ -151,6 +165,7 @@ def data_sep(
         return pd.DataFrame(data_se)
 
     # Combine all separators into a single regex pattern
+    print(sep)
     regex_pattern = "|".join(map(re.escape, sep))
 
     data_se = data_se.astype(str)

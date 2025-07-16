@@ -39,7 +39,7 @@ def data_contains(
     else:
         return pd.Series([True] * len(data_se))
 
-def data_vali(data_df, params):
+def data_validate(data_df, params):
     try:
         all_errors = None
         errors = []

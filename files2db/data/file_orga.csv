@@ -1,4 +1,4 @@
 file,columns_needed,columns_sup,integer
-Files,"FilePath,SheetName,LineStart,LineEnd,Header,ColStart,ColEnd,ToAdd,AsCorrection",True,"Header,LineStart,LineEnd,ToAdd,AsCorrection"
-FieldRules,"Field,Category,Sep,Del,DelEnd,DelIn,DelStart,DelEnd,StripFrom,Type,Contains,Min,Max,SepPattern,KeepLink",False,"Min,Max"
+Files,"FilePath,SheetName,LineStart,LineEnd,Header,ColStart,ColEnd,ToAdd,AsCorrection,Separator",True,"Header,LineStart,LineEnd,ToAdd,AsCorrection"
+FieldRules,"Field,Category,Sep,DelMatch,DelEnd,DelIn,DelStart,DelEnd,StripFrom,DataType,Contains,Min,Max,SepPattern,KeepLink",False,"Min,Max"
 ValuesMap,"Field,Eq,Value",False,""

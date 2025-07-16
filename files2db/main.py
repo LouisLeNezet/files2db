@@ -76,6 +76,9 @@ def main(
         logging.error("An error occurred while iterating through the files: %s", e)
         return
 
+    logging.debug(all_data_raw.head())
+    logging.info("All data concatenated successfully")
+
     # Check if output folder exists, if not create it
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -90,7 +93,7 @@ def main(
     # Normalize data
     if normalize:
         logging.info("Normalizing data...")
-        all_data, all_errors = norm_data(all_data_raw)
+        all_data, all_errors = norm_data(all_data_raw, db_get)
 
         # Save normalized data
         save_path = os.path.join(
@@ -110,6 +113,8 @@ def main(
             logging.info("No errors found in the data")
 
     logging.info("Concatenation completed successfully")
+    
+    return all_data_raw, all_data if normalize else None, all_errors if normalize else None
 
 
 if __name__ == "__main__":

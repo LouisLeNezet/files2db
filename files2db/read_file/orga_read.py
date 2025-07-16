@@ -10,6 +10,7 @@ import logging
 import re
 from importlib import resources
 import pandas as pd
+import numpy as np
 from openpyxl import load_workbook
 from ..ui.get_infos import get_file_path
 from ..read_file.data_read import read_file
@@ -158,5 +159,10 @@ def get_db_from_path(path_file: str, db_orga: dict) -> dict:
         )
 
     db_dict = validate_columns_orga(db_orga, db_dict)
+    
+    # Change all nan values to None
+    for _, df in db_dict.items():
+        df.replace(np.nan, None, inplace=True)
+        df.infer_objects(copy=False)
 
     return db_dict

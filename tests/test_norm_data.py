@@ -1,8 +1,6 @@
-
 import unittest
 import pandas as pd
-import numpy as np
-from pandas.testing import assert_series_equal, assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 from files2db.data_mg.norm_data import initial_clean_na_values_utf8
 

@@ -1,5 +1,3 @@
 ﻿Field;Eq;Value
-Sexe;mâle,male,m,;m
-Sexe;femelle,f;f
-Sexe;nr,nd,na;
-Date;-;.
+ColE;A,otherA;MyA
+ColE;B;MyB
