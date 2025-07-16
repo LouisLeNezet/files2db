@@ -47,7 +47,7 @@ def validate_files_presence(files_needed: set, files_available: set, path: str):
 
     if missing_files:
         raise KeyError(
-            f"Missing files {sorted(missing_files)} in my_organisation file {path}"
+            f"Missing files {", ".join(sorted(missing_files))} in my_organisation file {path}"
         )
 
     if extra_files:

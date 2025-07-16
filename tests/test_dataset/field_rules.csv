@@ -1,0 +1,8 @@
+﻿Field;Category;Sep;Del;DelIn;DelStart;DelEnd;StripFrom;Type;Contains;Min;Max;SepPattern;KeepLink
+Name;ID;;;;;;;string;;;;;
+FirstName;ID;;;;;;;string;;;;;
+Health;Health;;;;;;;string;;;;;
+Age;Infos;;;;;;;int;;;;;
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;

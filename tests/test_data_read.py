@@ -154,7 +154,7 @@ class TestingClass(unittest.TestCase):
         with self.assertRaises(KeyError):
             read_file(file_path)
         data = read_file(file_path, sep=",")
-        self.assertEqual(data.shape[0], 5)
+        self.assertEqual(data.shape[0], 3)
         self.assertEqual(data.shape[1], 3)
         self.assertEqual(data.columns[0], "file")
 

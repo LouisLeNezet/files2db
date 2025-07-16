@@ -27,7 +27,7 @@ class TestValidateFiles(unittest.TestCase):
         """Test missing files detection."""
         with self.assertRaises(KeyError) as context:
             validate_files_presence({"file1", "file2"}, {"file1"}, "test.xlsx")
-        self.assertIn("Missing files ['file2']", str(context.exception))
+        self.assertIn("Missing files file2", str(context.exception))
 
     @patch("logging.warning")
     def test_validate_files_presence_extra_files(self, mock_log):
@@ -53,7 +53,7 @@ class TestingLoadFileOrga(unittest.TestCase):
         db_orga = load_file_orga()
         self.assertEqual(
             list(db_orga.keys()),
-            ["Files", "Fields", "ValuesConv", "Formats", "FieldsOrga"],
+            ["Files", "FieldRules", "ValuesMap"],
         )
         self.assertEqual(
             list(db_orga["Files"].keys()), ["columns_needed", "columns_sup", "integer"]
@@ -178,7 +178,7 @@ class TestGetDBFromExcel(unittest.TestCase):
         file_path = os.path.join(self.test_data_path, "RepTest_wrong.xlsx")
         with self.assertRaises(KeyError) as context:
             get_db_from_excel(file_path, load_file_orga())
-        self.assertIn("Missing files ['FieldsOrga',", str(context.exception))
+        self.assertIn("'Missing files ValuesMap in", str(context.exception))
 
     @patch("logging.warning")
     def test_get_db_from_path_correct(self, mock_log):
@@ -186,11 +186,11 @@ class TestGetDBFromExcel(unittest.TestCase):
         file_path = os.path.join(self.test_data_path, "RepTest_correct.xlsx")
         db_orga = get_db_from_path(file_path, load_file_orga())
         mock_log.assert_called_once_with(
-            "Extra columns %s in %s and won't be used", {"OptColToNotUse"}, "Formats"
+            "Extra columns %s in %s and won't be used", {"OptColToNotUse"}, "FieldRules"
         )
         self.assertEqual(
             set(db_orga.keys()),
-            set(["Files", "Fields", "FieldsOrga", "Formats", "ValuesConv"]),
+            set(["Files", "FieldRules", "ValuesMap"]),
         )
         self.assertEqual(db_orga["Files"].shape, (2, 21))
 
@@ -222,7 +222,7 @@ class TestGetDBFromCSV(unittest.TestCase):
         db_orga = get_db_from_csv(file_path, load_file_orga())
         self.assertEqual(
             set(db_orga.keys()),
-            set(["Files", "Fields", "FieldsOrga", "Formats", "ValuesConv"]),
+            set(["Files", "FieldRules", "ValuesMap"]),
         )
         self.assertEqual(db_orga["Files"].shape, (2, 15))
 

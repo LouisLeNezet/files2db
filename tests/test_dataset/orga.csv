@@ -1,6 +1,4 @@
 file,path,sep
 Files,./tests/test_dataset/files.csv,";"
-Formats,./tests/test_dataset/formats.csv,";"
-ValuesConv,./tests/test_dataset/values.csv,";"
-Fields,./tests/test_dataset/fields.csv,";"
-FieldsOrga,./tests/test_dataset/fields_orga.csv,";"
+ValuesMap,./tests/test_dataset/values_map.csv,";"
+FieldRules,./tests/test_dataset/field_rules.csv,";"
