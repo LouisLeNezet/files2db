@@ -152,7 +152,7 @@ def norm_data(
                     fillna_value=fillna_value
                 )
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
-                
+
                 errors = data_validate(
                     data_se_replaced, field_infos["Contains"],
                     field_infos["Min"], field_infos["Max"]

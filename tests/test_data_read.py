@@ -147,7 +147,7 @@ class TestingClass(unittest.TestCase):
         file_path = os.path.join(self.test_data_path, "orga_non_existent.csv")
         with self.assertRaises(FileNotFoundError):
             read_file(file_path)
-        file_path = os.path.join(self.test_data_path, "../test_convert.py")
+        file_path = os.path.join(self.test_data_path, "../test_data_convert.py")
         with self.assertRaises(TypeError):
             read_file(file_path)
         file_path = os.path.join(self.test_data_path, "orga.csv")

@@ -149,7 +149,7 @@ def num_convert(
     data_conv = pd.Series()
     if to_type == "int":
         data_conv = pd.Series(
-            [round(float(x), 0) if num else fillna_value for x, num in zip(data, num_conv)]
+            [int(round(float(x), 0)) if num else fillna_value for x, num in zip(data, num_conv)]
         )
     if to_type == "float":
         data_conv = pd.Series(

@@ -63,6 +63,7 @@ class TestMainFunction(unittest.TestCase):
         # Check dimensions of the raw DataFrame
         self.assertEqual(df_raw.shape, (7, 10), "Raw DataFrame should have 6 rows and 10 columns")
         self.assertEqual(df_norm.shape, (7, 11), "Normalized DataFrame should have 6 rows and 7 columns")
+        self.assertEqual(df_error.shape, (7, 7), "Error DataFrame should have 6 rows and 1 column")
 
 if __name__ == "__main__":
     unittest.main()
