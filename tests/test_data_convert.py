@@ -12,6 +12,7 @@ import numpy as np
 from files2db.data_mg.data_convert import date_convert, num_convert, check_numeric
 from pandas.testing import assert_series_equal
 
+
 class TestingClass(unittest.TestCase):
     """Class for testing"""
 
@@ -45,7 +46,7 @@ class TestingClass(unittest.TestCase):
         error_msg = [
             "Format is not reliable please modify it to full year format",
             "Format is not reliable please modify it to full year format",
-            "Format not recognised WrongFormat"
+            "Format not recognised WrongFormat",
         ]
         for value, err in zip(test_values, error_msg):
             with self.subTest(line=value):
@@ -67,7 +68,9 @@ class TestingClass(unittest.TestCase):
             }
         )
         test_result_int = pd.Series([0, np.nan, np.nan, np.nan, 5, 0, np.nan, 6])
-        test_result_float = pd.Series([0.0, np.nan, np.nan, np.nan, 4.50001, 0.00004, np.nan, 5.6498798])
+        test_result_float = pd.Series(
+            [0.0, np.nan, np.nan, np.nan, 4.50001, 0.00004, np.nan, 5.6498798]
+        )
 
         with self.subTest(line=test_values, to_type="int"):
             data = num_convert(test_values, "int")
@@ -77,9 +80,7 @@ class TestingClass(unittest.TestCase):
             assert_series_equal(data, test_result_float)
 
         with self.subTest(line="Unittest", type="error"):
-            with self.assertRaisesRegex(
-                Exception, "data_se should be a Pandas Series"
-            ):
+            with self.assertRaisesRegex(Exception, "data_se should be a Pandas Series"):
                 num_convert(["A", "B"], to_type="int")
 
     def test_check_numeric(self):

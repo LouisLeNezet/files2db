@@ -3,9 +3,9 @@ from typing import Dict, Optional
 
 from ..data_process.null_values import is_null, get_not_null
 
+
 def conca_simplify(
-    data_df: pd.DataFrame,
-    col_names: Optional[Dict[str, list]] = None
+    data_df: pd.DataFrame, col_names: Optional[Dict[str, list]] = None
 ) -> pd.Series:
     """Simplify a nested dataframe into a single column.
 
@@ -31,13 +31,7 @@ def conca_simplify(
         nest_array = data_df.values.tolist()
         nest_array = [get_not_null(x) for x in nest_array]
         nest_array = [
-            None
-            if is_null(x)
-            else x
-            if len(x) > 1
-            else x[0]
-            if len(x) == 1
-            else None
+            None if is_null(x) else x if len(x) > 1 else x[0] if len(x) == 1 else None
             for x in nest_array
         ]
         return nest_array
@@ -55,38 +49,6 @@ def conca_simplify(
                 )
                 data_df.drop(all_col.values(), axis=1, inplace=True)
         return conca_simplify(data_df)
-
-
-def conca_data(row):
-    """
-    Concatenate all data in list or unique if only one.
-
-    Parameters
-    ----------
-    row : Serie
-        Row to concatenate.
-
-    Returns
-    -------
-    Array or String
-        All data available.
-
-    """
-    try:
-        all_data_check = []
-        for x in range(len(row)):
-            if not_null(row[x]):
-                all_data_check.append(row[x])
-        if len(all_data_check) == 0:
-            return ""
-        elif len(all_data_check) == 1:
-            return all_data_check[0]
-        else:
-            return all_data_check
-
-    except RuntimeError as exc:
-        print_exception()
-        return f"Error: {exc}"
 
 
 def nested_serie_test(data, value, test):
@@ -140,39 +102,8 @@ def nested_serie_test(data, value, test):
         raise ValueError(f"Test {test} given isn't recognize")
 
 
-def error_register(df_errors):
-    """
-    Generate a list with all the errors as independent document.
-
-    Parameters
-    ----------
-    df_errors : Dataframe
-        The dataframe with all the errors by rows.
-
-    Returns
-    -------
-    errors : list
-        List of dictionnaries of each row of the dataframe with the index added.
-
-    """
-    try:
-        errors = []
-        values = df_errors.to_dict("records")
-        for index, val in zip(df_errors.index, values):
-            error = {}
-            if not_null(val) and any(array_not_null(val)):
-                error.update(get_not_null(val))
-                error.update({"Index": index})
-                errors.append(error)
-        return errors
-    except Exception as exc:
-        print_exception()
-        raise RuntimeError("Error while registering error") from exc
-
-
 def check_pd_series(
-    data_se: pd.Series,
-    type_check: Optional[tuple] = ("str", "int")
+    data_se: pd.Series, type_check: Optional[tuple] = ("str", "int")
 ) -> bool:
     """
     Check if the input is a Pandas Series.

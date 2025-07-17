@@ -1,7 +1,5 @@
 import unittest
-import pandas as pd
 import os
-from pandas.testing import assert_frame_equal
 
 from files2db.main import main
 
@@ -34,10 +32,12 @@ class TestMainFunction(unittest.TestCase):
         # Check if the output DataFrames are not None
         self.assertIsNotNone(df_raw, "Raw DataFrame should not be None")
         self.assertIsNone(df_norm, "Normalized DataFrame should be None")
-        
+
         # Check dimensions of the raw DataFrame
-        self.assertEqual(df_raw.shape, (7, 10), "Raw DataFrame should have 7 rows and 10 columns")
-    
+        self.assertEqual(
+            df_raw.shape, (7, 10), "Raw DataFrame should have 7 rows and 10 columns"
+        )
+
     def test_main_function_with_normalisation(self):
         """Test the main function with a sample path and options."""
         # Define a sample path and options
@@ -59,8 +59,15 @@ class TestMainFunction(unittest.TestCase):
         self.assertIsNotNone(df_norm, "Normalized DataFrame should not be None")
 
         # Check dimensions of the raw DataFrame
-        self.assertEqual(df_raw.shape, (7, 10), "Raw DataFrame should have 6 rows and 10 columns")
-        self.assertEqual(df_norm.shape, (7, 12), "Normalized DataFrame should have 6 rows and 7 columns")
+        self.assertEqual(
+            df_raw.shape, (7, 10), "Raw DataFrame should have 6 rows and 10 columns"
+        )
+        self.assertEqual(
+            df_norm.shape,
+            (7, 12),
+            "Normalized DataFrame should have 6 rows and 7 columns",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

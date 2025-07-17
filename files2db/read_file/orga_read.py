@@ -48,7 +48,7 @@ def validate_files_presence(files_needed: set, files_available: set, path: str):
 
     if missing_files:
         raise KeyError(
-            f"Missing files {", ".join(sorted(missing_files))} in my_organisation file {path}"
+            f"Missing files {', '.join(sorted(missing_files))} in my_organisation file {path}"
         )
 
     if extra_files:
@@ -159,7 +159,7 @@ def get_db_from_path(path_file: str, db_orga: dict) -> dict:
         )
 
     db_dict = validate_columns_orga(db_orga, db_dict)
-    
+
     # Change all nan values to None
     for _, df in db_dict.items():
         df.replace(np.nan, None, inplace=True)

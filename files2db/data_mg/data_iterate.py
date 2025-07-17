@@ -3,6 +3,7 @@ import logging
 from ..read_file.data_read import read_file
 from ..ui.get_infos import get_file_path
 
+
 def iterate_file(file):
     """Iterate through all files in the database
 
@@ -49,16 +50,16 @@ def iterate_file(file):
         file_infos = file.loc[index].copy()
         file_name = file_infos["FileName"]
         file_path = get_file_path(file_infos["FilePath"])
-        
+
         logging.info("Processing file: %s", file_name)
 
         # Set default for encoding and separator if not provided
-        encoding=file_infos.get("Encoding", "utf8")
-        sep=file_infos.get("Separator", "\t")
+        encoding = file_infos.get("Encoding", "utf8")
+        sep = file_infos.get("Separator", "\t")
 
         if pd.isna(sep) or sep == "":
             sep = "\t"
-        
+
         if pd.isna(encoding) or encoding == "":
             encoding = "utf8"
 
@@ -95,6 +96,5 @@ def iterate_file(file):
         all_data = pd.concat([all_data, file_data])
         all_data["RowIndex"] = all_data.index
         all_data.reset_index(drop=True, inplace=True)
-
 
     return all_data

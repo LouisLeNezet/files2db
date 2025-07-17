@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """Script for testing."""
 
-
 from src.read_file.check_file import read_orga, get_db_from_excel
 
 dct = read_orga(

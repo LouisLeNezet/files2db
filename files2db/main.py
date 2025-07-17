@@ -20,7 +20,9 @@ from .read_file.data_read import check_files_exist
 from .ui.get_infos import get_file_path, get_os, welcome
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
-pd.set_option('future.no_silent_downcasting', True)
+pd.set_option("future.no_silent_downcasting", True)
+pd.set_option("display.max_columns", None)
+
 
 def start():
     """Get the current directory and operating system.
@@ -103,7 +105,7 @@ def main(
         logging.info("Data saved to %s", save_path)
 
     logging.info("Concatenation completed successfully")
-    
+
     return all_data_raw, all_data if normalize else None
 
 

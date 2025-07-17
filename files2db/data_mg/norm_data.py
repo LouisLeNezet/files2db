@@ -12,17 +12,21 @@ import numpy as np
 import unicodedata
 
 from typing import Optional, Any
-from files2db.data_mg.string_management import data_sep, data_clean, data_replace, data_sep_pattern
+from files2db.data_mg.string_management import (
+    data_sep,
+    data_clean,
+    data_replace,
+    data_sep_pattern,
+)
 from files2db.data_mg.data_convert import data_conv
 from files2db.data_mg.data_validate import data_validate
 
-pd.set_option("display.max_columns", None)
 
 def initial_clean_na_values_utf8(
     data_df: pd.DataFrame,
     na_values: Optional[Any] = [None, "", " ", "NaN", "nan", "N/A", "n/a", "NA", "na"],
     fillna_value: Optional[Any] = None,
-    normalize_text: bool = True
+    normalize_text: bool = True,
 ) -> pd.DataFrame:
     """
     Cleans a DataFrame by removing empty rows/columns, filling NA values,
@@ -45,7 +49,7 @@ def initial_clean_na_values_utf8(
         Cleaned DataFrame.
     """
     df = data_df.copy()
-    
+
     # Set na_values
     if na_values is not None:
         df.replace(na_values, np.nan, inplace=True)
@@ -64,31 +68,22 @@ def initial_clean_na_values_utf8(
             df[col] = (
                 df[col]
                 .astype(str)
-                .apply(lambda x: 
-                    unicodedata.normalize("NFKD", x)
-                        .encode("ascii", "ignore")
-                        .decode("utf-8")
-                        .lower()
+                .apply(
+                    lambda x: unicodedata.normalize("NFKD", x)
+                    .encode("ascii", "ignore")
+                    .decode("utf-8")
+                    .lower()
                 )
             )
 
     return df
 
-def normalize_column(data_se: pd.Series, field_info, field_equiv):
-    return (
-        data_sep(data_se, field_info["sep"])
-        .pipe(lambda df: df.apply(data_clean, **params))
-        .pipe(lambda df: df.apply(data_conv, args=(field_info["data_type"],)))
-        .pipe(lambda df: df.apply(data_replace, args=(field_equiv,)))
-        #.pipe(lambda df: data_validate(df, field_info["contains"], field_info["min"], field_info["max"]))
-        .pipe(lambda df: data_sep_pattern(df, field_info["sep_pattern"], field_info["keep_link"]))
-    )
 
 def norm_data(
     data_df: pd.DataFrame,
     db_orga: dict[pd.DataFrame],
     na_values: list = ["", None, "NaN", "nan", "<na>", "None", {}],
-    fillna_value = pd.NA
+    fillna_value=pd.NA,
 ):
     """
     Normalize dataframe based on informations read in excel file.
@@ -107,75 +102,83 @@ def norm_data(
     """
     logging.info("Starting normalization of the datas")
 
-    data_df_cleaned_init = initial_clean_na_values_utf8(data_df, fillna_value=fillna_value)
+    data_df_cleaned_init = initial_clean_na_values_utf8(
+        data_df, fillna_value=fillna_value
+    )
 
     normed_df = data_df_cleaned_init.copy()
     errors_df = pd.DataFrame()
-    
+
     if "Field" not in db_orga["FieldRules"].columns:
-        logging.error("No fields defined in the FieldRules. Please check the database organization.")
+        logging.error(
+            "No fields defined in the FieldRules. Please check the database organization."
+        )
         return normed_df, errors_df
 
     for field in db_orga["FieldRules"]["Field"]:
-        match_cols = [col for col in data_df_cleaned_init.columns if re.fullmatch(field, col)]
+        match_cols = [
+            col for col in data_df_cleaned_init.columns if re.fullmatch(field, col)
+        ]
         if not match_cols:
             logging.info("Field %s not found in the file", field)
             continue
         field_infos = db_orga["FieldRules"].set_index("Field").loc[field].to_dict()
-        field_equiv = db_orga["ValuesMap"][db_orga["ValuesMap"]["Field"] == field].to_dict(orient="records")
-        field_equiv = {d["Value"]: d["Eq"].split(",") for d in field_equiv }
+        field_equiv = db_orga["ValuesMap"][
+            db_orga["ValuesMap"]["Field"] == field
+        ].to_dict(orient="records")
+        field_equiv = {d["Value"]: d["Eq"].split(",") for d in field_equiv}
 
         for col_i in match_cols:
             logging.info("Processing column: %s", col_i)
             data_df_sep = data_sep(
                 data_df_cleaned_init.loc[:, col_i],
                 field_infos["Sep"],
-                fillna_value=fillna_value
+                fillna_value=fillna_value,
             )
 
             normed_df.drop(columns=col_i, inplace=True, errors="ignore")
 
-            for col_ii in data_df_sep :
+            for col_ii in data_df_sep:
                 logging.info("Normalising column: %s", col_ii)
                 data_se_cleaned = data_clean(
                     data_df_sep.loc[:, col_ii],
-                    del_match = field_infos["DelMatch"],
-                    del_in = field_infos["DelIn"],
-                    del_start = field_infos["DelStart"],
-                    del_end = field_infos["DelEnd"],
-                    strip_from = field_infos["StripFrom"],
+                    del_match=field_infos["DelMatch"],
+                    del_in=field_infos["DelIn"],
+                    del_start=field_infos["DelStart"],
+                    del_end=field_infos["DelEnd"],
+                    strip_from=field_infos["StripFrom"],
                     fillna_value=fillna_value,
                 )
                 data_se_converted = data_conv(
-                    data_se_cleaned,
-                    field_infos["DataType"],
-                    fillna_value=fillna_value
+                    data_se_cleaned, field_infos["DataType"], fillna_value=fillna_value
                 )
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
 
                 errors = data_validate(
-                    data_se_replaced, field_infos["Contains"],
-                    field_infos["Min"], field_infos["Max"]
+                    data_se_replaced,
+                    field_infos["Contains"],
+                    field_infos["Min"],
+                    field_infos["Max"],
                 )
 
                 logging.info("Separating column: %s by pattern", col_ii)
                 data_df_separated = data_sep_pattern(
-                    data_se_replaced,
-                    field_infos["SepPattern"],
-                    field_infos["KeepLink"]
+                    data_se_replaced, field_infos["SepPattern"], field_infos["KeepLink"]
                 )
 
-                normed_df.drop(columns=data_df_separated.columns, inplace=True, errors="ignore")
+                normed_df.drop(
+                    columns=data_df_separated.columns, inplace=True, errors="ignore"
+                )
 
                 normed_df = pd.concat((normed_df, data_df_separated), axis=1)
                 errors_df = pd.concat((errors_df, errors), axis=1)
 
     # Concatenate all error messages into a single column
     normed_df["Error"] = errors_df.apply(
-        lambda row: pd.Series({
-            "Error": { col: val for col, val in row.items() if isinstance(val, dict) }
-        }),
-        axis=1
+        lambda row: pd.Series(
+            {"Error": {col: val for col, val in row.items() if isinstance(val, dict)}}
+        ),
+        axis=1,
     )
     normed_df.replace(na_values, fillna_value, inplace=True)
 

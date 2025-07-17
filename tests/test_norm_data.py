@@ -15,7 +15,7 @@ class TestingInitCleanClass(unittest.TestCase):
             "A": [1, None, 2, 4],
             "B": ["a", None, "c", "d"],
             "C": [None, None, None, None],
-            "D": ["éclair", None, "résumé", None]
+            "D": ["éclair", None, "résumé", None],
         }
         df = pd.DataFrame(data)
 
@@ -23,7 +23,7 @@ class TestingInitCleanClass(unittest.TestCase):
         expected_data = {
             "A": [1.0, 2.0, 4.0],
             "B": ["a", "c", "d"],
-            "D": ["eclair", "resume", "na"]
+            "D": ["eclair", "resume", "na"],
         }
         expected_df = pd.DataFrame(expected_data)
 

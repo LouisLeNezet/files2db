@@ -71,7 +71,7 @@ class TestDataDel(unittest.TestCase):
         expected = s.copy()
         result = data_clean(s)
         assert_series_equal(result, expected)
-    
+
     def test_non_string_input(self):
         s = pd.Series([123, 456, "789text"])
         with self.assertRaises(TypeError):
@@ -96,7 +96,7 @@ class TestDataSep(unittest.TestCase):
 
         result = data_sep(s, sep=["|", ","])
         assert_frame_equal(result, expected)
-    
+
     def test_multiple_separators_and_navalue(self):
         s = pd.Series(["a|b,c", "d,e"], name="col1")
 
@@ -172,6 +172,7 @@ class TestDataSepPattern(unittest.TestCase):
         df = data_sep_pattern(s, pattern, keep_link=True)
         expected = pd.DataFrame({"test_col_letter": ["abc", "def"]})
         assert_frame_equal(df, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

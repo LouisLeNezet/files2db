@@ -7,9 +7,7 @@ from files2db.data_mg.utils import check_pd_series
 
 
 def data_replace(
-    data_se: pd.Series,
-    equiv_data: dict[str, list[str]],
-    to_lower: bool = True
+    data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True
 ):
     """
     Replace all values in a Series based on equivalency mappings.
@@ -35,9 +33,15 @@ def data_replace(
     """
     if not isinstance(equiv_data, dict):
         raise TypeError("equiv_data should be a dictionary")
-    if not all(isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()):
-        raise TypeError("equiv_data should be a dictionary with string keys and list values")
-    if not all(isinstance(val, str) for sublist in equiv_data.values() for val in sublist):
+    if not all(
+        isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()
+    ):
+        raise TypeError(
+            "equiv_data should be a dictionary with string keys and list values"
+        )
+    if not all(
+        isinstance(val, str) for sublist in equiv_data.values() for val in sublist
+    ):
         raise TypeError("All values in equiv_data should be strings")
     if equiv_data == {}:
         return data_se
@@ -123,7 +127,7 @@ def data_clean(
 def data_sep(
     data_se: pd.Series,
     sep: Optional[List[str]] = None,
-    fillna_value: Optional[str] = None
+    fillna_value: Optional[str] = None,
 ) -> pd.DataFrame:
     if not check_pd_series(data_se, type_check=str):
         return pd.DataFrame(data_se)
@@ -140,7 +144,7 @@ def data_sep(
 
     # Split using the combined regex pattern
     data_exp = data_se.str.split(regex_pattern, expand=True)
-    
+
     # Fill NaN values with the specified fillna_value
     if fillna_value is not None:
         data_exp.fillna(fillna_value, inplace=True)
@@ -194,15 +198,12 @@ def data_sep_pattern(
         data_match = data_se.str.extract(pattern, flags=flags)
     except re.error as exc:
         raise ValueError(f"Invalid regex pattern: {exc}")
-    
+
     # Keep only named groups
     data_match = data_match.loc[:, named_groups]
 
     if keep_link:
         # Add the column original name to the new columns
-        data_match.columns = [
-            f"{data_se.name}_{col}"
-            for col in data_match.columns
-        ]
+        data_match.columns = [f"{data_se.name}_{col}" for col in data_match.columns]
 
     return data_match
