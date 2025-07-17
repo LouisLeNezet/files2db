@@ -83,8 +83,6 @@ def date_convert(
                 + date_to_convert[0:4]
             )
         else:
-            print(f"Format not recognised {date_to_convert}")
-            print(type(date_to_convert))
             raise TypeError(f"Format not recognised {date_to_convert}")
 
     if not_null(new_date):
@@ -141,11 +139,12 @@ def num_convert(
         List of the errors obtained.
 
     """
-    if not check_pd_series(data_se, type_check=str):
+    if not check_pd_series(data_se, type_check=(str, int, float)):
         return data_se
 
-    data = data_se.str.replace(",", ".")
+    data = data_se.astype(str).str.replace(",", ".")
     num_conv = data.apply(check_numeric)
+
     data_conv = pd.Series()
     if to_type == "int":
         data_conv = pd.Series(

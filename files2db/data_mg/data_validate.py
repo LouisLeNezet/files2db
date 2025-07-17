@@ -61,7 +61,6 @@ def data_validate(
     fillna_value: Optional[Any] = None
 ) -> pd.Series:
     err_content = err_min = err_max = [pd.NA for x in data_se]
-    print(data_se)
     err_content = data_contains(data_se, contains) 
 
     err_content = [
@@ -70,7 +69,6 @@ def data_validate(
         else fillna_value
         for err, val in zip(err_content, data_se)
     ]
-    print(data_se)
 
     if min_value is not None:
         if not isinstance(min_value, (int, float)):

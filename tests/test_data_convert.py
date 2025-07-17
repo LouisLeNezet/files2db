@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 
 from files2db.data_mg.data_convert import date_convert, num_convert, check_numeric
-
+from pandas.testing import assert_series_equal
 
 class TestingClass(unittest.TestCase):
     """Class for testing"""
@@ -54,40 +54,33 @@ class TestingClass(unittest.TestCase):
 
     def test_num_convert(self):
         """Test function num_convert"""
-        test_values = [
-            pd.Series(
-                {
-                    "A": 0,
-                    "B": None,
-                    "C": [1, 0],
-                    "D": "N A",
-                    "E": "4.50001",
-                    "F": "4E-05",
-                    "G": np.nan,
-                    "H": 5.6498798,
-                }
-            )
-        ]
-        test_result_int = [pd.Series([0, np.nan, np.nan, np.nan, 5, 0, np.nan, 6])]
-        test_result_float = [
-            pd.Series([0, np.nan, np.nan, np.nan, 4.50001, 0.00004, np.nan, 5.6498798])
-        ]
+        test_values = pd.Series(
+            {
+                "A": 0,
+                "B": None,
+                "C": "five",
+                "D": "N A",
+                "E": "4.50001",
+                "F": "4E-05",
+                "G": np.nan,
+                "H": 5.6498798,
+            }
+        )
+        test_result_int = pd.Series([0, np.nan, np.nan, np.nan, 5, 0, np.nan, 6])
+        test_result_float = pd.Series([0.0, np.nan, np.nan, np.nan, 4.50001, 0.00004, np.nan, 5.6498798])
 
-        for value, result_int, result_float in zip(
-            test_values, test_result_int, test_result_float
-        ):
-            with self.subTest(line=value, to_type="int"):
-                data = num_convert(value, "int")
-                self.assertTrue(data.equals(result_int))
-            with self.subTest(line=value, to_type="float"):
-                data = num_convert(value, "float")
-                self.assertTrue(data.equals(result_float))
+        with self.subTest(line=test_values, to_type="int"):
+            data = num_convert(test_values, "int")
+            assert_series_equal(data, test_result_int)
+        with self.subTest(line=test_values, to_type="float"):
+            data = num_convert(test_values, "float")
+            assert_series_equal(data, test_result_float)
 
-        with self.subTest(line=value, type="error"):
+        with self.subTest(line="Unittest", type="error"):
             with self.assertRaisesRegex(
-                Exception, "data_se should be a pandas Series"
+                Exception, "data_se should be a Pandas Series"
             ):
-                num_convert(unittest.TestCase, to_type="int")
+                num_convert(["A", "B"], to_type="int")
 
     def test_check_numeric(self):
         """Test function check_numeric"""

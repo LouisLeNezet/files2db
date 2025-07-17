@@ -83,8 +83,6 @@ def iterate_file(file):
         if "FileName" not in file_data.columns:
             file_data["FileName"] = file_name
 
-        print(file_name)
-
         for col in metadata_columns:
             col_name = col.replace("meta_", "")
             if col_name not in file_data.columns:
