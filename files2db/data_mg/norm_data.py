@@ -87,7 +87,7 @@ def normalize_column(data_se: pd.Series, field_info, field_equiv):
 def norm_data(
     data_df: pd.DataFrame,
     db_orga: dict[pd.DataFrame],
-    na_values: list = ["", None, "NaN", "nan", "<na>", "None"],
+    na_values: list = ["", None, "NaN", "nan", "<na>", "None", {}],
     fillna_value = pd.NA
 ):
     """
@@ -170,7 +170,13 @@ def norm_data(
                 normed_df = pd.concat((normed_df, data_df_separated), axis=1)
                 errors_df = pd.concat((errors_df, errors), axis=1)
 
+    # Concatenate all error messages into a single column
+    normed_df["Error"] = errors_df.apply(
+        lambda row: pd.Series({
+            "Error": { col: val for col, val in row.items() if isinstance(val, dict) }
+        }),
+        axis=1
+    )
     normed_df.replace(na_values, fillna_value, inplace=True)
-    errors_df.replace(na_values, fillna_value, inplace=True)
 
-    return normed_df, errors_df
+    return normed_df

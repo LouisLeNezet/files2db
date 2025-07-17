@@ -93,7 +93,7 @@ def main(
     # Normalize data
     if normalize:
         logging.info("Normalizing data...")
-        all_data, all_errors = norm_data(all_data_raw, db_get)
+        all_data = norm_data(all_data_raw, db_get)
 
         # Save normalized data
         save_path = os.path.join(
@@ -102,19 +102,9 @@ def main(
         all_data.to_csv(get_file_path(save_path), sep=";")
         logging.info("Data saved to %s", save_path)
 
-        # Save errors
-        if len(all_errors) > 0:
-            save_path = os.path.join(
-                f"{output_folder}/{output_files_prefix}_{date.today()}_errors.csv"
-            )
-            all_errors.to_csv(get_file_path(save_path), sep=";")
-            logging.info("Errors saved to %s", save_path)
-        else:
-            logging.info("No errors found in the data")
-
     logging.info("Concatenation completed successfully")
     
-    return all_data_raw, all_data if normalize else None, all_errors if normalize else None
+    return all_data_raw, all_data if normalize else None
 
 
 if __name__ == "__main__":

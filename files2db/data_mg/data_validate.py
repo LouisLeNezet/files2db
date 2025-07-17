@@ -96,7 +96,7 @@ def data_validate(
     ]
 
     errors = pd.Series([
-        {data_se.name: {"Value": data_se.loc[ind], "Error": err}}
+        {"Value": data_se.loc[ind], "Error": err}
         if not_null(err)
         else pd.NA
         for ind, err in zip(data_se.index, err)
