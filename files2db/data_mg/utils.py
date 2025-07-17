@@ -131,3 +131,75 @@ def check_pd_series(
             raise TypeError(f"data_se should be a Pandas Series of type {type_check}")
 
     return True
+
+
+def to_bool(
+    value: any,
+    fillna_value: Optional[bool] = None,
+) -> bool:
+    """
+    Convert a value to boolean.
+
+    Parameters
+    ----------
+    value : any
+        Value to convert.
+
+    Returns
+    -------
+    bool
+        Converted boolean value.
+    """
+    if value is None:
+        if fillna_value is not None:
+            return fillna_value
+        else:
+            raise ValueError("value cannot be None and fillna_value is not provided")
+    
+    if isinstance(value, str):
+        if value.lower() == "true":
+            value = True
+        elif value.lower() == "false":
+            value = False
+        else:
+            raise ValueError("value should be 'True' or 'False' as a string")
+    elif isinstance(value, int):
+        if value == 1:
+            value = True
+        elif value == 0:
+            value = False
+        else:
+            raise ValueError("value should be 1 (True) or 0 (False) as an integer")
+    elif isinstance(value, float):
+        if value == 1.0:
+            value = True
+        elif value == 0.0:
+            value = False
+        else:
+            raise ValueError("value should be 1.0 (True) or 0.0 (False) as a float")
+    
+    if not isinstance(value, bool):
+        raise TypeError(f"value should be interpretable as a boolean value: got {value} of type {type(value)}")
+    
+    return value
+
+def update_only_missing(target_df, update_df):
+    for col in update_df.columns:
+        if col in target_df.columns:
+            mask_target_is_notna = target_df[col].notna()
+            mask_update_is_notna = update_df[col].notna()
+            conflict_mask = mask_target_is_notna & mask_update_is_notna
+
+            if conflict_mask.any():
+                conflicted_indices = target_df.index[conflict_mask].tolist()
+                raise ValueError(
+                    f"Conflict detected in column '{col}' at rows {conflicted_indices}. "
+                    "Attempt to overwrite non-null values."
+                )
+
+            # Safe to update only missing values
+            mask = target_df[col].isna()
+            target_df.loc[mask, col] = update_df.loc[mask, col]
+        else:
+            target_df[col] = update_df[col]
+    return target_df

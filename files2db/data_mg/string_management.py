@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional, List
 
-from files2db.data_mg.utils import check_pd_series
+from files2db.data_mg.utils import check_pd_series, to_bool
 
 
 def data_replace(
@@ -101,13 +101,21 @@ def data_clean(
     # Delete full matches
     if del_match:
         data_se = data_se.replace(del_match, fillna_value)
+    if original_name == "ColC_0":
+        print("data_se before del_start:", data_se)
 
     if del_start is not None:
         for mod_del in del_start:
             data_se = data_se.str.replace(f"^{mod_del}", "", regex=True)
+    if original_name == "ColC_0":
+        print("data_se before del_end:", data_se)
+
     if del_end is not None:
         for mod_del in del_end:
             data_se = data_se.str.replace(f"{mod_del}$", "", regex=True)
+
+    if original_name == "ColC_0":
+        print("data_se before strip_from:", data_se)
 
     # Strip after substring
     if strip_from:
@@ -161,6 +169,7 @@ def data_sep_pattern(
     pattern: Optional[str] = None,
     keep_link: bool = False,
     ignore_case: bool = True,
+    fillna_value: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Separate data given into different columns based on regex patterns.
@@ -179,31 +188,48 @@ def data_sep_pattern(
     Wrong pattern group name
         Group name in regex patters should only be Data or Other.
     """
+    # Set keep_link to boolean
+    keep_link = to_bool(keep_link, fillna_value=False)
+    
     if pattern is None:
         return pd.DataFrame(data_se)
 
     if not check_pd_series(data_se, type_check=str):
         return pd.DataFrame(data_se)
 
-    # Extract named groups from the pattern
-    named_groups = re.findall(r"\(\?P<(\w+)>", pattern)
-
-    if not named_groups:
-        raise ValueError("No named groups found in the regex pattern.")
-
+    # Compile pattern
     flags = re.IGNORECASE if ignore_case else 0
-
     try:
-        # Extract based on pattern with named groups
-        data_match = data_se.str.extract(pattern, flags=flags)
+        compiled_pattern = re.compile(pattern, flags=flags)
     except re.error as exc:
         raise ValueError(f"Invalid regex pattern: {exc}")
 
-    # Keep only named groups
-    data_match = data_match.loc[:, named_groups]
+    # Extract named groups
+    named_groups = compiled_pattern.groupindex.keys()
+    if not named_groups:
+        raise ValueError("Pattern must contain named groups (e.g., ?P<ColA>)")
+
+    # Extract and keep only named groups
+    data_match = data_se.str.extractall(compiled_pattern)
+    
+    aggregated = (
+        data_match
+        .reset_index()
+        .drop(columns="match")
+        .groupby("level_0")
+        .agg(lambda x: next((i for i in x if pd.notna(i)), pd.NA))
+    )
+
+    # Reindex to original data with missing rows as pd.NA
+    data_match_grouped = aggregated.reindex(data_se.index, fill_value=pd.NA)
+    
+    data_match_filtered = data_match_grouped.loc[:, named_groups]
 
     if keep_link:
         # Add the column original name to the new columns
-        data_match.columns = [f"{data_se.name}_{col}" for col in data_match.columns]
+        data_match_filtered.columns = [f"{data_se.name}_{col}" for col in data_match_filtered.columns]
 
-    return data_match
+    if fillna_value is not None:
+        data_match_filtered = data_match_filtered.fillna(fillna_value)
+
+    return data_match_filtered

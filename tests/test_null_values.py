@@ -78,6 +78,8 @@ class TestingClass(unittest.TestCase):
             with self.subTest(line=value, alter=True):
                 self.assertEqual(all_modify(value, alter=True), result_m)
 
+    def test_all_modify_pd_series(self):
+        """Test function all_modify with pandas Series"""
         test_values = [pd.Series({"A": 0, "B": None, "C": ["Nan ", 0], "D": "N A"})]
         test_result = [pd.Series({"A": 0, "B": None, "C": ["Nan ", 0], "D": "N A"})]
         test_result_m = [

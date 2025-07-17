@@ -17,7 +17,7 @@ from files2db.data_mg.string_management import (
 )
 
 
-class TestingClass(unittest.TestCase):
+class TestingDataReplace(unittest.TestCase):
     """Class for testing"""
 
     def test_data_replace(self):
@@ -35,7 +35,7 @@ class TestingClass(unittest.TestCase):
         assert_series_equal(result, test_result)
 
 
-class TestDataDel(unittest.TestCase):
+class TestDataClean(unittest.TestCase):
     def test_del_match_only(self):
         s = pd.Series(["remove", "keep", "remove", "test", "test2"])
         expected = pd.Series([None, "keep", None, None, "test2"])
@@ -52,6 +52,12 @@ class TestDataDel(unittest.TestCase):
         s = pd.Series(["a123b", "xyz456", "999test999"])
         expected = pd.Series(["ab", "xyz", "test"])
         result = data_clean(s, del_in=["123", "456", "999"])
+        assert_series_equal(result, expected)
+
+    def test_delin_delstart_delend(self):
+        s = pd.Series(["a123a", "xyz456y", "999test999"])
+        expected = pd.Series(["123a", "z456", "999test99"])
+        result = data_clean(s, del_in="y", del_start=["a", "x"], del_end="9")
         assert_series_equal(result, expected)
 
     def test_all_parameters_combined(self):
@@ -156,6 +162,19 @@ class TestDataSepPattern(unittest.TestCase):
             {
                 "Puce": ["250268720147419", "985154000245240", None],
                 "Tatouage": [None, "2DVT608", "2DVT608"],
+            }
+        )
+        assert_frame_equal(df, expected)
+    
+    def test_basic_separation_multiple_alpha_num_noorder(self):
+        s = pd.Series([pd.NA, "SomethingElse", "250268720147419", "985154000245240 2DVT608", "2DVT608", "2DVT608 250268720147419"])
+        pattern = r"(?P<Puce>\d{12,19})|(?P<Tatouage>[0-9]+[A-Z][A-Z0-9]*)"
+        df = data_sep_pattern(s, pattern)
+
+        expected = pd.DataFrame(
+            {
+                "Puce": [pd.NA, pd.NA, "250268720147419", "985154000245240", pd.NA, "250268720147419"],
+                "Tatouage": [pd.NA, pd.NA, pd.NA, "2DVT608", "2DVT608", "2DVT608"],
             }
         )
         assert_frame_equal(df, expected)

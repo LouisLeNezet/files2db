@@ -1,6 +1,7 @@
 ﻿Field;Category;Sep;DelMatch;DelIn;DelStart;DelEnd;StripFrom;DataType;Contains;Min;Max;SepPattern;KeepLink
+ColF;Infos;;;;;;;string;;;;(?P<ColA>\d+)|(?P<ColC>[A-Za-z]+);False
 ColE;Other;;;;;;;string;;;;;
 ColA;ID;;;;;;;int;int;1;4;;
 ColB;ID;;delmatchitis;;;;;string;;;;;
-ColC;Infos;_;;prefix;suffix;;;string;;;;;
+ColC;Infos;_;;prefix;;suffix;;string;;;;;
 ColD;Date;;;;;;;date;date;;;;

@@ -20,6 +20,7 @@ from files2db.data_mg.string_management import (
 )
 from files2db.data_mg.data_convert import data_conv
 from files2db.data_mg.data_validate import data_validate
+from files2db.data_mg.utils import update_only_missing
 
 
 def initial_clean_na_values_utf8(
@@ -65,16 +66,15 @@ def initial_clean_na_values_utf8(
     # Normalize text in string columns
     if normalize_text:
         for col in df.select_dtypes(include=["object", "string"]):
-            df[col] = (
-                df[col]
-                .astype(str)
-                .apply(
-                    lambda x: unicodedata.normalize("NFKD", x)
+            df[col] = df[col].apply(
+            lambda x: (
+                x if pd.isna(x)
+                else unicodedata.normalize("NFKD", x)
                     .encode("ascii", "ignore")
                     .decode("utf-8")
                     .lower()
-                )
             )
+        )
 
     return df
 
@@ -102,11 +102,10 @@ def norm_data(
     """
     logging.info("Starting normalization of the datas")
 
-    data_df_cleaned_init = initial_clean_na_values_utf8(
+    normed_df = initial_clean_na_values_utf8(
         data_df, fillna_value=fillna_value
     )
 
-    normed_df = data_df_cleaned_init.copy()
     errors_df = pd.DataFrame()
 
     if "Field" not in db_orga["FieldRules"].columns:
@@ -117,7 +116,7 @@ def norm_data(
 
     for field in db_orga["FieldRules"]["Field"]:
         match_cols = [
-            col for col in data_df_cleaned_init.columns if re.fullmatch(field, col)
+            col for col in normed_df.columns if re.fullmatch(field, col)
         ]
         if not match_cols:
             logging.info("Field %s not found in the file", field)
@@ -131,7 +130,7 @@ def norm_data(
         for col_i in match_cols:
             logging.info("Processing column: %s", col_i)
             data_df_sep = data_sep(
-                data_df_cleaned_init.loc[:, col_i],
+                normed_df.loc[:, col_i],
                 field_infos["Sep"],
                 fillna_value=fillna_value,
             )
@@ -149,6 +148,9 @@ def norm_data(
                     strip_from=field_infos["StripFrom"],
                     fillna_value=fillna_value,
                 )
+                if col_ii == "ColC_0" :
+                    print(field_infos)
+                    print(f"Cleaned data for {col_ii}: {data_se_cleaned}")
                 data_se_converted = data_conv(
                     data_se_cleaned, field_infos["DataType"], fillna_value=fillna_value
                 )
@@ -163,23 +165,24 @@ def norm_data(
 
                 logging.info("Separating column: %s by pattern", col_ii)
                 data_df_separated = data_sep_pattern(
-                    data_se_replaced, field_infos["SepPattern"], field_infos["KeepLink"]
+                    data_se_replaced, field_infos["SepPattern"], field_infos["KeepLink"],
+                    fillna_value=fillna_value
                 )
 
-                normed_df.drop(
-                    columns=data_df_separated.columns, inplace=True, errors="ignore"
-                )
+                normed_df = update_only_missing(normed_df, data_df_separated)
 
-                normed_df = pd.concat((normed_df, data_df_separated), axis=1)
                 errors_df = pd.concat((errors_df, errors), axis=1)
 
     # Concatenate all error messages into a single column
-    normed_df["Error"] = errors_df.apply(
-        lambda row: pd.Series(
-            {"Error": {col: val for col, val in row.items() if isinstance(val, dict)}}
-        ),
-        axis=1,
-    )
+    if not errors_df.empty and len(errors_df.columns) > 0:
+        normed_df["Error"] = errors_df.apply(
+            lambda row: pd.Series(
+                {"Error": {col: val for col, val in row.items() if isinstance(val, dict)}}
+            ),
+            axis=1,
+        )
+    else:
+        normed_df["Error"] = pd.NA
     normed_df.replace(na_values, fillna_value, inplace=True)
 
     return normed_df

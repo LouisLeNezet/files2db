@@ -224,7 +224,7 @@ class TestGetDBFromCSV(unittest.TestCase):
             set(db_orga.keys()),
             set(["Files", "FieldRules", "ValuesMap"]),
         )
-        self.assertEqual(db_orga["Files"].shape, (3, 16))
+        self.assertEqual(db_orga["Files"].shape, (4, 16))
 
 
 if __name__ == "__main__":

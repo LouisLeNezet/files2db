@@ -187,7 +187,11 @@ def data_conv(
         elif data_type in ["int", "float"]:
             data_se = num_convert(data_se, to_type=data_type, fillna_value=fillna_value)
         elif data_type == "string":
-            data_se = data_se.astype(str)
+            # Convert to string, preserving NaN values
+            data_se = pd.Series(
+                [str(x) if pd.notna(x) else fillna_value for x in data_se],
+                index=data_se.index, name=data_se.name
+            )
         elif data_type == "bool":
             data_se = data_se.str.lower().replace({"true": True, "false": False})
             data_se = data_se.astype(bool)
