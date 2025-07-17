@@ -95,5 +95,8 @@ def iterate_file(file):
 
         # Add file to merged data_frame
         all_data = pd.concat([all_data, file_data])
+        all_data["RowIndex"] = all_data.index
+        all_data.reset_index(drop=True, inplace=True)
+
 
     return all_data

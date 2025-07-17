@@ -1,4 +1,4 @@
 ColA;ColB;ColC;ColD;ColE;
-10;NA;Prefix_A_Suffix;01/02/2020;A;
+;NA;Prefix_A_Suffix;01/02/2020;A;
 notANumber;DelMatchItIs;Prefix_B_Suffix;01.03.2020;B;
 10;DelMatchItIs;Prefix_C_Suffix;01/02/2020;otherA;

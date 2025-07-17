@@ -12,7 +12,9 @@ import numpy as np
 import unicodedata
 
 from typing import Optional, Any
-from files2db.data_mg.string_management import data_sep, data_clean, data_conv, data_replace, data_sep_pattern
+from files2db.data_mg.string_management import data_sep, data_clean, data_replace, data_sep_pattern
+from files2db.data_mg.data_convert import data_conv
+from files2db.data_mg.data_validate import data_validate
 
 pd.set_option("display.max_columns", None)
 
@@ -85,7 +87,8 @@ def normalize_column(data_se: pd.Series, field_info, field_equiv):
 def norm_data(
     data_df: pd.DataFrame,
     db_orga: dict[pd.DataFrame],
-    fillna_value = None
+    na_values: list = ["", None, "NaN", "nan", "<na>", "None"],
+    fillna_value = pd.NA
 ):
     """
     Normalize dataframe based on informations read in excel file.
@@ -105,8 +108,8 @@ def norm_data(
     logging.info("Starting normalization of the datas")
 
     data_df_cleaned_init = initial_clean_na_values_utf8(data_df, fillna_value=fillna_value)
-    
-    normed_df = pd.DataFrame()
+
+    normed_df = data_df_cleaned_init.copy()
     errors_df = pd.DataFrame()
     
     if "Field" not in db_orga["FieldRules"].columns:
@@ -114,7 +117,6 @@ def norm_data(
         return normed_df, errors_df
 
     for field in db_orga["FieldRules"]["Field"]:
-        logging.info("Normalizing field: %s", field)
         match_cols = [col for col in data_df_cleaned_init.columns if re.fullmatch(field, col)]
         if not match_cols:
             logging.info("Field %s not found in the file", field)
@@ -122,15 +124,19 @@ def norm_data(
         field_infos = db_orga["FieldRules"].set_index("Field").loc[field].to_dict()
         field_equiv = db_orga["ValuesMap"][db_orga["ValuesMap"]["Field"] == field].to_dict(orient="records")
         field_equiv = {d["Value"]: d["Eq"].split(",") for d in field_equiv }
-        print(field_equiv)
 
         for col_i in match_cols:
             logging.info("Processing column: %s", col_i)
             data_df_sep = data_sep(
                 data_df_cleaned_init.loc[:, col_i],
-                field_infos["Sep"]
+                field_infos["Sep"],
+                fillna_value=fillna_value
             )
+
+            normed_df.drop(columns=col_i, inplace=True, errors="ignore")
+
             for col_ii in data_df_sep :
+                logging.info("Normalising column: %s", col_ii)
                 data_se_cleaned = data_clean(
                     data_df_sep.loc[:, col_ii],
                     del_match = field_infos["DelMatch"],
@@ -138,24 +144,33 @@ def norm_data(
                     del_start = field_infos["DelStart"],
                     del_end = field_infos["DelEnd"],
                     strip_from = field_infos["StripFrom"],
+                    fillna_value=fillna_value,
                 )
-                data_se_converted = data_conv(data_se_cleaned, field_infos["DataType"])
+                data_se_converted = data_conv(
+                    data_se_cleaned,
+                    field_infos["DataType"],
+                    fillna_value=fillna_value
+                )
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
                 
-                if False:
-                    data_se_validate, errors = data_validate(
-                        data_se_replaced, field_infos.contains,
-                        field_infos.data_min, field_infos.data_max
-                    )
-                else:
-                    data_se_validate = data_se_replaced
-                    errors = pd.Series([None] * len(data_se_validate))
+                errors = data_validate(
+                    data_se_replaced, field_infos["Contains"],
+                    field_infos["Min"], field_infos["Max"]
+                )
+
+                logging.info("Separating column: %s by pattern", col_ii)
                 data_df_separated = data_sep_pattern(
-                    data_se_validate,
+                    data_se_replaced,
                     field_infos["SepPattern"],
                     field_infos["KeepLink"]
                 )
-                normed_df = pd.concat((normed_df, data_df_separated))
-                errors_df = pd.concat((errors_df, errors))
+
+                normed_df.drop(columns=data_df_separated.columns, inplace=True, errors="ignore")
+
+                normed_df = pd.concat((normed_df, data_df_separated), axis=1)
+                errors_df = pd.concat((errors_df, errors), axis=1)
+
+    normed_df.replace(na_values, fillna_value, inplace=True)
+    errors_df.replace(na_values, fillna_value, inplace=True)
 
     return normed_df, errors_df

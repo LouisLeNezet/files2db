@@ -11,7 +11,7 @@ from pandas.testing import assert_series_equal, assert_frame_equal
 
 from files2db.data_mg.string_management import (
     data_replace,
-    data_del,
+    data_clean,
     data_sep,
     data_sep_pattern,
 )
@@ -39,44 +39,43 @@ class TestDataDel(unittest.TestCase):
     def test_del_match_only(self):
         s = pd.Series(["remove", "keep", "remove", "test", "test2"])
         expected = pd.Series([None, "keep", None, None, "test2"])
-        result = data_del(s, del_match=["remove", "test"])
+        result = data_clean(s, del_match=["remove", "test"])
         assert_series_equal(result, expected)
 
     def test_strip_from_only(self):
         s = pd.Series(["abc=123", "xyz|78|9", "test:value", "this:test:item"])
         expected = pd.Series(["abc", "xyz", "test", "this"])
-        result = data_del(s, strip_from=["=", "|", ":"])
+        result = data_clean(s, strip_from=["=", "|", ":"])
         assert_series_equal(result, expected)
 
     def test_del_in_only(self):
         s = pd.Series(["a123b", "xyz456", "999test999"])
         expected = pd.Series(["ab", "xyz", "test"])
-        result = data_del(s, del_in=["123", "456", "999"])
+        result = data_clean(s, del_in=["123", "456", "999"])
         assert_series_equal(result, expected)
 
     def test_all_parameters_combined(self):
         s = pd.Series(["REMOVE", "valueotherfoo", "trash:data", "skip"])
         expected = pd.Series(["", "value", "trash", "skip"])
-        result = data_del(
+        result = data_clean(
             s,
             del_match=["REMOVE"],
             strip_from=["=", ":"],
             del_in=["other", "foo"],
-            na_value="",
+            fillna_value="",
         )
         assert_series_equal(result, expected)
 
     def test_no_modification(self):
         s = pd.Series(["hello", "world"])
         expected = s.copy()
-        result = data_del(s)
+        result = data_clean(s)
         assert_series_equal(result, expected)
-
+    
     def test_non_string_input(self):
         s = pd.Series([123, 456, "789text"])
-        expected = pd.Series(["12", "4", "text"])
-        result = data_del(s, del_in=["789"], strip_from=["3", "5"])
-        assert_series_equal(result, expected)
+        with self.assertRaises(TypeError):
+            data_clean(s, del_in=["789"], strip_from=["3", "5"])
 
 
 class TestDataSep(unittest.TestCase):
@@ -97,6 +96,16 @@ class TestDataSep(unittest.TestCase):
 
         result = data_sep(s, sep=["|", ","])
         assert_frame_equal(result, expected)
+    
+    def test_multiple_separators_and_navalue(self):
+        s = pd.Series(["a|b,c", "d,e"], name="col1")
+
+        expected = pd.DataFrame(
+            {"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", pd.NA]}
+        )
+
+        result = data_sep(s, sep=["|", ","], fillna_value=pd.NA)
+        assert_frame_equal(result, expected)
 
     def test_no_separator_provided(self):
         s = pd.Series(["abc", "def"], name="col1")
@@ -113,11 +122,8 @@ class TestDataSep(unittest.TestCase):
 
     def test_numeric_data(self):
         s = pd.Series([1, 2], name="col1")
-
-        expected = pd.DataFrame({"col1_0": ["1", "2"]})
-
-        result = data_sep(s, sep=[","])
-        assert_frame_equal(result, expected)
+        with self.assertRaises(TypeError):
+            data_sep(s, sep=[","])
 
 
 class TestDataSepPattern(unittest.TestCase):
@@ -137,7 +143,7 @@ class TestDataSepPattern(unittest.TestCase):
         df = data_sep_pattern(s, pattern)
 
         expected = pd.DataFrame(
-            {"G": ["A", "A", None], "D": ["E", "A", None], "DG": [None, None, "D"]}
+            {"G": ["A", "a", None], "D": ["E", "A", None], "DG": [None, None, "D"]}
         )
         assert_frame_equal(df, expected)
 

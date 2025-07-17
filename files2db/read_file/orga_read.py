@@ -163,6 +163,5 @@ def get_db_from_path(path_file: str, db_orga: dict) -> dict:
     # Change all nan values to None
     for _, df in db_dict.items():
         df.replace(np.nan, None, inplace=True)
-        df.infer_objects(copy=False)
 
     return db_dict

@@ -37,7 +37,7 @@ class TestMainFunction(unittest.TestCase):
         self.assertIsNone(df_error, "Error DataFrame should be None")
         
         # Check dimensions of the raw DataFrame
-        self.assertEqual(df_raw.shape, (6, 9), "Raw DataFrame should have 6 rows and 9 columns")
+        self.assertEqual(df_raw.shape, (7, 10), "Raw DataFrame should have 7 rows and 10 columns")
     
     def test_main_function_with_normalisation(self):
         """Test the main function with a sample path and options."""
@@ -57,13 +57,12 @@ class TestMainFunction(unittest.TestCase):
 
         # Check if the output DataFrames are not None
         self.assertIsNotNone(df_raw, "Raw DataFrame should not be None")
-        self.assertIsNotNone(df_norm, "Normalized DataFrame should be None")
-        
-        print(df_norm.head())
-        
+        self.assertIsNotNone(df_norm, "Normalized DataFrame should not be None")
+        self.assertIsNotNone(df_error, "Error DataFrame should not be None")
+
         # Check dimensions of the raw DataFrame
-        self.assertEqual(df_raw.shape, (6, 9), "Raw DataFrame should have 6 rows and 9 columns")
-        self.assertEqual(df_norm.shape, (6, 9), "Normalized DataFrame should have 6 rows and 8 columns")
+        self.assertEqual(df_raw.shape, (7, 10), "Raw DataFrame should have 6 rows and 10 columns")
+        self.assertEqual(df_norm.shape, (7, 11), "Normalized DataFrame should have 6 rows and 7 columns")
 
 if __name__ == "__main__":
     unittest.main()

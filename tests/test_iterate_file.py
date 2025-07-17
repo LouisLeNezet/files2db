@@ -40,10 +40,10 @@ class TestValidateFiles(unittest.TestCase):
 
         # Check that the dimensions of the DataFrame are as expected
         self.assertEqual(
-            iterated_data.shape[0], 4, "The DataFrame should have 4 rows."
+            iterated_data.shape[0], 7, "The DataFrame should have 7 rows."
         )
         self.assertEqual(
-            iterated_data.shape[1], 8, "The DataFrame should have 8 columns."
+            iterated_data.shape[1], 10, "The DataFrame should have 10 columns."
         )
     
     def test_iterate_empty_dataframe(self):

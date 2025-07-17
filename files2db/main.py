@@ -20,7 +20,7 @@ from .read_file.data_read import check_files_exist
 from .ui.get_infos import get_file_path, get_os, welcome
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
-
+pd.set_option('future.no_silent_downcasting', True)
 
 def start():
     """Get the current directory and operating system.

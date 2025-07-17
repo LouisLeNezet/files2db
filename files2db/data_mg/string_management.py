@@ -1,8 +1,9 @@
 import re
 import pandas as pd
+import numpy as np
 from typing import Optional, List
-from ..ui.print_infos import print_exception
-from .data_convert import date_convert, num_convert
+
+from files2db.data_mg.utils import check_pd_series
 
 
 def data_replace(
@@ -32,10 +33,6 @@ def data_replace(
     RuntimeError
         If replacement fails.
     """
-    print(data_se)
-    if data_se.empty:
-        return data_se
-
     if not isinstance(equiv_data, dict):
         raise TypeError("equiv_data should be a dictionary")
     if not all(isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()):
@@ -44,9 +41,9 @@ def data_replace(
         raise TypeError("All values in equiv_data should be strings")
     if equiv_data == {}:
         return data_se
-    
-    if not isinstance(data_se, pd.Series):
-        raise TypeError("data_se should be a Pandas Series")
+
+    if not check_pd_series(data_se, type_check=str):
+        return data_se
 
     replace_dict = {}
 
@@ -70,7 +67,7 @@ def data_clean(
     del_end: Optional[List[str]] = None,
     strip_from: Optional[List[str]] = None,
     del_in: Optional[List[str]] = None,
-    na_value=None,
+    fillna_value=np.nan,
 ) -> pd.Series:
     """
     Clean and normalize string data in a Pandas Series.
@@ -80,12 +77,12 @@ def data_clean(
     data_se : pd.Series
         Series to normalize.
     del_match : list of str, optional
-        Values that, if fully matched, will be replaced by `na_value`.
+        Values that, if fully matched, will be replaced by `fillna_value`.
     strip_from : list of str, optional
         Substrings; everything after each will be removed.
     del_in : list of str, optional
         Substrings to delete from inside strings.
-    na_value : Any, optional
+    fillna_value : Any, optional
         Value to use when replacing removed items (default is np.nan).
 
     Returns
@@ -94,13 +91,12 @@ def data_clean(
         Cleaned Pandas Series.
     """
     original_name = data_se.name
-    data_se = data_se.astype(str)
-    if data_se.empty:
+    if not check_pd_series(data_se, type_check=str):
         return data_se
 
     # Delete full matches
     if del_match:
-        data_se = data_se.replace(del_match, na_value)
+        data_se = data_se.replace(del_match, fillna_value)
 
     if del_start is not None:
         for mod_del in del_start:
@@ -120,35 +116,6 @@ def data_clean(
             pattern = re.escape(sub)
             data_se = data_se.str.replace(pattern, "", regex=True)
     data_se.name = original_name
-    return data_se
-
-
-def data_conv(
-    data_se : pd.Series,
-    data_type: Optional[str] = None,
-) -> pd.Series:
-    if data_se.empty:
-        return data_se
-
-    if data_type is not None:
-        if data_type == "lower":
-            data_se = data_se.str.lower()
-        elif data_type == "UPPER":
-            data_se = data_se.str.upper()
-        elif data_type == "Title":
-            data_se = data_se.str.title()
-        elif data_type == "date":
-            data_se = data_se.str.replace("-", ".", regex=False)
-            data_se = data_se.apply(lambda row: date_convert(row))
-        elif data_type in ["int", "float"]:
-            data_se = num_convert(data_se, to_type=data_type)
-        elif data_type == "string":
-            data_se = data_se.astype(str)
-        elif data_type == "bool":
-            data_se = data_se.str.lower().replace({"true": True, "false": False})
-            data_se = data_se.astype(bool)
-        else:
-            raise ValueError(f"Unknown case type: {data_type}")
 
     return data_se
 
@@ -156,26 +123,30 @@ def data_conv(
 def data_sep(
     data_se: pd.Series,
     sep: Optional[List[str]] = None,
+    fillna_value: Optional[str] = None
 ) -> pd.DataFrame:
+    if not check_pd_series(data_se, type_check=str):
+        return pd.DataFrame(data_se)
+
     data_se = data_se.copy()
 
-    if data_se.empty:
-        return pd.DataFrame(data_se)
     if sep is None:
         return pd.DataFrame(data_se)
 
     # Combine all separators into a single regex pattern
-    print(sep)
     regex_pattern = "|".join(map(re.escape, sep))
 
-    data_se = data_se.astype(str)
-    col = data_se.name
+    original_name = data_se.name
 
     # Split using the combined regex pattern
     data_exp = data_se.str.split(regex_pattern, expand=True)
+    
+    # Fill NaN values with the specified fillna_value
+    if fillna_value is not None:
+        data_exp.fillna(fillna_value, inplace=True)
 
     # Rename split columns
-    data_exp.columns = [f"{col}_{i}" for i in range(data_exp.shape[1])]
+    data_exp.columns = [f"{original_name}_{i}" for i in range(data_exp.shape[1])]
 
     # Concatenate all new columns and return
     return data_exp
@@ -204,9 +175,10 @@ def data_sep_pattern(
     Wrong pattern group name
         Group name in regex patters should only be Data or Other.
     """
-    if data_se.empty:
-        return pd.DataFrame(data_se)
     if pattern is None:
+        return pd.DataFrame(data_se)
+
+    if not check_pd_series(data_se, type_check=str):
         return pd.DataFrame(data_se)
 
     # Extract named groups from the pattern
@@ -219,7 +191,7 @@ def data_sep_pattern(
 
     try:
         # Extract based on pattern with named groups
-        data_match = data_se.astype(str).str.extract(pattern, flags=flags)
+        data_match = data_se.str.extract(pattern, flags=flags)
     except re.error as exc:
         raise ValueError(f"Invalid regex pattern: {exc}")
     

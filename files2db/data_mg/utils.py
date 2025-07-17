@@ -168,3 +168,35 @@ def error_register(df_errors):
     except Exception as exc:
         print_exception()
         raise RuntimeError("Error while registering error") from exc
+
+
+def check_pd_series(
+    data_se: pd.Series,
+    type_check: Optional[tuple] = ("str", "int")
+) -> bool:
+    """
+    Check if the input is a Pandas Series.
+
+    Parameters
+    ----------
+    data_se : any
+        Input to check.
+
+    Returns
+    -------
+    bool
+        True if input is a Pandas Series, False otherwise.
+    """
+    if not isinstance(data_se, pd.Series):
+        raise TypeError("data_se should be a Pandas Series")
+
+    if data_se.empty:
+        return False
+
+    for val in data_se:
+        if pd.isna(val):
+            continue
+        if not isinstance(val, type_check):
+            raise TypeError(f"data_se should be a Pandas Series of type {type_check}")
+
+    return True

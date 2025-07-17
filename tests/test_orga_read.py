@@ -70,6 +70,7 @@ class TestingLoadFileOrga(unittest.TestCase):
                 "ColEnd",
                 "ToAdd",
                 "AsCorrection",
+                "Separator",
             ],
         )
 
@@ -192,7 +193,7 @@ class TestGetDBFromExcel(unittest.TestCase):
             set(db_orga.keys()),
             set(["Files", "FieldRules", "ValuesMap"]),
         )
-        self.assertEqual(db_orga["Files"].shape, (2, 21))
+        self.assertEqual(db_orga["Files"].shape, (2, 22))
 
 
 class TestGetDBFromCSV(unittest.TestCase):
@@ -224,7 +225,7 @@ class TestGetDBFromCSV(unittest.TestCase):
             set(db_orga.keys()),
             set(["Files", "FieldRules", "ValuesMap"]),
         )
-        self.assertEqual(db_orga["Files"].shape, (2, 15))
+        self.assertEqual(db_orga["Files"].shape, (3, 16))
 
 
 if __name__ == "__main__":

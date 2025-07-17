@@ -28,7 +28,7 @@ class TestingInitCleanClass(unittest.TestCase):
         expected_df = pd.DataFrame(expected_data)
 
         # Call the function to test
-        cleaned_df = initial_clean_na_values_utf8(df, fill_value="NA")
+        cleaned_df = initial_clean_na_values_utf8(df, fillna_value="NA")
 
         # Check if the cleaned DataFrame matches the expected DataFrame
         assert_frame_equal(
