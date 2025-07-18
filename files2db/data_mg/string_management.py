@@ -118,8 +118,7 @@ def data_clean(
     # Delete substring inside string
     if del_in:
         for sub in del_in:
-            pattern = re.escape(sub)
-            data_se = data_se.str.replace(pattern, "", regex=True)
+            data_se = data_se.str.replace(sub, "", regex=True)
     data_se.name = original_name
 
     return data_se

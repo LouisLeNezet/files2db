@@ -61,13 +61,13 @@ class TestDataClean(unittest.TestCase):
         assert_series_equal(result, expected)
 
     def test_all_parameters_combined(self):
-        s = pd.Series(["REMOVE", "valueotherfoo", "trash:data", "skip"])
-        expected = pd.Series(["", "value", "trash", "skip"])
+        s = pd.Series(["REMOVE", "valueotherfoo", "trash:data", "skip (something to delete)", "???"])
+        expected = pd.Series(["", "value", "trash", "skip", ""])
         result = data_clean(
             s,
-            del_match=["REMOVE"],
+            del_match=["REMOVE", "???"],
             strip_from=["=", ":"],
-            del_in=["other", "foo"],
+            del_in=["other", "foo", "\(.*\)", " "],
             fillna_value="",
         )
         assert_series_equal(result, expected)
@@ -130,6 +130,18 @@ class TestDataSep(unittest.TestCase):
         s = pd.Series([1, 2], name="col1")
         with self.assertRaises(TypeError):
             data_sep(s, sep=[","])
+    
+    def test_complexe_data(self):
+        s = pd.Series(["00 et 2020.01/03 (my date)", "other date et possible et 2020.01/03 (my date)"], name="col1")
+        expect = pd.DataFrame(
+            {
+                "col1_0": ["00", "other date"],
+                "col1_1": ["2020.01/03 (my date)", "possible"],
+                "col1_2": [None, "2020.01/03 (my date)"],
+            }
+        )
+        result = data_sep(s, sep=["et"])
+        
 
 
 class TestDataSepPattern(unittest.TestCase):

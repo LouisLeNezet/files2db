@@ -113,12 +113,14 @@ def norm_data(
         )
         return normed_df, errors_df
 
-    for field in db_orga["FieldRules"]["Field"]:
+    for field_i in db_orga["FieldRules"].index:
+        print("Processing field index:", field_i)
+        field = db_orga["FieldRules"].loc[field_i, "Field"]
         match_cols = [col for col in normed_df.columns if re.fullmatch(field, col)]
         if not match_cols:
             logging.info("Field %s not found in the file", field)
             continue
-        field_infos = db_orga["FieldRules"].set_index("Field").loc[field].to_dict()
+        field_infos = db_orga["FieldRules"].loc[field_i].to_dict()
         field_equiv = db_orga["ValuesMap"][
             db_orga["ValuesMap"]["Field"] == field
         ].to_dict(orient="records")
@@ -136,6 +138,7 @@ def norm_data(
 
             for col_ii in data_df_sep:
                 logging.info("Normalising column: %s", col_ii)
+                print(field_infos)
                 data_se_cleaned = data_clean(
                     data_df_sep.loc[:, col_ii],
                     del_match=field_infos["DelMatch"],
@@ -145,6 +148,7 @@ def norm_data(
                     strip_from=field_infos["StripFrom"],
                     fillna_value=fillna_value,
                 )
+                print(data_se_cleaned)
                 data_se_converted = data_conv(
                     data_se_cleaned, field_infos["DataType"], fillna_value=fillna_value
                 )
