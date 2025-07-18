@@ -165,15 +165,31 @@ class TestDataSepPattern(unittest.TestCase):
             }
         )
         assert_frame_equal(df, expected)
-    
+
     def test_basic_separation_multiple_alpha_num_noorder(self):
-        s = pd.Series([pd.NA, "SomethingElse", "250268720147419", "985154000245240 2DVT608", "2DVT608", "2DVT608 250268720147419"])
+        s = pd.Series(
+            [
+                pd.NA,
+                "SomethingElse",
+                "250268720147419",
+                "985154000245240 2DVT608",
+                "2DVT608",
+                "2DVT608 250268720147419",
+            ]
+        )
         pattern = r"(?P<Puce>\d{12,19})|(?P<Tatouage>[0-9]+[A-Z][A-Z0-9]*)"
         df = data_sep_pattern(s, pattern)
 
         expected = pd.DataFrame(
             {
-                "Puce": [pd.NA, pd.NA, "250268720147419", "985154000245240", pd.NA, "250268720147419"],
+                "Puce": [
+                    pd.NA,
+                    pd.NA,
+                    "250268720147419",
+                    "985154000245240",
+                    pd.NA,
+                    "250268720147419",
+                ],
                 "Tatouage": [pd.NA, pd.NA, pd.NA, "2DVT608", "2DVT608", "2DVT608"],
             }
         )

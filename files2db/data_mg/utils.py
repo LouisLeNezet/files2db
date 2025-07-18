@@ -155,7 +155,7 @@ def to_bool(
             return fillna_value
         else:
             raise ValueError("value cannot be None and fillna_value is not provided")
-    
+
     if isinstance(value, str):
         if value.lower() == "true":
             value = True
@@ -177,11 +177,14 @@ def to_bool(
             value = False
         else:
             raise ValueError("value should be 1.0 (True) or 0.0 (False) as a float")
-    
+
     if not isinstance(value, bool):
-        raise TypeError(f"value should be interpretable as a boolean value: got {value} of type {type(value)}")
-    
+        raise TypeError(
+            f"value should be interpretable as a boolean value: got {value} of type {type(value)}"
+        )
+
     return value
+
 
 def update_only_missing(target_df, update_df):
     for col in update_df.columns:
@@ -203,3 +206,7 @@ def update_only_missing(target_df, update_df):
         else:
             target_df[col] = update_df[col]
     return target_df
+
+
+def df_to_str_keep_na(df):
+    return df.applymap(lambda x: str(x) if pd.notna(x) else pd.NA)

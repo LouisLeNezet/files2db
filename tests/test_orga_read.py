@@ -56,7 +56,8 @@ class TestingLoadFileOrga(unittest.TestCase):
             ["Files", "FieldRules", "ValuesMap"],
         )
         self.assertEqual(
-            list(db_orga["Files"].keys()), ["columns_needed", "columns_sup", "integer"]
+            list(db_orga["Files"].keys()),
+            ["columns_needed", "columns_sup", "integer", "list"],
         )
         self.assertEqual(
             db_orga["Files"]["columns_needed"],
@@ -181,6 +182,14 @@ class TestGetDBFromExcel(unittest.TestCase):
             get_db_from_excel(file_path, load_file_orga())
         self.assertIn("'Missing files ValuesMap in", str(context.exception))
 
+
+class TestGetDBFromPath(unittest.TestCase):
+    """Check that the get_db_from_path function works as expected."""
+
+    def setUp(self):
+        """Set up test data path"""
+        self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset")
+
     @patch("logging.warning")
     def test_get_db_from_path_correct(self, mock_log):
         """Test missing sheet error."""
@@ -194,6 +203,20 @@ class TestGetDBFromExcel(unittest.TestCase):
             set(["Files", "FieldRules", "ValuesMap"]),
         )
         self.assertEqual(db_orga["Files"].shape, (2, 22))
+
+    def test_get_db_from_path_correct(self):
+        """Test missing sheet error."""
+        file_path = os.path.join(self.test_data_path, "orga.csv")
+        db_orga = get_db_from_path(file_path, load_file_orga())
+
+        self.assertEqual(
+            set(db_orga.keys()),
+            set(["Files", "FieldRules", "ValuesMap"]),
+        )
+        self.assertEqual(db_orga["Files"].shape, (4, 16))
+        self.assertEqual(
+            db_orga["FieldRules"]["DelMatch"][4], ["delmatchitis", "othermatch"]
+        )
 
 
 class TestGetDBFromCSV(unittest.TestCase):

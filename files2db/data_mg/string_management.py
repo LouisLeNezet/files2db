@@ -101,21 +101,14 @@ def data_clean(
     # Delete full matches
     if del_match:
         data_se = data_se.replace(del_match, fillna_value)
-    if original_name == "ColC_0":
-        print("data_se before del_start:", data_se)
 
     if del_start is not None:
         for mod_del in del_start:
             data_se = data_se.str.replace(f"^{mod_del}", "", regex=True)
-    if original_name == "ColC_0":
-        print("data_se before del_end:", data_se)
 
     if del_end is not None:
         for mod_del in del_end:
             data_se = data_se.str.replace(f"{mod_del}$", "", regex=True)
-
-    if original_name == "ColC_0":
-        print("data_se before strip_from:", data_se)
 
     # Strip after substring
     if strip_from:
@@ -190,7 +183,7 @@ def data_sep_pattern(
     """
     # Set keep_link to boolean
     keep_link = to_bool(keep_link, fillna_value=False)
-    
+
     if pattern is None:
         return pd.DataFrame(data_se)
 
@@ -211,10 +204,9 @@ def data_sep_pattern(
 
     # Extract and keep only named groups
     data_match = data_se.str.extractall(compiled_pattern)
-    
+
     aggregated = (
-        data_match
-        .reset_index()
+        data_match.reset_index()
         .drop(columns="match")
         .groupby("level_0")
         .agg(lambda x: next((i for i in x if pd.notna(i)), pd.NA))
@@ -222,12 +214,14 @@ def data_sep_pattern(
 
     # Reindex to original data with missing rows as pd.NA
     data_match_grouped = aggregated.reindex(data_se.index, fill_value=pd.NA)
-    
+
     data_match_filtered = data_match_grouped.loc[:, named_groups]
 
     if keep_link:
         # Add the column original name to the new columns
-        data_match_filtered.columns = [f"{data_se.name}_{col}" for col in data_match_filtered.columns]
+        data_match_filtered.columns = [
+            f"{data_se.name}_{col}" for col in data_match_filtered.columns
+        ]
 
     if fillna_value is not None:
         data_match_filtered = data_match_filtered.fillna(fillna_value)

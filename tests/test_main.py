@@ -2,6 +2,10 @@ import unittest
 import os
 
 from files2db.main import main
+from files2db.read_file.data_read import read_file
+from files2db.data_mg.utils import df_to_str_keep_na
+
+from pandas._testing import assert_frame_equal
 
 import logging
 
@@ -58,11 +62,19 @@ class TestMainFunction(unittest.TestCase):
 
         # Check dimensions of the raw DataFrame
         self.assertEqual(df_raw.shape, (10, 11))
-        
-        print(df_raw)
-        print(df_norm)
-        
         self.assertEqual(df_norm.shape, (10, 12))
+
+        db_expected_path = os.path.join(self.test_data_path, "files/expected.csv")
+        db_expected = read_file(db_expected_path, sep=";", col_start=2)
+        db_expected.reset_index(drop=True, inplace=True)
+
+        df_norm.columns.name = None
+        db_expected.columns.name = None
+
+        df_norm = df_to_str_keep_na(df_norm)
+        db_expected = df_to_str_keep_na(db_expected)
+
+        assert_frame_equal(df_norm, db_expected, check_dtype=False)
 
 
 if __name__ == "__main__":

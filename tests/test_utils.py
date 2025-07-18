@@ -35,11 +35,11 @@ class TestingClass(unittest.TestCase):
                 "A": [1, 20, 3, 40],
                 "B": [50, 6, 70, 80],
             },
-            dtype = "object",
+            dtype="object",
         )
         df_result = update_only_missing(df_test, df_update)
         assert_frame_equal(df_result, df_expected)
-    
+
     def test_update_only_missing_with_error(self):
         """Test function update_only_missing"""
         df_test = pd.DataFrame(
@@ -54,7 +54,7 @@ class TestingClass(unittest.TestCase):
                 "B": [50, pd.NA, 70, 80],
             }
         )
-        
+
         error_msg = "Conflict detected in column 'A' at rows [3]. Attempt to overwrite non-null values."
         with self.assertRaises(ValueError) as context:
             update_only_missing(df_test, df_update)

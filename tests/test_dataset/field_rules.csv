@@ -2,6 +2,6 @@
 ColF;Infos;;;;;;;string;;;;(?P<ColA>\d+)|(?P<ColC>[A-Za-z]+);False
 ColE;Other;;;;;;;string;;;;;
 ColA;ID;;;;;;;int;int;1;4;;
-ColB;ID;;delmatchitis;;;;;string;;;;;
+ColB;ID;;delmatchitis,othermatch;;;;;string;;;;;
 ColC;Infos;_;;prefix;;suffix;;string;;;;;
 ColD;Date;;;;;;;date;date;;;;

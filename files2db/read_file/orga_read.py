@@ -85,6 +85,13 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
             for col in orga_dict[file]["integer"].split(","):
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+        # Transform to list needed columns
+        if ("list" in orga_dict[file]) and isinstance(orga_dict[file]["list"], str):
+            for col in orga_dict[file]["list"].split(","):
+                if col in df.columns:
+                    df[col] = df[col].apply(
+                        lambda x: x.split(",") if isinstance(x, str) else x
+                    )
     return db_dict
 
 
