@@ -215,7 +215,7 @@ class TestGetDBFromPath(unittest.TestCase):
         )
         self.assertEqual(db_orga["Files"].shape, (4, 16))
         self.assertEqual(
-            db_orga["FieldRules"]["DelMatch"][4], ["delmatchitis", "othermatch"]
+            db_orga["FieldRules"]["DelMatch"][5], ["delmatchitis", "othermatch"]
         )
 
 
