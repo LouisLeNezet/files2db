@@ -1,4 +1,0 @@
-file,path,sep
-Files,./tests/test_dataset/files.csv,";"
-ValuesMap,./tests/test_dataset/values_map.csv,";"
-FieldRules,./tests/test_dataset/field_rules.csv,";"

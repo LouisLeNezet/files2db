@@ -73,7 +73,6 @@ def initial_clean_na_values_utf8(
                     else unicodedata.normalize("NFKD", x)
                     .encode("ascii", "ignore")
                     .decode("utf-8")
-                    .lower()
                 )
             )
 

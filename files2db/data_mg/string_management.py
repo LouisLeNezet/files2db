@@ -102,6 +102,11 @@ def data_clean(
     if del_match:
         data_se = data_se.replace(del_match, fillna_value)
 
+    # Delete substring inside string
+    if del_in:
+        for sub in del_in:
+            data_se = data_se.str.replace(sub, "", regex=True)
+
     if del_start is not None:
         for mod_del in del_start:
             data_se = data_se.str.replace(f"^{mod_del}", "", regex=True)
@@ -115,10 +120,6 @@ def data_clean(
         for delim in strip_from:
             data_se = data_se.str.partition(delim)[0]
 
-    # Delete substring inside string
-    if del_in:
-        for sub in del_in:
-            data_se = data_se.str.replace(sub, "", regex=True)
     data_se.name = original_name
 
     return data_se

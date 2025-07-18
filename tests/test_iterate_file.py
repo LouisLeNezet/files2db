@@ -19,7 +19,7 @@ class TestValidateFiles(unittest.TestCase):
     def test_iterate_with_file_csv(self):
         """Use a CSV file to test the iterate_file function."""
         test_file_path = os.path.join(
-            os.path.dirname(__file__), "test_dataset", "files.csv"
+            os.path.dirname(__file__), "test_dataset", "test1/files.csv"
         )
         file_df = pd.read_csv(test_file_path, sep=";", encoding="utf8")
         iterated_data = iterate_file(file_df)

@@ -125,7 +125,7 @@ class TestingClass(unittest.TestCase):
 
     def test_read_file_simple(self):
         """Test read_file with simple CSV file"""
-        file_path = os.path.join(self.test_data_path, "files/fileA.xlsx")
+        file_path = os.path.join(self.test_data_path, "test1/fileA.xlsx")
         with self.assertRaises(KeyError):
             read_file(file_path)
         data = read_file(
@@ -150,7 +150,7 @@ class TestingClass(unittest.TestCase):
         file_path = os.path.join(self.test_data_path, "../test_data_convert.py")
         with self.assertRaises(TypeError):
             read_file(file_path)
-        file_path = os.path.join(self.test_data_path, "orga.csv")
+        file_path = os.path.join(self.test_data_path, "test1/orga.csv")
         with self.assertRaises(KeyError):
             read_file(file_path)
         data = read_file(file_path, sep=",")

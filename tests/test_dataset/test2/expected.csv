@@ -1,0 +1,5 @@
+;Name_0;Name_1;Infos_1_DateTest;Infos_2_DateTest;Infos_1_Mesure1_DG_G;Infos_1_Mesure1_DG_D;Infos_1_Mesure1_DG_DG;Infos_2_Mesure2_D;Infos_2_Mesure2_G;Ident_Num;Ident_Char;Pheno1;Pheno2;Error
+0;1;14;01.01.2023;02.01.2023;A;A;NA;200;300;100000;ABCDE;PHENO1;Pheno2;{'Name_1': {'Value': 14, 'Error': ['SupToMax']}, 'Ident_Num': {'Value': 100000, 'Error': ['InfToMin']}}
+1;2;NA;03.01.2023;04.01.2023;B;NA;NA;250;350;200000;FGHIJ;PHENO3;Pheno4;NA
+2;3;NA;05.01.2023;06.01.2023;B;A;NA;300;NA;NA;KLMnO;PHENO5;Pheno6;{'Ident_Char': {'Value': 'KLMnO', 'Error': ['not LETTERS']}}
+3;4;NA;07.01.2023;08.01.2023;B;1;NA;90;450;NA;PQRSTU;PHENO8;Pheno7;{'Infos_1_Mesure1_DG_D': {'Value': '1', 'Error': ['not A,B,C,D,E']}, 'Infos_2_Mesure2_D': {'Value': np.int64(90), 'Error': ['InfToMin']}, 'Infos_2_Mesure2_G': {'Value': 450, 'Error': ['SupToMax']}}

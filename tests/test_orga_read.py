@@ -206,7 +206,7 @@ class TestGetDBFromPath(unittest.TestCase):
 
     def test_get_db_from_path_correct(self):
         """Test missing sheet error."""
-        file_path = os.path.join(self.test_data_path, "orga.csv")
+        file_path = os.path.join(self.test_data_path, "test1/orga.csv")
         db_orga = get_db_from_path(file_path, load_file_orga())
 
         self.assertEqual(
@@ -241,7 +241,7 @@ class TestGetDBFromCSV(unittest.TestCase):
 
     def test_get_db_from_csv_correct(self):
         """Test correct file."""
-        file_path = os.path.join(self.test_data_path, "orga.csv")
+        file_path = os.path.join(self.test_data_path, "test1/orga.csv")
         db_orga = get_db_from_csv(file_path, load_file_orga())
         self.assertEqual(
             set(db_orga.keys()),

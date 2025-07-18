@@ -208,5 +208,12 @@ def update_only_missing(target_df, update_df):
     return target_df
 
 
-def df_to_str_keep_na(df):
-    return df.apply(lambda col: col.map(lambda x: str(x) if pd.notna(x) else pd.NA))
+def df_to_str_keep_na(
+    df: pd.DataFrame,
+    na_values = [None, "", "NaN", "nan", "<na>", "None", "NA", {}],  # Remove pd.NA from list
+) -> pd.DataFrame:
+    return df.apply(
+        lambda col: col.map(
+            lambda x: str(x) if (not pd.isna(x) and x not in na_values) else pd.NA
+        )
+    )

@@ -20,7 +20,7 @@ class TestMainFunction(unittest.TestCase):
     def test_main_function_no_normalisation(self):
         """Test the main function with a sample path and options."""
         # Define a sample path and options
-        db_path = os.path.join(self.test_data_path, "orga.csv")
+        db_path = os.path.join(self.test_data_path, "test1/orga.csv")
         normalize = False
         output_folder = "./DataGenerated"
         output_files_prefix = "AllID"
@@ -43,7 +43,7 @@ class TestMainFunction(unittest.TestCase):
     def test_main_function_with_normalisation(self):
         """Test the main function with a sample path and options."""
         # Define a sample path and options
-        db_path = os.path.join(self.test_data_path, "orga.csv")
+        db_path = os.path.join(self.test_data_path, "test1/orga.csv")
         normalize = True
         output_folder = "./DataGenerated"
         output_files_prefix = "AllID"
@@ -63,7 +63,7 @@ class TestMainFunction(unittest.TestCase):
         # Check dimensions of the raw DataFrame
         self.assertEqual(df_raw.shape, (10, 11))
 
-        db_expected_path = os.path.join(self.test_data_path, "files/expected.csv")
+        db_expected_path = os.path.join(self.test_data_path, "test1/expected.csv")
         db_expected = read_file(db_expected_path, sep=";", col_start=2)
         db_expected.reset_index(drop=True, inplace=True)
 
