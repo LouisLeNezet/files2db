@@ -1,5 +1,0 @@
-﻿Field;Category;Type;Case;Sep;Del;DelEnd;DelIn;SepGive;StripStart;StripEnd;Min;Max;Contains
-Name;ID;string;;;;;;;;;;;
-FirstName;ID;string;;;;;;;;;;;
-Health;Health;string;;;;;;;;;;;
-Age;Infos;int;;;;;;;;;;;

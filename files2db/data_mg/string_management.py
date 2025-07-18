@@ -1,0 +1,229 @@
+import re
+import pandas as pd
+import numpy as np
+from typing import Optional, List
+
+from files2db.data_mg.utils import check_pd_series, to_bool
+
+
+def data_replace(
+    data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True
+):
+    """
+    Replace all values in a Series based on equivalency mappings.
+
+    Parameters
+    ----------
+    data_se : pd.Series
+        Series to normalize.
+    equiv_data : dict
+        Dictionary where keys are normalized values and values are lists of equivalent terms.
+    to_lower : bool, optional
+        Whether to lowercase all values before matching (default: True).
+
+    Returns
+    -------
+    pd.Series
+        Normalized Series with values replaced according to equivalency mappings.
+
+    Raises
+    ------
+    RuntimeError
+        If replacement fails.
+    """
+    if not isinstance(equiv_data, dict):
+        raise TypeError("equiv_data should be a dictionary")
+    if not all(
+        isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()
+    ):
+        raise TypeError(
+            "equiv_data should be a dictionary with string keys and list values"
+        )
+    if not all(
+        isinstance(val, str) for sublist in equiv_data.values() for val in sublist
+    ):
+        raise TypeError("All values in equiv_data should be strings")
+    if equiv_data == {}:
+        return data_se
+
+    if not check_pd_series(data_se, type_check=str):
+        return data_se
+
+    replace_dict = {}
+
+    for norm_val, equivalents in equiv_data.items():
+        if to_lower:
+            norm_val = norm_val.lower()
+            equivalents = [val.lower() for val in equivalents]
+        for eq in equivalents:
+            replace_dict[eq] = norm_val
+
+    if to_lower:
+        data_se = data_se.str.lower()
+
+    return data_se.replace(replace_dict)
+
+
+def data_clean(
+    data_se: pd.Series,
+    del_match: Optional[List[str]] = None,
+    del_start: Optional[List[str]] = None,
+    del_end: Optional[List[str]] = None,
+    strip_from: Optional[List[str]] = None,
+    del_in: Optional[List[str]] = None,
+    fillna_value=np.nan,
+) -> pd.Series:
+    """
+    Clean and normalize string data in a Pandas Series.
+
+    Parameters
+    ----------
+    data_se : pd.Series
+        Series to normalize.
+    del_match : list of str, optional
+        Values that, if fully matched, will be replaced by `fillna_value`.
+    strip_from : list of str, optional
+        Substrings; everything after each will be removed.
+    del_in : list of str, optional
+        Substrings to delete from inside strings.
+    fillna_value : Any, optional
+        Value to use when replacing removed items (default is np.nan).
+
+    Returns
+    -------
+    pd.Series
+        Cleaned Pandas Series.
+    """
+    original_name = data_se.name
+    if not check_pd_series(data_se, type_check=str):
+        return data_se
+
+    # Delete full matches
+    if del_match:
+        data_se = data_se.replace(del_match, fillna_value)
+
+    # Delete substring inside string
+    if del_in:
+        for sub in del_in:
+            data_se = data_se.str.replace(sub, "", regex=True)
+
+    if del_start is not None:
+        for mod_del in del_start:
+            data_se = data_se.str.replace(f"^{mod_del}", "", regex=True)
+
+    if del_end is not None:
+        for mod_del in del_end:
+            data_se = data_se.str.replace(f"{mod_del}$", "", regex=True)
+
+    # Strip after substring
+    if strip_from:
+        for delim in strip_from:
+            data_se = data_se.str.partition(delim)[0]
+
+    data_se.name = original_name
+
+    return data_se
+
+
+def data_sep(
+    data_se: pd.Series,
+    sep: Optional[List[str]] = None,
+    fillna_value: Optional[str] = None,
+) -> pd.DataFrame:
+    if not check_pd_series(data_se, type_check=str):
+        return pd.DataFrame(data_se)
+
+    data_se = data_se.copy()
+
+    if sep is None:
+        return pd.DataFrame(data_se)
+
+    # Combine all separators into a single regex pattern
+    regex_pattern = "|".join(map(re.escape, sep))
+
+    original_name = data_se.name
+
+    # Split using the combined regex pattern
+    data_exp = data_se.str.split(regex_pattern, expand=True)
+
+    # Fill NaN values with the specified fillna_value
+    if fillna_value is not None:
+        data_exp.fillna(fillna_value, inplace=True)
+
+    # Rename split columns
+    data_exp.columns = [f"{original_name}_{i}" for i in range(data_exp.shape[1])]
+
+    # Concatenate all new columns and return
+    return data_exp
+
+
+def data_sep_pattern(
+    data_se: pd.Series,
+    pattern: Optional[str] = None,
+    keep_link: bool = False,
+    ignore_case: bool = True,
+    fillna_value: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Separate data given into different columns based on regex patterns.
+
+    Parameters
+    ----------
+    data_se : pd.Series
+        Series to separate.
+    pattern : str, optional
+        Regex pattern to use for separation. If None, no separation is performed.
+        Patterns should be of the form (?P<column_name>)(?P<column_name2>).
+        Unnamed groups will be ignored.
+
+    Raises
+    ------
+    Wrong pattern group name
+        Group name in regex patters should only be Data or Other.
+    """
+    # Set keep_link to boolean
+    keep_link = to_bool(keep_link, fillna_value=False)
+
+    if pattern is None:
+        return pd.DataFrame(data_se)
+
+    if not check_pd_series(data_se, type_check=str):
+        return pd.DataFrame(data_se)
+
+    # Compile pattern
+    flags = re.IGNORECASE if ignore_case else 0
+    try:
+        compiled_pattern = re.compile(pattern, flags=flags)
+    except re.error as exc:
+        raise ValueError(f"Invalid regex pattern: {exc}")
+
+    # Extract named groups
+    named_groups = compiled_pattern.groupindex.keys()
+    if not named_groups:
+        raise ValueError("Pattern must contain named groups (e.g., ?P<ColA>)")
+
+    # Extract and keep only named groups
+    data_match = data_se.str.extractall(compiled_pattern)
+
+    aggregated = (
+        data_match.reset_index()
+        .drop(columns="match")
+        .groupby("level_0")
+        .agg(lambda x: next((i for i in x if pd.notna(i)), pd.NA))
+    )
+
+    # Reindex to original data with missing rows as pd.NA
+    data_match_grouped = aggregated.reindex(data_se.index, fill_value=pd.NA)
+
+    data_match_filtered = data_match_grouped.loc[:, named_groups]
+
+    if keep_link:
+        # Add the column original name to the new columns
+        data_match_filtered.columns = [
+            f"{data_se.name}_{col}" for col in data_match_filtered.columns
+        ]
+
+    if fillna_value is not None:
+        data_match_filtered = data_match_filtered.fillna(fillna_value)
+
+    return data_match_filtered

@@ -5,6 +5,7 @@
 Created on Tue Jan 19 13:15:22 2021
 @author: LouisLeNezet
 """
+
 from pymongo import MongoClient
 from pymongo import errors as pyMongoErrors
 from bson.objectid import ObjectId
@@ -17,8 +18,7 @@ from datatools import size_diff, joint, not_null, bool_invert, is_null, get_not_
 from data_management import update_dic_dcf
 
 
-
-class MongoClass():
+class MongoClass:
     """Class to create and use a mongo database."""
 
     def __init__(self):
@@ -31,11 +31,21 @@ class MongoClass():
         """Initialise the variable Fields, when Excel data has been updated."""
         self.vars["IdFields"] = settings.PARAMS["ID_FIELDS"]
         self.vars["IdSuplFields"] = settings.PARAMS["ID_SUPL_FIELDS"]
-        settings.PARAMS["GUI_MW"].count_orga["Identity"]["Value"].set(self.count("Identity", {}))
-        settings.PARAMS["GUI_MW"].count_orga["DatasToCheck"]["Value"].set(self.count("DatasToCheck", {}))
-        settings.PARAMS["GUI_MW"].count_orga["DatasNoID"]["Value"].set(self.count("DatasNoID", {}))
-        settings.PARAMS["GUI_MW"].count_orga["Errors"]["Value"].set(self.count("Errors", {}))
-        settings.PARAMS["GUI_MW"].count_orga["Modifs"]["Value"].set(self.count("Modifs", {}))
+        settings.PARAMS["GUI_MW"].count_orga["Identity"]["Value"].set(
+            self.count("Identity", {})
+        )
+        settings.PARAMS["GUI_MW"].count_orga["DatasToCheck"]["Value"].set(
+            self.count("DatasToCheck", {})
+        )
+        settings.PARAMS["GUI_MW"].count_orga["DatasNoID"]["Value"].set(
+            self.count("DatasNoID", {})
+        )
+        settings.PARAMS["GUI_MW"].count_orga["Errors"]["Value"].set(
+            self.count("Errors", {})
+        )
+        settings.PARAMS["GUI_MW"].count_orga["Modifs"]["Value"].set(
+            self.count("Modifs", {})
+        )
 
     def connect_db(self):
         """Set MongoDB connection and help user to choose beetween using, or replace database.
@@ -54,8 +64,9 @@ class MongoClass():
         """
         try:
             print_d("Connecting to MongoDB")
-            self.client = MongoClient("mongodb://localhost:27017/",
-                                      serverSelectionTimeoutMS=5*1000)
+            self.client = MongoClient(
+                "mongodb://localhost:27017/", serverSelectionTimeoutMS=5 * 1000
+            )
 
             db_name = settings.PARAMS["DB_NAME"]
             self.vars["errors"] = []
@@ -63,30 +74,48 @@ class MongoClass():
             print_d(all_db)
             if db_name in all_db:
                 use_old_db = question_to_user(
-                    str("The database: " + db_name +
-                        " already exist do you want to use it ?"))
+                    str(
+                        "The database: "
+                        + db_name
+                        + " already exist do you want to use it ?"
+                    )
+                )
                 if use_old_db:
                     self.use_db()
                     collection_present = self.my_db.list_collection_names()
-                    print_d(str("The following collection(s) already exist \n" +
-                                str(collection_present)))
+                    print_d(
+                        str(
+                            "The following collection(s) already exist \n"
+                            + str(collection_present)
+                        )
+                    )
                 else:
                     delete_db = question_to_user("Do you want to replace it ?")
                     if delete_db:
-                        print_d(str("The database " + db_name +
-                                    " will therefore be deleted and replaced by an empty one"))
+                        print_d(
+                            str(
+                                "The database "
+                                + db_name
+                                + " will therefore be deleted and replaced by an empty one"
+                            )
+                        )
                         self.client.drop_database(db_name)
                         self.use_db()
                     else:
-                        raise Exception("Exiting script due to presence of old database",
-                                        db_name, "and no use or deletion of if")
+                        raise Exception(
+                            "Exiting script due to presence of old database",
+                            db_name,
+                            "and no use or deletion of if",
+                        )
             else:
                 print_d(str("Your database: " + db_name + " is not present"))
                 create = question_to_user("Do you want to create it ?")
                 if create:
                     self.use_db()
                 else:
-                    raise Exception("Exiting script due to absence of database and no creation of it")
+                    raise Exception(
+                        "Exiting script due to absence of database and no creation of it"
+                    )
         except pyMongoErrors.ServerSelectionTimeoutError as err:
             print_d(str("Server not started: " + str(err)))
             print_d("Please activate the MongoDB server service before continuing")
@@ -185,7 +214,15 @@ class MongoClass():
         else:
             raise Exception("Argument many not recognize")
 
-    def get_dog_id(self, dog_to_add_infos, file_id_col, file_idsupl_col, nb_id_min, ask_user, task_to_do):
+    def get_dog_id(
+        self,
+        dog_to_add_infos,
+        file_id_col,
+        file_idsupl_col,
+        nb_id_min,
+        ask_user,
+        task_to_do,
+    ):
         """Search for the dog_id if present in the dataBase based on the data present in the file.
 
         Parameters
@@ -213,9 +250,9 @@ class MongoClass():
         """
         try:
             # Store query and informations available
-            query_or = {'$or': []}
-            query_and = {'$and': []}
-            query_all_and = {'$and': []}
+            query_or = {"$or": []}
+            query_and = {"$and": []}
+            query_all_and = {"$and": []}
 
             errors_get = []
             modifs_get = []
@@ -231,42 +268,57 @@ class MongoClass():
                     else:
                         query_to_append = {id_infos: dog_to_add_infos[id_infos]}
                     if id_infos in file_id_col:
-                        query_and['$and'].append(query_to_append)
+                        query_and["$and"].append(query_to_append)
                         if id_infos != "DateNaissance":
-                            query_or['$or'].append(query_to_append)
-                    query_all_and['$and'].append(query_to_append)
+                            query_or["$or"].append(query_to_append)
+                    query_all_and["$and"].append(query_to_append)
 
-            if len(query_and["$and"]) > nb_id_min:  # If not enough key to check try by query_or
+            if (
+                len(query_and["$and"]) > nb_id_min
+            ):  # If not enough key to check try by query_or
                 count_and = self.my_db["Identity"].count_documents(query_and)
                 if count_and == 1:
-                    #print_d("Exact match")
+                    # print_d("Exact match")
                     dog_db = self.my_db["Identity"].find_one(query_and)
                     dog_id = dog_db["_id"]
 
                 elif count_and > 1:
                     errors_get.append("Error duplicate exact data present in DataBase")
                     dog_id = "Error_Check"
-                    #input("Wait: Error duplicate exact data present in DataBase")
-                    #raise Exception(str("Duplicate data found for " + str(query_and)))
+                    # input("Wait: Error duplicate exact data present in DataBase")
+                    # raise Exception(str("Duplicate data found for " + str(query_and)))
                 # else:
-                    # print_d("No dogs found with the $and query")
-                    # print_d(query_and)
+                # print_d("No dogs found with the $and query")
+                # print_d(query_and)
             else:
-                print_d("Not enough id fields to check by $and query", to_print=ask_user)
+                print_d(
+                    "Not enough id fields to check by $and query", to_print=ask_user
+                )
 
-            if len(query_or["$or"]) > nb_id_min-1 and dog_id is None:  # QueryAnd did not produce result
+            if (
+                len(query_or["$or"]) > nb_id_min - 1 and dog_id is None
+            ):  # QueryAnd did not produce result
                 count_or = self.my_db["Identity"].count_documents(query_or)
-                print_d(str(str(count_or) + " dogs have at least one corresponding data for their id fields"),
-                        to_print=ask_user)
+                print_d(
+                    str(
+                        str(count_or)
+                        + " dogs have at least one corresponding data for their id fields"
+                    ),
+                    to_print=ask_user,
+                )
                 if count_or == 0:
                     dog_id = "NeedNew"
                 else:
                     dogs_db_find = self.my_db["Identity"].find(query_or)
                     dogs_db_check = {}
                     for dog_db in dogs_db_find:
-                        dog_db_check, modif_get, error_get = self.check_dogs(dog_db, dog_to_add_infos,
-                                                                             file_id_col, file_idsupl_col,
-                                                                             ask_user)
+                        dog_db_check, modif_get, error_get = self.check_dogs(
+                            dog_db,
+                            dog_to_add_infos,
+                            file_id_col,
+                            file_idsupl_col,
+                            ask_user,
+                        )
                         dogs_db_check[dog_db["_id"]] = dog_db_check
 
                         if dog_db_check == "Error":
@@ -279,38 +331,69 @@ class MongoClass():
                         if modif_get != {}:
                             modifs_get.append(modif_get)
 
-                    dog_to_upd = sum(1 for result in dogs_db_check.values() if result == "UpD")
-                    dog_dif = sum(1 for result in dogs_db_check.values() if result == "Dif")
-                    dog_errors = sum(1 for result in dogs_db_check.values() if result == "Error")
+                    dog_to_upd = sum(
+                        1 for result in dogs_db_check.values() if result == "UpD"
+                    )
+                    dog_dif = sum(
+                        1 for result in dogs_db_check.values() if result == "Dif"
+                    )
+                    dog_errors = sum(
+                        1 for result in dogs_db_check.values() if result == "Error"
+                    )
 
-                    if dog_to_upd == 1 and dog_errors == 0:  # Only one dog correct to update
-                        dog_id = list(dogs_db_check.keys())[list(dogs_db_check.values()).index("UpD")]
-                    elif dog_dif == count_or and dog_errors == 0:  # All dogs are different
+                    if (
+                        dog_to_upd == 1 and dog_errors == 0
+                    ):  # Only one dog correct to update
+                        dog_id = list(dogs_db_check.keys())[
+                            list(dogs_db_check.values()).index("UpD")
+                        ]
+                    elif (
+                        dog_dif == count_or and dog_errors == 0
+                    ):  # All dogs are different
                         dog_id = "NeedNew"
                     else:
-                        if dog_to_upd > 1 and dog_errors == 0:  # Too much dog corresponding
-                            errors_get.append("Error too much dog corresponding to request")
+                        if (
+                            dog_to_upd > 1 and dog_errors == 0
+                        ):  # Too much dog corresponding
+                            errors_get.append(
+                                "Error too much dog corresponding to request"
+                            )
                         dog_id = "Error_NbSup"
-                        #print_d("Dog won't be updated")
+                        # print_d("Dog won't be updated")
 
-                    result = {"NumUpD": dog_to_upd, "NumDif:": dog_dif,
-                              "NumTotal:": count_or, "NumErrors:": dog_errors}
-                    print_d(str("\n Result: \n" + str(dogs_db_check) + "\n" + str(errors_get)),
-                            to_print=ask_user)
+                    result = {
+                        "NumUpD": dog_to_upd,
+                        "NumDif:": dog_dif,
+                        "NumTotal:": count_or,
+                        "NumErrors:": dog_errors,
+                    }
+                    print_d(
+                        str(
+                            "\n Result: \n"
+                            + str(dogs_db_check)
+                            + "\n"
+                            + str(errors_get)
+                        ),
+                        to_print=ask_user,
+                    )
                     print_d(str(result), to_print=ask_user)
 
-            if len(query_or["$or"]) <= nb_id_min-1:
+            if len(query_or["$or"]) <= nb_id_min - 1:
                 if task_to_do == "AddMissingID":
-                    count_all_and = self.my_db["Identity"].count_documents(query_all_and)
+                    count_all_and = self.my_db["Identity"].count_documents(
+                        query_all_and
+                    )
                     if count_all_and == 1:
-                        #print_d("Exact match")
+                        # print_d("Exact match")
                         dog_db = self.my_db["Identity"].find_one(query_all_and)
                         dog_id = dog_db["_id"]
                     elif count_all_and == 0:
                         errors_get.append({"Message": "No corresponding data"})
                         dog_id = "Error_2"
                     elif count_all_and > 1:
-                        errors_get.append({"Message": "Too much individuals correponding"})
+                        errors_get.append(
+                            {"Message": "Too much individuals correponding"}
+                        )
                         dog_id = "Error_3"
                 else:
                     errors_get.append({"Message": "Not enough data to check"})
@@ -349,8 +432,8 @@ class MongoClass():
         """
         try:
             # Dataframe preparation to compare
-            dog_db_id_keys = intersect(dog_db.keys(), self.vars['IdFields'])
-            dog_db_id_supl_keys = intersect(dog_db.keys(), self.vars['IdSuplFields'])
+            dog_db_id_keys = intersect(dog_db.keys(), self.vars["IdFields"])
+            dog_db_id_supl_keys = intersect(dog_db.keys(), self.vars["IdSuplFields"])
             dog_db_all_id_keys = union(dog_db_id_keys, dog_db_id_supl_keys)
 
             dog_file_id_keys = list(dog_file_infos[dog_id_col].keys())
@@ -368,34 +451,78 @@ class MongoClass():
             dog_db_s = pd.Series(dog_db, name="DogDB")[dog_db_all_id_keys]
             df_c = pd.concat((dog_file_s, dog_db_s), axis=1, join="inner")
 
-            df_c["SizeDiff"], df_c["Diff"], df_c["Equal"], df_c["Intersect"] = [None, None, None, None]
-            df_c["SizeDiff"] = df_c["SizeDiff"].astype('object')
-            df_c["Diff"] = df_c["Diff"].astype('object')
+            df_c["SizeDiff"], df_c["Diff"], df_c["Equal"], df_c["Intersect"] = [
+                None,
+                None,
+                None,
+                None,
+            ]
+            df_c["SizeDiff"] = df_c["SizeDiff"].astype("object")
+            df_c["Diff"] = df_c["Diff"].astype("object")
 
             for key in df_c.index.values:
                 # Get value different to DB
                 try:
-                    df_c.at[key, "Equal"] = joint(df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True)
-                    if len(difference(df_c.at[key, "DogFile"],
-                                      df_c.at[key, "DogDB"], True)) > 0:
-                        df_c.at[key, "Intersect"] = intersect(df_c.at[key, "DogFile"],
-                                                              df_c.at[key, "DogDB"], True)
-                        df_c.at[key, "Diff"] = difference(df_c.at[key, "DogFile"],
-                                                          df_c.at[key, "DogDB"], True)
-                        df_c.at[key, "SizeDiff"] = size_diff(df_c.at[key, "DogFile"],
-                                                             df_c.at[key, "DogDB"], True)
+                    df_c.at[key, "Equal"] = joint(
+                        df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                    )
+                    if (
+                        len(
+                            difference(
+                                df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                            )
+                        )
+                        > 0
+                    ):
+                        df_c.at[key, "Intersect"] = intersect(
+                            df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                        )
+                        df_c.at[key, "Diff"] = difference(
+                            df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                        )
+                        df_c.at[key, "SizeDiff"] = size_diff(
+                            df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                        )
                 except Exception:
                     print_d(df_c)
-                    print_d(str("Joint: " + str(joint(df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True))))
-                    print_d(str("Intersect: " + str(intersect(df_c.at[key, "DogFile"],
-                                                              df_c.at[key, "DogDB"],
-                                                              True))))
-                    print_d(str("Difference: " + str(difference(df_c.at[key, "DogFile"],
-                                                                df_c.at[key, "DogDB"],
-                                                                True))))
+                    print_d(
+                        str(
+                            "Joint: "
+                            + str(
+                                joint(
+                                    df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                                )
+                            )
+                        )
+                    )
+                    print_d(
+                        str(
+                            "Intersect: "
+                            + str(
+                                intersect(
+                                    df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                                )
+                            )
+                        )
+                    )
+                    print_d(
+                        str(
+                            "Difference: "
+                            + str(
+                                difference(
+                                    df_c.at[key, "DogFile"], df_c.at[key, "DogDB"], True
+                                )
+                            )
+                        )
+                    )
                     print_d(str("Key error: " + key + " in " + str(common_all_keys)))
-                    print_d(str("Creation df_c failed: " + str(df_c.at[key, "DogFile"]) +
-                                str(df_c.at[key, "DogDB"])))
+                    print_d(
+                        str(
+                            "Creation df_c failed: "
+                            + str(df_c.at[key, "DogFile"])
+                            + str(df_c.at[key, "DogDB"])
+                        )
+                    )
                     print_exception()
                     raise Exception("A fatal error as occured")
 
@@ -409,55 +536,97 @@ class MongoClass():
 
             elif len(common_all_keys) > 1:  # Difference in values present
                 print_d("--------------Need to check--------------", to_print=ask_user)
-                df_c["OneInfLim"] = df_c["SizeDiff"].apply(lambda row: False if row is None else min(list(row)) < 21)
+                df_c["OneInfLim"] = df_c["SizeDiff"].apply(
+                    lambda row: False if row is None else min(list(row)) < 21
+                )
                 print_d(str(df_c), to_print=ask_user)
 
-                dif = df_c.loc[bool_invert(df_c["OneInfLim"]), ].index.tolist()
-                similar = df_c.loc[df_c["OneInfLim"], ].index.tolist()
+                dif = df_c.loc[bool_invert(df_c["OneInfLim"]),].index.tolist()
+                similar = df_c.loc[df_c["OneInfLim"],].index.tolist()
                 dif_id = intersect(dif, common_id_keys)
                 similar_id = intersect(similar, common_id_keys)
                 all_fields = union(dif, similar)
                 print_d(str("Difference spotted for: " + str(dif)), to_print=ask_user)
-                print_d(str("Similarity present for: " + str(similar)), to_print=ask_user)
+                print_d(
+                    str("Similarity present for: " + str(similar)), to_print=ask_user
+                )
                 if len(dif) > 0:
                     # Difference still present after threshold
                     if len(dif) == 1:
-                        print_d(str("Only the " +
-                                    str(dif) +
-                                    " is different"), to_print=ask_user)
+                        print_d(
+                            str("Only the " + str(dif) + " is different"),
+                            to_print=ask_user,
+                        )
                         if len(common_id_keys) > 1:
-                            if len(difference(common_id_keys,
-                                              similar_id)) == 0:
-                                print_d("All id fields are true, should be the same dog", to_print=ask_user)
+                            if len(difference(common_id_keys, similar_id)) == 0:
+                                print_d(
+                                    "All id fields are true, should be the same dog",
+                                    to_print=ask_user,
+                                )
                                 check_result.append("UpD")
                             else:
-                                print_d("Not all id fields are true, need to be checked", to_print=ask_user)
+                                print_d(
+                                    "Not all id fields are true, need to be checked",
+                                    to_print=ask_user,
+                                )
                         else:
-                            print_d("Not enough id fields to conclude", to_print=ask_user)
+                            print_d(
+                                "Not enough id fields to conclude", to_print=ask_user
+                            )
                         # input("Wait")
 
                     if len(check_result) == 0:
-                        if all([x in dif_id for x in common_id_keys if x != "NomChien"]) and len(dif_id) > 1:
-                            print_d(str("All ID fields different (Name not take into account) " +
-                                        "it's seems to be different dog"), to_print=ask_user)
+                        if (
+                            all(
+                                [x in dif_id for x in common_id_keys if x != "NomChien"]
+                            )
+                            and len(dif_id) > 1
+                        ):
+                            print_d(
+                                str(
+                                    "All ID fields different (Name not take into account) "
+                                    + "it's seems to be different dog"
+                                ),
+                                to_print=ask_user,
+                            )
                             check_result.append("Dif")
 
-                        if (not_null(similar_id) and not_null(common_id_keys) and
-                           all([x in similar_id for x in common_id_keys if x != "NomChien"])
-                           and len(similar_id) > 1):
-                            print_d(str("All ID fields are similar (Name not take into account) " +
-                                        "it's seems to be the same dog"), to_print=ask_user)
+                        if (
+                            not_null(similar_id)
+                            and not_null(common_id_keys)
+                            and all(
+                                [
+                                    x in similar_id
+                                    for x in common_id_keys
+                                    if x != "NomChien"
+                                ]
+                            )
+                            and len(similar_id) > 1
+                        ):
+                            print_d(
+                                str(
+                                    "All ID fields are similar (Name not take into account) "
+                                    + "it's seems to be the same dog"
+                                ),
+                                to_print=ask_user,
+                            )
                             check_result.append("UpD")
 
                         # Only the lof number is similar and race are not equal
-                        if (similar_id == ["NumLof"] and
-                                len(dif_id) > 1 and
-                                ("Race" in dif or "Race" not in all_fields)):
-
-                            print_d("Only the lof number is similar and the race are different")
+                        if (
+                            similar_id == ["NumLof"]
+                            and len(dif_id) > 1
+                            and ("Race" in dif or "Race" not in all_fields)
+                        ):
+                            print_d(
+                                "Only the lof number is similar and the race are different"
+                            )
                             check_result.append("Dif")
 
-                        if len(difference(common_id_keys, dif)) == 0 and len(dif_id) > 1:
+                        if (
+                            len(difference(common_id_keys, dif)) == 0
+                            and len(dif_id) > 1
+                        ):
                             print_d("Dif: Should be dif", to_print=ask_user)
                         else:
                             if len(difference(common_id_keys, dif)) > 0:
@@ -465,12 +634,17 @@ class MongoClass():
                             if len(dif_id) == 0:
                                 print_d("Dif: No Id field dif", to_print=ask_user)
 
-                        if (not_null(similar_id) and len(difference(common_id_keys, similar)) == 0 and
-                           len(similar_id) > 1):
+                        if (
+                            not_null(similar_id)
+                            and len(difference(common_id_keys, similar)) == 0
+                            and len(similar_id) > 1
+                        ):
                             print_d("UpD: Should be UpD", to_print=ask_user)
                         else:
                             if len(difference(common_id_keys, similar)) > 0:
-                                print_d("UpD: Not all ID field similar", to_print=ask_user)
+                                print_d(
+                                    "UpD: Not all ID field similar", to_print=ask_user
+                                )
                             if is_null(similar_id) or len(similar_id) == 0:
                                 print_d("UpD: No Id field similar", to_print=ask_user)
 
@@ -479,33 +653,44 @@ class MongoClass():
                             if same_dog != "Error":
                                 if same_dog:
                                     check_result.append("UpD")
-                                    modif_check["Message"] = (str("Data " + ", ".join(dif) +
-                                                                  " will be added to " +
-                                                                  str(dog_db["NomChien"])))
+                                    modif_check["Message"] = str(
+                                        "Data "
+                                        + ", ".join(dif)
+                                        + " will be added to "
+                                        + str(dog_db["NomChien"])
+                                    )
                                 else:
-                                    modif_check["Message"] = (str("Datas are from a different dog " +
-                                                                  str(dog_db["NomChien"]) +
-                                                                  " defined by User"))
+                                    modif_check["Message"] = str(
+                                        "Datas are from a different dog "
+                                        + str(dog_db["NomChien"])
+                                        + " defined by User"
+                                    )
                                     check_result.append("Dif")
                                 modif_check["DogDB_ID"] = dog_db["_id"]
                             else:
                                 check_result.append("Error")
-                                error_check["Message"] = (str("Error raised by user comparing with " +
-                                                              str(dog_db["NomChien"])))
+                                error_check["Message"] = str(
+                                    "Error raised by user comparing with "
+                                    + str(dog_db["NomChien"])
+                                )
                                 error_check["DogDB_ID"] = dog_db["_id"]
 
                         if len(check_result) == 0 and not ask_user:
                             check_result.append("Error")
                             error_check["Message"] = "Need to be check later"
 
-
                 else:
-                    print_d("All data have at least similar data, seems to be the same dog", to_print=ask_user)
+                    print_d(
+                        "All data have at least similar data, seems to be the same dog",
+                        to_print=ask_user,
+                    )
                     check_result.append("UpD")
 
             elif len(common_all_keys) < 2:
                 check_result.append("Error")
-                error_check["Message"] = "Error, not enough common keys couldn't conclude"
+                error_check["Message"] = (
+                    "Error, not enough common keys couldn't conclude"
+                )
 
             else:
                 print_d(str(common_all_keys))
@@ -514,8 +699,13 @@ class MongoClass():
             if len(check_result) == 1:
                 check_result = check_result[0]
             else:
-                print_d(str("Too many result for one comparison" +
-                            str(check_result) + str(len(check_result))))
+                print_d(
+                    str(
+                        "Too many result for one comparison"
+                        + str(check_result)
+                        + str(len(check_result))
+                    )
+                )
                 raise Exception("Error while checking identity")
 
             return check_result, modif_check, error_check
@@ -553,13 +743,18 @@ class MongoClass():
                         new_values_checked[key] = value_to_use
                     else:  # Info present
                         if len(difference(value_to_use, dog_db_data[key])) != 0:
-                            new_values_checked[key] = union(difference(value_to_use, dog_db_data[key]),
-                                                            dog_db_data[key])
+                            new_values_checked[key] = union(
+                                difference(value_to_use, dog_db_data[key]),
+                                dog_db_data[key],
+                            )
                             # input(str(str(dog_db_data["NomChien"]) + " new values:" + str(new_values_checked)))
 
             if new_values_checked:
-                return self.my_db["Identity"].update_one({'_id': ObjectId(dog_id)},
-                                                         {'$set': new_values_checked}, upsert=False)
+                return self.my_db["Identity"].update_one(
+                    {"_id": ObjectId(dog_id)},
+                    {"$set": new_values_checked},
+                    upsert=False,
+                )
             else:
                 return None
         except Exception:
@@ -593,7 +788,9 @@ class MongoClass():
             if isinstance(value, np.int64):
                 value = int(value)
                 new_values[key] = value
-        return self.my_db[collection].update_one(doc_filter, {'$set': new_values}, upsert=upsert)
+        return self.my_db[collection].update_one(
+            doc_filter, {"$set": new_values}, upsert=upsert
+        )
 
     def insert_newdog(self, dog_data):
         """Insert a new dog inside the database.
@@ -657,12 +854,15 @@ class MongoClass():
                     lecteur_dog = dog_data[str(dcf_col_start + "Lecteur")]
 
                 if is_null(lecteur_file) and is_null(lecteur_dog):
-                    old_na = [x for month in all_infos_dict.keys()
-                              for x in all_infos_dict[month].keys()
-                              if "NA_" in x]
+                    old_na = [
+                        x
+                        for month in all_infos_dict.keys()
+                        for x in all_infos_dict[month].keys()
+                        if "NA_" in x
+                    ]
                     nb_na = 1
                     if len(old_na) > 0:
-                        nb_na = max([int(na.split("_")[1]) for na in old_na])+1
+                        nb_na = max([int(na.split("_")[1]) for na in old_na]) + 1
                     lecteur_to_use = str("NA_" + str(nb_na))
                 elif not_null(lecteur_dog):
                     lecteur_to_use = lecteur_dog
@@ -682,16 +882,28 @@ class MongoClass():
                                     lateralisation = field_vars[3]
                                     rep = int(field_vars[4])
                                     if rep > 3:
-                                        raise Exception("Too much repetition found in the file")
+                                        raise Exception(
+                                            "Too much repetition found in the file"
+                                        )
                                 except ValueError:
-                                    raise Exception("Last field isn't a number of repetition")
+                                    raise Exception(
+                                        "Last field isn't a number of repetition"
+                                    )
                             elif len(field_vars) != 3:
                                 print_d(col)
-                                raise Exception("Columns does not conform to standardization")
+                                raise Exception(
+                                    "Columns does not conform to standardization"
+                                )
 
-                            all_infos_dict = update_dic_dcf(all_infos_dict, month, info_type,
-                                                            dog_data[col], lateralisation,
-                                                            lecteur_to_use, file_id)
+                            all_infos_dict = update_dic_dcf(
+                                all_infos_dict,
+                                month,
+                                info_type,
+                                dog_data[col],
+                                lateralisation,
+                                lecteur_to_use,
+                                file_id,
+                            )
                         elif len(field_vars) == 2:
                             if field_vars[1] != "Lecteur":
                                 print(field_vars)
@@ -699,16 +911,20 @@ class MongoClass():
                         else:
                             print(field_vars)
                             raise Exception("More or less than 2-4 fields present")
-            all_keys = [[month, lecteur]
-                        for month in all_infos_dict.keys()
-                        for lecteur in all_infos_dict[month].keys()]
+            all_keys = [
+                [month, lecteur]
+                for month in all_infos_dict.keys()
+                for lecteur in all_infos_dict[month].keys()
+            ]
             for month, lecteur in all_keys:
                 if "File" not in all_infos_dict[month][lecteur].keys():
-                    all_infos_dict = update_dic_dcf(all_infos_dict, month, "File",
-                                                    file_id, None, lecteur, file_id)
+                    all_infos_dict = update_dic_dcf(
+                        all_infos_dict, month, "File", file_id, None, lecteur, file_id
+                    )
             if len(all_infos_dict) != 0:
-                self.my_db["Identity"].update_one({"_id": ObjectId(dog_id)},
-                                                  {'$set': {"DCF": all_infos_dict}})
+                self.my_db["Identity"].update_one(
+                    {"_id": ObjectId(dog_id)}, {"$set": {"DCF": all_infos_dict}}
+                )
 
         except Exception:
             print_exception()
@@ -734,16 +950,23 @@ class MongoClass():
             Result of the insertion or the update.
 
         """
-        error_db = self.my_db["Erreurs"].count_documents({"Fichier": file, "Ligne": line,
-                                                          "NomChien": dog_name})
+        error_db = self.my_db["Erreurs"].count_documents(
+            {"Fichier": file, "Ligne": line, "NomChien": dog_name}
+        )
         if error_db == 1:
-            return self.my_db["Erreurs"].update_one({"Fichier": file, "Ligne": line,
-                                                     "NomChien": dog_name},
-                                                    {"$push": {"Erreurs": error_type}})
+            return self.my_db["Erreurs"].update_one(
+                {"Fichier": file, "Ligne": line, "NomChien": dog_name},
+                {"$push": {"Erreurs": error_type}},
+            )
         elif error_db == 0:
-            return self.my_db["Erreurs"].insert_one({"Fichier": file, "Ligne": line,
-                                                     "NomChien": dog_name,
-                                                     "Erreurs": error_type})
+            return self.my_db["Erreurs"].insert_one(
+                {
+                    "Fichier": file,
+                    "Ligne": line,
+                    "NomChien": dog_name,
+                    "Erreurs": error_type,
+                }
+            )
         else:
             print_d("Error couldn't register the error")
             input("Wait")
@@ -765,7 +988,7 @@ class MongoClass():
 
         """
         try:
-            datas_check={}
+            datas_check = {}
             for key, value in datas.items():
                 if not_null(value):
                     datas_check[key] = value
@@ -776,7 +999,13 @@ class MongoClass():
                 print_d("Datas already present")
                 return None
             else:
-                raise Exception(str("Datas to register in " + collection + "present in multiple documents"))
+                raise Exception(
+                    str(
+                        "Datas to register in "
+                        + collection
+                        + "present in multiple documents"
+                    )
+                )
         except Exception:
             print_d(datas)
             print_exception()
@@ -803,20 +1032,26 @@ class MongoClass():
 
         """
         try:
-            modif_db = self.my_db["Modifs"].count_documents({"Dog_id": ObjectId(dog_id)})
+            modif_db = self.my_db["Modifs"].count_documents(
+                {"Dog_id": ObjectId(dog_id)}
+            )
             if modif_db == 1:
                 print("Dog id already present in the modif collection, will be updated")
-                result_new_modif = self.my_db["Modifs"].update_one({"Dog_id": ObjectId(dog_id)},
-                                                                   {"$push": {"Modifs": {"File": file,
-                                                                                         "Line": line,
-                                                                                         "Modif": modif}}})
+                result_new_modif = self.my_db["Modifs"].update_one(
+                    {"Dog_id": ObjectId(dog_id)},
+                    {"$push": {"Modifs": {"File": file, "Line": line, "Modif": modif}}},
+                )
             elif modif_db == 0:
-                print("Dog id not already present in the modif collection, will be inserted")
-                result_new_modif = self.my_db["Modifs"].insert_one({"Dog_id": ObjectId(dog_id),
-                                                                    "Dog_name": dog_name,
-                                                                    "Modifs": [{"File": file,
-                                                                                "Line": line,
-                                                                                "Modif": modif}]})
+                print(
+                    "Dog id not already present in the modif collection, will be inserted"
+                )
+                result_new_modif = self.my_db["Modifs"].insert_one(
+                    {
+                        "Dog_id": ObjectId(dog_id),
+                        "Dog_name": dog_name,
+                        "Modifs": [{"File": file, "Line": line, "Modif": modif}],
+                    }
+                )
             else:
                 print_d("Error couldn't register the modification")
                 input("Wait")

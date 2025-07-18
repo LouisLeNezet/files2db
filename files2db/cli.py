@@ -5,6 +5,7 @@ Created on 22/10/2021
 @author: LouisLeNezet
 Script to launch the application
 """
+
 import os
 import sys
 import logging
@@ -31,5 +32,5 @@ if __package__ == "":
     logging.info(path)
     sys.path.insert(0, path)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     typer.run(main)

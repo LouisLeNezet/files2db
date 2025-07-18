@@ -5,10 +5,12 @@ Created on 19/01/2022
 @author: LouisLeNezet
 Module for all prompt message and user input.
 """
+
 import linecache
 import sys
 import os
 import logging
+
 
 def print_exception():
     """
@@ -30,7 +32,11 @@ def print_exception():
         line = linecache.getline(filename, lineno, file.f_globals)
         logging.exception(
             'EXCEPTION IN (%s, LINE %s "%s"): %s, %s',
-            filename, lineno, line.strip(), exc_obj, exc_type
+            filename,
+            lineno,
+            line.strip(),
+            exc_obj,
+            exc_type,
         )
     else:
         raise RuntimeError("Couldn't access the infos from the system")

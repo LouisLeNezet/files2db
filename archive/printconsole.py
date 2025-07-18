@@ -31,16 +31,18 @@ def print_d(*text_to_print, text_type="text", to_print=True):
     try:
         if to_print:
             text_to_print = " ".join([str(x) for x in text_to_print])
-            if settings.PARAMS=={} or not settings.PARAMS["TKINTER_SHOW"]:
-                if settings.PARAMS=={} or settings.PARAMS["SHOW_QUERY"]:
+            if settings.PARAMS == {} or not settings.PARAMS["TKINTER_SHOW"]:
+                if settings.PARAMS == {} or settings.PARAMS["SHOW_QUERY"]:
                     print(text_to_print)
             else:
                 if settings.PARAMS["GUI_MW"] is None:
                     print("Error")
                 else:
-                    settings.PARAMS["GUI_MW"].update_log_box(str(text_to_print), text_type)
+                    settings.PARAMS["GUI_MW"].update_log_box(
+                        str(text_to_print), text_type
+                    )
     except KeyError:
-        print("KeyError",*text_to_print)
+        print("KeyError", *text_to_print)
     except Exception as e:
         print(f"An error as occured during message printing {e} {type(e)}")
         raise Exception("Error print_d()")
@@ -63,8 +65,10 @@ def print_exception():
     filename = file.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, file.f_globals)
-    print_d(f'EXCEPTION IN ({filename}, LINE {lineno} "{line.strip()}"): {exc_obj}, {exc_type}',
-            text_type="error")
+    print_d(
+        f'EXCEPTION IN ({filename}, LINE {lineno} "{line.strip()}"): {exc_obj}, {exc_type}',
+        text_type="error",
+    )
 
 
 def menu():
@@ -110,7 +114,8 @@ def menu():
                     4: "CompareDB",
                     5: "CheckErrors",
                     6: "AddMissingID",
-                    7: "Exit"}
+                    7: "Exit",
+                }
                 return result.get(val_ans, "Error")
             else:
                 print_d("Invalid input, please enter number next to your choice")

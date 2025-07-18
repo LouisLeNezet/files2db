@@ -1,0 +1,4 @@
+file,path,sep
+Files,./tests/test_dataset/test2/files.csv,";"
+ValuesMap,./tests/test_dataset/test2/values_map.csv,";"
+FieldRules,./tests/test_dataset/test2/field_rules.csv,";"
