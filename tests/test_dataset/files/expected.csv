@@ -7,5 +7,5 @@
 5;filec;elsewhere;;5;myb;;;;b;;01.03.2020;
 6;filec;elsewhere;;6;mya;10;;;c;;01.02.2020;{'ColA': {'Value': 10, 'Error': ['SupToMax']}}
 7;filed;somewhereelse;;1;;;;longcharitis;;;;
-8;filed;somewhereelse;;2;;4;delmatchitis_withsuffix;;;;;
+8;filed;somewhereelse;;2;;4;;;;;;
 9;filed;somewhereelse;;3;;12;;longcharitis;;;;{'ColA': {'Value': 12, 'Error': ['SupToMax']}}

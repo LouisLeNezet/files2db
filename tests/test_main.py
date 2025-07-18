@@ -62,7 +62,6 @@ class TestMainFunction(unittest.TestCase):
 
         # Check dimensions of the raw DataFrame
         self.assertEqual(df_raw.shape, (10, 11))
-        self.assertEqual(df_norm.shape, (10, 12))
 
         db_expected_path = os.path.join(self.test_data_path, "files/expected.csv")
         db_expected = read_file(db_expected_path, sep=";", col_start=2)

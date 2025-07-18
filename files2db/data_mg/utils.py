@@ -209,4 +209,4 @@ def update_only_missing(target_df, update_df):
 
 
 def df_to_str_keep_na(df):
-    return df.applymap(lambda x: str(x) if pd.notna(x) else pd.NA)
+    return df.apply(lambda col: col.map(lambda x: str(x) if pd.notna(x) else pd.NA))
