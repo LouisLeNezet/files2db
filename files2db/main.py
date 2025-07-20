@@ -1,5 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+# files2db - A tool to normalize and combine flat files into a database
+# Copyright (C) 2024 Louis Le Nezet
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 """
 Created on 22/10/2021
 @author: LouisLeNezet
@@ -11,7 +28,6 @@ import warnings
 import logging
 from datetime import date
 import pandas as pd
-import typer
 
 from .data_mg.norm_data import norm_data
 from .data_mg.data_iterate import iterate_file
@@ -33,24 +49,11 @@ def start():
     return (op_sys, path_wd)
 
 
-app = typer.Typer()
-
-
-@app.command()
 def main(
-    path: str = typer.Argument(..., help="Path to the main file to use."),
-    normalize: bool = typer.Option(
-        False, "--normalize", "-n", help="Normalize the data after concatenation."
-    ),
-    output_folder: str = typer.Option(
-        "./DataGenerated",
-        "--output",
-        "-o",
-        help="Output directory for the generated files.",
-    ),
-    output_files_prefix: str = typer.Option(
-        "AllID", "--prefix", "-p", help="Prefix for the output files."
-    ),
+    path: str,
+    normalize: bool,
+    output_folder: str,
+    output_files_prefix: str,
 ):
     """Main function of the concatenation script."""
 
@@ -107,7 +110,3 @@ def main(
     logging.info("Concatenation completed successfully")
 
     return all_data_raw, all_data if normalize else None
-
-
-if __name__ == "__main__":
-    app()

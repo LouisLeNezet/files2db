@@ -5,5 +5,11 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.package-data]
 "files2db" = ["data/file_orga.csv"]
 
+[project]
+name = "files2db"
+
 [project.scripts]
 files2db = "files2db.cli:main"
+
+[tool.setuptools.dynamic]
+version = {file = "files2db/__version__.py"}
