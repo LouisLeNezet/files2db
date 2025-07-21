@@ -70,7 +70,7 @@ class TestDataClean(unittest.TestCase):
             s,
             del_match=["REMOVE", "???"],
             strip_from=["=", ":"],
-            del_in=["other", "foo", r'\(.*\)', " "],
+            del_in=["other", "foo", r"\(.*\)", " "],
             fillna_value="",
         )
         assert_series_equal(result, expected)
