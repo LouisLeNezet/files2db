@@ -32,3 +32,4 @@ select = [
 
 [pytest]
 norecursedirs = "archive"
+addopts = "--ignore=archive"
