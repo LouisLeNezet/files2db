@@ -47,7 +47,7 @@ def iterate_file(file):
     if file.empty:
         raise ValueError(
             "The input dataframe containing file information is empty.",
-            "Please provide a valid dataframe."
+            "Please provide a valid dataframe.",
         )
 
     for index in file.index:

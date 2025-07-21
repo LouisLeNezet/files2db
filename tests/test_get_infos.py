@@ -78,9 +78,7 @@ class TestingClass(unittest.TestCase):
                     self.assertEqual(get_file_path(value, cwd_os=dest_os), result)
 
         with self.subTest(line="error"):
-            with self.assertRaisesRegex(
-                Exception, "should not match multiple or none os patterns"
-            ):
+            with self.assertRaisesRegex(Exception, "should not match multiple or none os patterns"):
                 get_file_path("ThisIsAwrongPath")
 
 

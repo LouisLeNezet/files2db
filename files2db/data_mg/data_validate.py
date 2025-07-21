@@ -42,7 +42,6 @@ def data_contains(data_se: pd.Series, contains: str | None = None) -> pd.Series:
     if contains in string_patterns:
         return data_se.str.fullmatch(string_patterns[contains], case=True, na=False)
 
-
     if contains == "int":
         return data_se.apply(lambda x: isinstance(x, int))
     if contains == "float":

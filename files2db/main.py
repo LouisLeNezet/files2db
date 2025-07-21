@@ -70,9 +70,7 @@ def main(
     try:
         check_files_exist(db_get["Files"]["FilePath"])
     except FileNotFoundError:
-        logging.error(
-            "One or more files could not be found. Please check the file paths."
-        )
+        logging.error("One or more files could not be found. Please check the file paths.")
         return
 
     try:
@@ -90,9 +88,7 @@ def main(
         logging.info("Output folder created: %s", output_folder)
 
     # Save RAW as csv
-    save_path = os.path.join(
-        f"{output_folder}/{output_files_prefix}_{date.today()}_raw.csv"
-    )
+    save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}_raw.csv")
     all_data_raw.to_csv(get_file_path(save_path), sep=";")
 
     # Normalize data
@@ -101,9 +97,7 @@ def main(
         all_data = norm_data(all_data_raw, db_get)
 
         # Save normalized data
-        save_path = os.path.join(
-            f"{output_folder}/{output_files_prefix}_{date.today()}.csv"
-        )
+        save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}.csv")
         all_data.to_csv(get_file_path(save_path), sep=";")
         logging.info("Data saved to %s", save_path)
 

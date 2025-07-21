@@ -147,9 +147,7 @@ class TestColumnValidationOrga(unittest.TestCase):
             "file2": pd.DataFrame(columns=["C", "D", "E"]),
         }
         validate_columns_orga(orga_dict, db_dict)
-        mock_log.assert_called_once_with(
-            "Extra columns %s in %s and won't be used", {"E"}, "file2"
-        )
+        mock_log.assert_called_once_with("Extra columns %s in %s and won't be used", {"E"}, "file2")
 
     def test_validate_columns_orga_correct(self):
         """Test validate_columns_orga."""
@@ -216,9 +214,7 @@ class TestGetDBFromPath(unittest.TestCase):
             set(["Files", "FieldRules", "ValuesMap"]),
         )
         self.assertEqual(db_orga["Files"].shape, (4, 16))
-        self.assertEqual(
-            db_orga["FieldRules"]["DelMatch"][5], ["delmatchitis", "othermatch"]
-        )
+        self.assertEqual(db_orga["FieldRules"]["DelMatch"][5], ["delmatchitis", "othermatch"])
 
 
 class TestGetDBFromCSV(unittest.TestCase):

@@ -153,15 +153,14 @@ class TestingClass(unittest.TestCase):
             with self.subTest(line=value):
                 self.assertEqual(get_not_null(value), result)
 
-
         error_msg = "Value passed not recognized"
         with self.assertRaisesRegex(Exception, error_msg):
             result = get_not_null(unittest.TestCase)
-    
+
     def test_get_not_null_iterable(self):
         """Test function get_not_null with simple values"""
-        test_values = {'C': 2, 'D': [0]}
-        test_result = {'C': 2 }
+        test_values = {"C": 2, "D": [0]}
+        test_result = {"C": 2}
         self.assertEqual(get_not_null(test_values), test_result)
 
     def test_get_not_null(self):

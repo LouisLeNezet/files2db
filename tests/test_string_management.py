@@ -61,11 +61,9 @@ class TestDataClean(unittest.TestCase):
         assert_series_equal(result, expected)
 
     def test_all_parameters_combined(self):
-        s = pd.Series([
-            "REMOVE", "valueotherfoo",
-            "trash:data", "skip (something to delete)",
-            "???"
-        ])
+        s = pd.Series(
+            ["REMOVE", "valueotherfoo", "trash:data", "skip (something to delete)", "???"]
+        )
         expected = pd.Series(["", "value", "trash", "skip", ""])
         result = data_clean(
             s,
@@ -100,9 +98,7 @@ class TestDataSep(unittest.TestCase):
     def test_multiple_separators(self):
         s = pd.Series(["a|b,c", "d,e|f"], name="col1")
 
-        expected = pd.DataFrame(
-            {"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", "f"]}
-        )
+        expected = pd.DataFrame({"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", "f"]})
 
         result = data_sep(s, sep=["|", ","])
         assert_frame_equal(result, expected)
@@ -135,12 +131,10 @@ class TestDataSep(unittest.TestCase):
         with self.assertRaises(TypeError):
             data_sep(s, sep=[","])
 
-
     def test_complexe_data(self):
-        s = pd.Series([
-            "00 et 2020.01/03 (my date)",
-            "other date et possible et 2020.01/03 (my date)"],
-            name="col1"
+        s = pd.Series(
+            ["00 et 2020.01/03 (my date)", "other date et possible et 2020.01/03 (my date)"],
+            name="col1",
         )
         expect = pd.DataFrame(
             {
@@ -151,7 +145,6 @@ class TestDataSep(unittest.TestCase):
         )
         result = data_sep(s, sep=[" et "])
         assert_frame_equal(result, expect)
-        
 
 
 class TestDataSepPattern(unittest.TestCase):
@@ -160,9 +153,7 @@ class TestDataSepPattern(unittest.TestCase):
         pattern = r"(?P<num>\d+)-(?P<word>[a-zA-Z]+)"
         df = data_sep_pattern(s, pattern)
 
-        expected = pd.DataFrame(
-            {"num": ["123", "456", "789"], "word": ["abc", "def", "ghi"]}
-        )
+        expected = pd.DataFrame({"num": ["123", "456", "789"], "word": ["abc", "def", "ghi"]})
         assert_frame_equal(df, expected)
 
     def test_basic_separation_multiple_alpha(self):

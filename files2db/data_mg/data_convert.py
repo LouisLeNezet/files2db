@@ -46,42 +46,27 @@ def date_convert(
     if not isinstance(date_to_convert, str):
         raise TypeError("date_to_convert should be a string")
 
-    global \
-        super_short_date_f, \
-        short_date_f, \
-        long_date_f, \
-        long_date_f_inv, \
-        long_date_f_time
+    global super_short_date_f, short_date_f, long_date_f, long_date_f_inv, long_date_f_time
 
     date_to_convert = date_to_convert.replace("/", ".")
     if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
         new_date = fillna_value
     else:
         if short_date_f.fullmatch(date_to_convert):
-            raise TypeError(
-                "Format is not reliable please modify it to full year format"
-            )
+            raise TypeError("Format is not reliable please modify it to full year format")
             # if date_to_convert[-2:] > "80":  # Siecle dernier
             #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
             # else:
             #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
         elif long_date_f_time.fullmatch(date_to_convert):
             new_date = str(
-                date_to_convert[8:10]
-                + "."
-                + date_to_convert[5:7]
-                + "."
-                + date_to_convert[0:4]
+                date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
             )
         elif long_date_f.fullmatch(date_to_convert):
             new_date = str(date_to_convert)
         elif long_date_f_inv.fullmatch(date_to_convert):
             new_date = str(
-                date_to_convert[8:10]
-                + "."
-                + date_to_convert[5:7]
-                + "."
-                + date_to_convert[0:4]
+                date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
             )
         else:
             raise TypeError(f"Format not recognised {date_to_convert}")
@@ -182,9 +167,7 @@ def data_conv(
             data_se = data_se.str.title()
         elif data_type == "date":
             data_se = data_se.str.replace("-", ".", regex=False)
-            data_se = data_se.apply(
-                lambda row: date_convert(row, fillna_value=fillna_value)
-            )
+            data_se = data_se.apply(lambda row: date_convert(row, fillna_value=fillna_value))
         elif data_type in ["int", "float"]:
             data_se = num_convert(data_se, to_type=data_type, fillna_value=fillna_value)
         elif data_type == "string":

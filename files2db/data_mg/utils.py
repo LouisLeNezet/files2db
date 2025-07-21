@@ -1,13 +1,9 @@
-
-
 import pandas as pd
 
 from files2db.data_process.null_values import get_not_null, is_null
 
 
-def conca_simplify(
-    data_df: pd.DataFrame, col_names: dict[str, list] | None = None
-) -> pd.Series:
+def conca_simplify(data_df: pd.DataFrame, col_names: dict[str, list] | None = None) -> pd.Series:
     """Simplify a nested dataframe into a single column.
 
     In the case of supplied col_names the columns
@@ -45,9 +41,7 @@ def conca_simplify(
                     if col_main + "_" + col_sub in data_df.columns
                 }
                 data_df.rename(columns=all_col, inplace=True)
-                data_df[col_main] = pd.Series(
-                    data_df[all_col.values()].to_dict("records")
-                )
+                data_df[col_main] = pd.Series(data_df[all_col.values()].to_dict("records"))
                 data_df.drop(all_col.values(), axis=1, inplace=True)
         return conca_simplify(data_df)
 
@@ -73,39 +67,29 @@ def nested_serie_test(data, value, test):
     """
     if test == "Sup":
         return [
-            x > value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x > value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     elif test == "Inf":
         return [
-            x < value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x < value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     elif test == "Equal":
         return [
-            x == value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x == value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     elif test == "Diff":
         return [
-            x != value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x != value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     else:
         raise ValueError(f"Test {test} given isn't recognize")
 
 
-def check_pd_series(
-    data_se: pd.Series, type_check: tuple | None = ("str", "int")
-) -> bool:
+def check_pd_series(data_se: pd.Series, type_check: tuple | None = ("str", "int")) -> bool:
     """
     Check if the input is a Pandas Series.
 
@@ -260,7 +244,5 @@ def df_to_str_keep_na(
         na_values = [None, "", "NaN", "nan", "<na>", "None", "NA", {}]  # Removed pd.NA explicitly
 
     return df.apply(
-        lambda col: col.map(
-            lambda x: str(x) if (not pd.isna(x) and x not in na_values) else pd.NA
-        )
+        lambda col: col.map(lambda x: str(x) if (not pd.isna(x) and x not in na_values) else pd.NA)
     )

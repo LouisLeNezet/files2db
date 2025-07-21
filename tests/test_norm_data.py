@@ -41,8 +41,10 @@ class TestingInitCleanClass(unittest.TestCase):
             expected_df.reset_index(drop=True),
         )
 
+
 class TestingNormData(unittest.TestCase):
     """Class for testing normdata function"""
+
     def setUp(self):
         """Set up test data path"""
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset/test2/")
@@ -60,7 +62,7 @@ class TestingNormData(unittest.TestCase):
         df_expected_path = os.path.join(self.test_data_path, "expected.csv")
         df_expected = read_file(df_expected_path, sep=";", col_start=2)
         df_expected.reset_index(drop=True, inplace=True)
-        
+
         print(df_file)
 
         result = norm_data(
@@ -84,4 +86,3 @@ class TestingNormData(unittest.TestCase):
             df_norm,
             df_expected,
         )
-

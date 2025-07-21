@@ -13,6 +13,7 @@ import pandas as pd
 
 ALL_ARRAY_TYPES = (set, tuple, list, dict, pd.Series, np.ndarray)
 
+
 def _is_not_null_float(value):
     return bool(not np.isnan(value) and value != 0)
 
@@ -115,7 +116,7 @@ def array_not_null(values, recursive=False, alter=True):
 
     # Helper to get elements depending on type
     def get_elements(v):
-        if isinstance(v, list| pd.Series | pd.DataFrame | set | tuple):
+        if isinstance(v, list | pd.Series | pd.DataFrame | set | tuple):
             return v
         if isinstance(v, dict):
             return v.values()
@@ -195,11 +196,7 @@ def modify(value: Any, alter: bool = True) -> Any:
     return value
 
 
-def cleaned_item(
-    v: Any,
-    all_array_types: tuple[type, ...],
-    alter: bool = True
-) -> Any:
+def cleaned_item(v: Any, all_array_types: tuple[type, ...], alter: bool = True) -> Any:
     if isinstance(v, all_array_types):
         return get_not_null(v, alter=alter)
     else:
@@ -214,11 +211,7 @@ def keep_item(val, all_array_types):
     return True
 
 
-def _clean_pd_series(
-    series: pd.Series,
-    all_array_types,
-    alter=True
-) -> pd.Series:
+def _clean_pd_series(series: pd.Series, all_array_types, alter=True) -> pd.Series:
     """
     Handle pd.Series type, cleaning each item.
     """
@@ -231,11 +224,7 @@ def _clean_pd_series(
     return cleaned_series
 
 
-def _clean_dict(
-    value: dict,
-    all_array_types,
-    alter=True
-) -> dict:
+def _clean_dict(value: dict, all_array_types, alter=True) -> dict:
     """
     Handle dict type, cleaning each item.
     """
@@ -248,11 +237,7 @@ def _clean_dict(
     return cleaned_dict
 
 
-def _clean_list(
-    value: list,
-    all_array_types,
-    alter=True
-) -> list:
+def _clean_list(value: list, all_array_types, alter=True) -> list:
     """
     Handle list type, cleaning each item.
     """
@@ -266,11 +251,7 @@ def _clean_list(
     return cleaned_list
 
 
-def _clean_set(
-    value: set,
-    all_array_types,
-    alter=True
-) -> set:
+def _clean_set(value: set, all_array_types, alter=True) -> set:
     """
     Handle set type, cleaning each item.
     """
@@ -284,11 +265,7 @@ def _clean_set(
     return cleaned_set
 
 
-def _clean_tuple(
-    value: tuple,
-    all_array_types,
-    alter=True
-) -> tuple:
+def _clean_tuple(value: tuple, all_array_types, alter=True) -> tuple:
     """
     Handle tuple type, cleaning each item.
     """
@@ -321,6 +298,7 @@ def handle_iterable(value, alter=True):
         return _clean_set(value, ALL_ARRAY_TYPES, alter=alter)
 
     raise TypeError("Iterable type not handled")
+
 
 def get_not_null(values, alter=True):
     """

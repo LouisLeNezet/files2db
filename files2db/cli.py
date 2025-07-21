@@ -37,35 +37,27 @@ logging.basicConfig(level=logging.INFO)
 
 app = typer.Typer(add_completion=False)
 
+
 def show_notice():
     typer.echo(f"files2db v{__version__}  Copyright (C) 2024 Louis Le Nezet")
     typer.echo("This program comes with ABSOLUTELY NO WARRANTY; for details type '--warranty'.")
     typer.echo("This is free software, and you are welcome to redistribute it")
     typer.echo("under certain conditions; type '--license' for details.\n")
 
+
 @app.command()
 def cli(
-    path: str = typer.Argument(
-        None, help="Path to the main file to use."
-    ),
+    path: str = typer.Argument(None, help="Path to the main file to use."),
     normalize: bool = typer.Option(
         False, "--normalize", "-n", help="Normalize the data after concatenation."
     ),
     output: str = typer.Option(
         "./DataGenerated", "--output", "-o", help="Output directory for the generated files."
     ),
-    prefix: str = typer.Option(
-        "AllID", "--prefix", "-p", help="Prefix for the output files."
-    ),
-    license: bool = typer.Option(
-        False, "--license", help="Show license information and exit."
-    ),
-    warranty: bool = typer.Option(
-        False, "--warranty", help="Show warranty disclaimer and exit."
-    ),
-    version: bool = typer.Option(
-        False, "--version", help="Show version and exit."
-    ),
+    prefix: str = typer.Option("AllID", "--prefix", "-p", help="Prefix for the output files."),
+    license: bool = typer.Option(False, "--license", help="Show license information and exit."),
+    warranty: bool = typer.Option(False, "--warranty", help="Show warranty disclaimer and exit."),
+    version: bool = typer.Option(False, "--version", help="Show version and exit."),
 ):
     if version:
         typer.echo(f"files2db version {__version__}")
@@ -99,6 +91,7 @@ def cli(
 
     # Call the main logic
     main(path=path, normalize=normalize, output=output, prefix=prefix)
+
 
 # Fix for sys.path if needed (optional)
 if sys.path[0] in ("", os.getcwd()):

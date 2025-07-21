@@ -6,9 +6,7 @@ import pandas as pd
 from files2db.data_mg.utils import check_pd_series, to_bool
 
 
-def data_replace(
-    data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True
-):
+def data_replace(data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True):
     """
     Replace all values in a Series based on equivalency mappings.
 
@@ -33,15 +31,9 @@ def data_replace(
     """
     if not isinstance(equiv_data, dict):
         raise TypeError("equiv_data should be a dictionary")
-    if not all(
-        isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()
-    ):
-        raise TypeError(
-            "equiv_data should be a dictionary with string keys and list values"
-        )
-    if not all(
-        isinstance(val, str) for sublist in equiv_data.values() for val in sublist
-    ):
+    if not all(isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()):
+        raise TypeError("equiv_data should be a dictionary with string keys and list values")
+    if not all(isinstance(val, str) for sublist in equiv_data.values() for val in sublist):
         raise TypeError("All values in equiv_data should be strings")
     if equiv_data == {}:
         return data_se
@@ -90,6 +82,7 @@ def _strip_after_delimiters(series: pd.Series, delimiters: list[str]) -> pd.Seri
     for delim in delimiters:
         series = series.str.partition(delim)[0]
     return series
+
 
 def data_clean(
     data_se: pd.Series,
