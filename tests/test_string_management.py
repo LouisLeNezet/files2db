@@ -6,6 +6,7 @@ Created on 07/10/2021
 
 import unittest
 
+import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal, assert_series_equal
 
@@ -38,7 +39,7 @@ class TestingDataReplace(unittest.TestCase):
 class TestDataClean(unittest.TestCase):
     def test_del_match_only(self):
         s = pd.Series(["remove", "keep", "remove", "test", "test2"])
-        expected = pd.Series([None, "keep", None, None, "test2"])
+        expected = pd.Series([np.nan, "keep", np.nan, np.nan, "test2"])
         result = data_clean(s, del_match=["remove", "test"])
         assert_series_equal(result, expected)
 
@@ -69,7 +70,7 @@ class TestDataClean(unittest.TestCase):
             s,
             del_match=["REMOVE", "???"],
             strip_from=["=", ":"],
-            del_in=["other", "foo", "\(.*\)", " "],
+            del_in=["other", "foo", r'\(.*\)', " "],
             fillna_value="",
         )
         assert_series_equal(result, expected)
@@ -162,7 +163,7 @@ class TestDataSepPattern(unittest.TestCase):
         df = data_sep_pattern(s, pattern)
 
         expected = pd.DataFrame(
-            {"G": ["A", "a", None], "D": ["E", "A", None], "DG": [None, None, "D"]}
+            {"G": ["A", "a", pd.NA], "D": ["E", "A", pd.NA], "DG": [pd.NA, pd.NA, "D"]}
         )
         assert_frame_equal(df, expected)
 
@@ -173,8 +174,8 @@ class TestDataSepPattern(unittest.TestCase):
 
         expected = pd.DataFrame(
             {
-                "Puce": ["250268720147419", "985154000245240", None],
-                "Tatouage": [None, "2DVT608", "2DVT608"],
+                "Puce": ["250268720147419", "985154000245240", pd.NA],
+                "Tatouage": [pd.NA, "2DVT608", "2DVT608"],
             }
         )
         assert_frame_equal(df, expected)
