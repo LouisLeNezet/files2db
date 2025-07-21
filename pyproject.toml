@@ -29,3 +29,6 @@ select = [
   "N",    # pep8-naming: naming conventions
   "C90",  # mccabe: cyclomatic complexity
 ]   
+
+[pytest]
+norecursedirs = archive
