@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 07/10/2021
 @author: Louis Le Nézet
 """
 
 import unittest
+
 import pandas as pd
 from pandas.testing import assert_series_equal
 
@@ -15,7 +15,7 @@ from files2db.data_mg.data_validate import data_validate
 class TestingClass(unittest.TestCase):
     """Class for testing"""
 
-    def test_data_validate_LETTERS(self):
+    def test_data_validate_letters_upper(self):
         """Test function data_validate"""
         test_values = pd.Series(["A", "A", "1", "E", "f", "Z"], name="ColA")
         test_result = pd.Series(
@@ -55,7 +55,7 @@ class TestingClass(unittest.TestCase):
         )
         assert_series_equal(errors, test_result)
 
-    def test_data_validate_Alphanum(self):
+    def test_data_validate_alphanum_title(self):
         """Test function data_validate"""
         test_values = pd.Series(["A", "A", "1", "E", "f", "Z"], name="ColA")
         test_result = pd.Series([pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA], name="ColA")

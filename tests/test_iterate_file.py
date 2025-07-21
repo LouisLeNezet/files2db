@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 25/11/2022
 @author: LouisLeNezet
 Testing scripts for the different common functions.
 """
 
-import unittest
 import os
+import unittest
+
 import pandas as pd
 
 from files2db.data_mg.data_iterate import iterate_file

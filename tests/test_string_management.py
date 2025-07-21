@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 07/10/2021
 @author: Louis Le Nézet
 """
 
 import unittest
+
 import pandas as pd
-from pandas.testing import assert_series_equal, assert_frame_equal
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 from files2db.data_mg.string_management import (
-    data_replace,
     data_clean,
+    data_replace,
     data_sep,
     data_sep_pattern,
 )
@@ -61,7 +61,11 @@ class TestDataClean(unittest.TestCase):
         assert_series_equal(result, expected)
 
     def test_all_parameters_combined(self):
-        s = pd.Series(["REMOVE", "valueotherfoo", "trash:data", "skip (something to delete)", "???"])
+        s = pd.Series([
+            "REMOVE", "valueotherfoo",
+            "trash:data", "skip (something to delete)",
+            "???"
+        ])
         expected = pd.Series(["", "value", "trash", "skip", ""])
         result = data_clean(
             s,
@@ -130,9 +134,14 @@ class TestDataSep(unittest.TestCase):
         s = pd.Series([1, 2], name="col1")
         with self.assertRaises(TypeError):
             data_sep(s, sep=[","])
-    
+
+
     def test_complexe_data(self):
-        s = pd.Series(["00 et 2020.01/03 (my date)", "other date et possible et 2020.01/03 (my date)"], name="col1")
+        s = pd.Series([
+            "00 et 2020.01/03 (my date)",
+            "other date et possible et 2020.01/03 (my date)"],
+            name="col1"
+        )
         expect = pd.DataFrame(
             {
                 "col1_0": ["00", "other date"],
@@ -140,7 +149,8 @@ class TestDataSep(unittest.TestCase):
                 "col1_2": [None, "2020.01/03 (my date)"],
             }
         )
-        result = data_sep(s, sep=["et"])
+        result = data_sep(s, sep=[" et "])
+        assert_frame_equal(result, expect)
         
 
 

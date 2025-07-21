@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 25/11/2022
 @author: LouisLeNezet
@@ -8,7 +7,7 @@ Testing scripts for the different common functions.
 
 import unittest
 
-from files2db.ui.get_infos import welcome, get_path_os, get_file_path
+from files2db.ui.get_infos import get_file_path, get_path_os, welcome
 
 
 class TestingClass(unittest.TestCase):
@@ -23,7 +22,7 @@ class TestingClass(unittest.TestCase):
         """Test function get_path_os"""
         test_values = ["/mnt/c/test", "/test/it/is", "C:/test/it/is"]
         test_result = ["Wsl", "Relative", "Windows"]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(get_path_os(value), result)
 
@@ -74,7 +73,7 @@ class TestingClass(unittest.TestCase):
         }
 
         for dest_os, expected_results in results_by_os.items():
-            for value, result in zip(test_values, expected_results):
+            for value, result in zip(test_values, expected_results, strict=False):
                 with self.subTest(line=value, os_test=dest_os):
                     self.assertEqual(get_file_path(value, cwd_os=dest_os), result)
 

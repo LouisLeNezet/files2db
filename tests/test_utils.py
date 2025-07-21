@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 07/10/2021
 @author: Louis Le Nézet
 """
 
 import unittest
+
 import pandas as pd
-import numpy as np
+from pandas.testing import assert_frame_equal
 
 from files2db.data_mg.utils import update_only_missing
-from pandas.testing import assert_frame_equal
 
 
 class TestingClass(unittest.TestCase):
@@ -55,7 +54,8 @@ class TestingClass(unittest.TestCase):
             }
         )
 
-        error_msg = "Conflict detected in column 'A' at rows [3]. Attempt to overwrite non-null values."
+        error_msg = "Conflict detected in column 'A' at rows [3]."
+        error_msg += " Attempt to overwrite non-null values."
         with self.assertRaises(ValueError) as context:
             update_only_missing(df_test, df_update)
         self.assertEqual(str(context.exception), error_msg)

@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 18/11/2022
 @author: LouisLeNezet
 Testing scripts for the null_values functions.
 """
 
-import unittest
 import math
-import pandas as pd
+import unittest
+
 import numpy as np
+import pandas as pd
 
 from files2db.data_process.null_values import (
-    not_null,
-    is_null,
     array_not_null,
     bool_invert,
+    get_not_null,
+    is_null,
+    modify,
+    not_null,
 )
-from files2db.data_process.null_values import get_not_null, modify
 
 
 class TestingClass(unittest.TestCase):
@@ -28,7 +29,7 @@ class TestingClass(unittest.TestCase):
         test_values = ["A bc ", "None", "Na N"]
         test_result = ["A bc ", "None", "Na N"]
         test_result_m = ["ABC", None, None]
-        for value, result, result_m in zip(test_values, test_result, test_result_m):
+        for value, result, result_m in zip(test_values, test_result, test_result_m, strict=False):
             with self.subTest(str=value, alter=False):
                 self.assertEqual(modify(value, alter=False), result)
             with self.subTest(str=value, alter=True):
@@ -88,7 +89,7 @@ class TestingClass(unittest.TestCase):
         """Test function not_null with str_size to True"""
         test_values = ["NAN", ""]
         test_result = [True, False]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(not_null(value, str_size=True), result)
 
@@ -110,7 +111,7 @@ class TestingClass(unittest.TestCase):
             True,
             [True, False, False],
         ]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value, test="Null array"):
                 self.assertEqual(array_not_null(value, recursive=False), result)
 
@@ -126,7 +127,7 @@ class TestingClass(unittest.TestCase):
             [[True, False, [False]], [[True, False]]],
             [True, True, [False, False]],
         ]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=test_values, recursive=True):
                 self.assertEqual(array_not_null(value, recursive=True), result)
 
@@ -134,7 +135,7 @@ class TestingClass(unittest.TestCase):
         """Test function bool_invert"""
         test_values = [[False, True, True], True, [False, "", True]]
         test_result = [[True, False, False], False, [True, False, False]]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(bool_invert(value), result)
 
@@ -148,7 +149,7 @@ class TestingClass(unittest.TestCase):
         """Test function get_not_null with simple values"""
         test_values = [1, 0, "A", [], {}, None, pd.NaT, pd.Timestamp(2022)]
         test_result = [1, None, "A", None, None, None, None, pd.Timestamp(2022)]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(get_not_null(value), result)
 
@@ -198,7 +199,7 @@ class TestingClass(unittest.TestCase):
             (2, ["A"]),
             {4, ("A", 1)},
         ]
-        for value, result, result_m in zip(test_values, test_result, test_result_m):
+        for value, result, result_m in zip(test_values, test_result, test_result_m, strict=False):
             with self.subTest(line=value, alter=False):
                 self.assertEqual(get_not_null(value, alter=False), result)
             with self.subTest(line=value, alter=True):
@@ -207,7 +208,7 @@ class TestingClass(unittest.TestCase):
         test_values = [pd.Series({"A": 0, "B": None, "C": [1, 0], "D": "N A"})]
         test_result = [pd.Series({"C": [1], "D": "N A"})]
         test_result_m = [pd.Series({"C": [1]})]
-        for value, result, result_m in zip(test_values, test_result, test_result_m):
+        for value, result, result_m in zip(test_values, test_result, test_result_m, strict=False):
             with self.subTest(line=value, alter=False):
                 self.assertTrue(get_not_null(value, alter=False).equals(result))
             with self.subTest(line=value, alter=True):

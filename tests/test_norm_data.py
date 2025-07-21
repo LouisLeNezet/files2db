@@ -1,13 +1,14 @@
-import unittest
-import pandas as pd
 import os
+import unittest
+
+import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from files2db.data_mg.norm_data import initial_clean_na_values_utf8
-from files2db.read_file.orga_read import get_db_from_path, load_file_orga
-from files2db.data_mg.norm_data import norm_data
-from files2db.read_file.data_read import read_file
+from files2db.data_mg.norm_data import initial_clean_na_values_utf8, norm_data
 from files2db.data_mg.utils import df_to_str_keep_na
+from files2db.read_file.data_read import read_file
+from files2db.read_file.orga_read import get_db_from_path, load_file_orga
+
 
 class TestingInitCleanClass(unittest.TestCase):
     """Class for testing initial_clean_na_values_utf8 function"""

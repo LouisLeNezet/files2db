@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 25/11/2022
 @author: LouisLeNezet
 Testing scripts for the different common functions.
 """
 
-import unittest
 import os
+import unittest
 from unittest.mock import patch
+
 import pandas as pd
 
-from files2db.read_file.orga_read import load_file_orga, validate_files_presence
-from files2db.read_file.orga_read import validate_columns, validate_columns_orga
 from files2db.read_file.orga_read import (
     get_db_from_csv,
     get_db_from_excel,
     get_db_from_path,
+    load_file_orga,
+    validate_columns,
+    validate_columns_orga,
+    validate_files_presence,
 )
 
 
@@ -191,7 +193,7 @@ class TestGetDBFromPath(unittest.TestCase):
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset")
 
     @patch("logging.warning")
-    def test_get_db_from_path_correct(self, mock_log):
+    def test_get_db_from_path_correct_xlsx(self, mock_log):
         """Test missing sheet error."""
         file_path = os.path.join(self.test_data_path, "RepTest_correct.xlsx")
         db_orga = get_db_from_path(file_path, load_file_orga())
@@ -204,7 +206,7 @@ class TestGetDBFromPath(unittest.TestCase):
         )
         self.assertEqual(db_orga["Files"].shape, (2, 22))
 
-    def test_get_db_from_path_correct(self):
+    def test_get_db_from_path_correct_csv(self):
         """Test missing sheet error."""
         file_path = os.path.join(self.test_data_path, "test1/orga.csv")
         db_orga = get_db_from_path(file_path, load_file_orga())
