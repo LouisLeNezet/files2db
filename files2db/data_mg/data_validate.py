@@ -25,29 +25,31 @@ def data_contains(data_se: pd.Series, contains: str | None = None) -> pd.Series:
 
     if pd.isna(contains) or contains is None:
         return pd.Series([True] * len(data_se))
+
     if not isinstance(contains, str):
         raise TypeError("contains should be a string")
 
-    if contains == "LETTERS":
-        return data_se.str.fullmatch("[A-Z]+", case=True, na=False)
-    elif contains == "letters":
-        return data_se.str.fullmatch("[a-z]+", case=True, na=False)
-    elif contains == "Letters":
-        return data_se.str.fullmatch(r"[A-Za-z]*", case=True, na=False)
-    elif contains == "ALPHANUM":
-        return data_se.str.fullmatch(r"[A-Z0-9]*", case=True, na=False)
-    elif contains == "alphanum":
-        return data_se.str.fullmatch(r"[a-z0-9]*", case=True, na=False)
-    elif contains == "Alphanum":
-        return data_se.str.fullmatch(r"[A-Za-z0-9]*", case=True, na=False)
-    elif contains == "date":
-        return data_se.str.fullmatch(long_date_f, case=True, na=False)
-    elif contains == "int":
-        return pd.Series([isinstance(x, int) for x in data_se], index=data_se.index)
-    elif contains == "float":
-        return pd.Series([isinstance(x, float) for x in data_se], index=data_se.index)
-    else:
-        return data_se.str.fullmatch(contains.replace(",", "|"), case=True, na=False)
+    string_patterns = {
+        "LETTERS": r"[A-Z]+",
+        "letters": r"[a-z]+",
+        "Letters": r"[A-Za-z]*",
+        "ALPHANUM": r"[A-Z0-9]*",
+        "alphanum": r"[a-z0-9]*",
+        "Alphanum": r"[A-Za-z0-9]*",
+        "date": long_date_f,
+    }
+
+    if contains in string_patterns:
+        return data_se.str.fullmatch(string_patterns[contains], case=True, na=False)
+
+
+    if contains == "int":
+        return data_se.apply(lambda x: isinstance(x, int))
+    if contains == "float":
+        return data_se.apply(lambda x: isinstance(x, float))
+
+    # Default: treat contains as a regex pattern or comma-separated alternatives
+    return data_se.str.fullmatch(contains.replace(",", "|"), case=True, na=False)
 
 
 def data_validate(
@@ -66,21 +68,21 @@ def data_validate(
     ]
 
     if min_value is not None:
-        if not isinstance(min_value, (int, float)):
+        if not isinstance(min_value, int | float):
             raise TypeError("min_value should be an int or float")
         err_min = [
             "InfToMin"
-            if isinstance(x, (int, float)) and (not_null(x) and x < min_value)
+            if isinstance(x, int | float) and (not_null(x) and x < min_value)
             else fillna_value
             for x in data_se
         ]
 
     if max_value is not None:
-        if not isinstance(max_value, (int, float)):
+        if not isinstance(max_value, int | float):
             raise TypeError("max_value should be an int or float")
         err_max = [
             "SupToMax"
-            if isinstance(x, (int, float)) and (not_null(x) and x > max_value)
+            if isinstance(x, int | float) and (not_null(x) and x > max_value)
             else fillna_value
             for x in data_se
         ]

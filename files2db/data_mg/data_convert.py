@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 
 from files2db.data_mg.utils import check_pd_series
-from files2db.data_process.null_values import not_null
 
 short_date_f = re.compile(r"\d{1,2}\.\d\d\.\d\d")
 long_date_f = re.compile(r"\d\d\.\d\d\.\d\d\d\d")
@@ -21,7 +20,7 @@ long_date_f_time = re.compile(r"\d\d\d\d-\d\d-\d\d00:00:00")
 
 def date_convert(
     date_to_convert: str,
-    na_values: list = ["", None, "NaN", "nan", "<na>"],
+    na_values: list | None = None,
     fillna_value: str = None,
 ) -> str:
     """
@@ -38,6 +37,9 @@ def date_convert(
         Date in the right format.
 
     """
+    if na_values is None:
+        na_values = ["", None, "NaN", "nan", "<na>"]
+
     if pd.isna(date_to_convert) or date_to_convert in na_values:
         return fillna_value
 
@@ -84,7 +86,7 @@ def date_convert(
         else:
             raise TypeError(f"Format not recognised {date_to_convert}")
 
-    if not_null(new_date):
+    if new_date not in na_values:
         return new_date
     else:
         return fillna_value

@@ -17,8 +17,7 @@ from files2db.data_process.null_values import (
     array_not_null,
     bool_invert,
 )
-from files2db.data_process.null_values import any_nested_list, get_not_null
-from files2db.data_process.null_values import simplify_array, modify, all_modify
+from files2db.data_process.null_values import get_not_null, modify
 
 
 class TestingClass(unittest.TestCase):
@@ -36,66 +35,9 @@ class TestingClass(unittest.TestCase):
                 self.assertEqual(modify(value, alter=True), result_m)
 
         with self.subTest(line="error"):
-            error_msg = "Error while modifying"
+            error_msg = "Value passed not recognized"
             with self.assertRaisesRegex(Exception, error_msg):
                 modify(unittest.TestCase)
-
-    def test_all_modify(self):
-        """Test function all_modify"""
-        test_values = [
-            [1, 0, "a ", []],
-            [{" bC", "NoNe"}],
-            "",
-            " ",
-            "Na N",
-            {"A": "N aN", "B": 1, "C": ["Test ", 12]},
-            (1, 3, [0]),
-            "JustString",
-        ]
-        test_result = [
-            [1, 0, "a ", []],
-            [{" bC", "NoNe"}],
-            "",
-            " ",
-            "Na N",
-            {"A": "N aN", "B": 1, "C": ["Test ", 12]},
-            (1, 3, [0]),
-            "JustString",
-        ]
-        test_result_m = [
-            [1, None, "A", None],
-            [{"BC", None}],
-            None,
-            None,
-            None,
-            {"A": None, "B": 1, "C": ["TEST", 12]},
-            (1, 3, [None]),
-            "JUSTSTRING",
-        ]
-        for value, result, result_m in zip(test_values, test_result, test_result_m):
-            with self.subTest(line=value, alter=False):
-                self.assertEqual(all_modify(value, alter=False), result)
-            with self.subTest(line=value, alter=True):
-                self.assertEqual(all_modify(value, alter=True), result_m)
-
-    def test_all_modify_pd_series(self):
-        """Test function all_modify with pandas Series"""
-        test_values = [pd.Series({"A": 0, "B": None, "C": ["Nan ", 0], "D": "N A"})]
-        test_result = [pd.Series({"A": 0, "B": None, "C": ["Nan ", 0], "D": "N A"})]
-        test_result_m = [
-            pd.Series({"A": None, "B": None, "C": [None, None], "D": None})
-        ]
-        for value, result, result_m in zip(test_values, test_result, test_result_m):
-            with self.subTest(line=value, alter=False):
-                self.assertTrue(all_modify(value, alter=False).equals(result))
-            with self.subTest(line=value, alter=True):
-                self.assertTrue(all_modify(value, alter=True).equals(result_m))
-
-        for value in [["A", unittest.BaseTestSuite], unittest.BaseTestSuite]:
-            with self.subTest(line=value, error="True"):
-                error_msg = "Error while modifying all values from iterable"
-                with self.assertRaisesRegex(Exception, error_msg):
-                    all_modify(value)
 
     def test_not_null(self):
         """Test function not_null"""
@@ -138,7 +80,7 @@ class TestingClass(unittest.TestCase):
                 self.assertFalse(is_null(value))
 
         with self.subTest(line="error"):
-            error_msg = "Error, while checking for null values"
+            error_msg = "Value passed not recognized"
             with self.assertRaisesRegex(Exception, error_msg):
                 not_null(unittest.TestCase)
 
@@ -173,7 +115,7 @@ class TestingClass(unittest.TestCase):
                 self.assertEqual(array_not_null(value, recursive=False), result)
 
         with self.subTest(line="error"):
-            error_msg = "Error while checking null values in array"
+            error_msg = "Value passed not recognized"
             with self.assertRaisesRegex(Exception, error_msg):
                 array_not_null(unittest.TestCase)
 
@@ -198,9 +140,28 @@ class TestingClass(unittest.TestCase):
 
         for value in ["A", unittest.TestCase]:
             with self.subTest(line=value):
-                error_msg = "Error, while inverting boolean values"
+                error_msg = "Not a boolean"
                 with self.assertRaisesRegex(Exception, error_msg):
                     bool_invert(value)
+
+    def test_get_not_null_simple(self):
+        """Test function get_not_null with simple values"""
+        test_values = [1, 0, "A", [], {}, None, pd.NaT, pd.Timestamp(2022)]
+        test_result = [1, None, "A", None, None, None, None, pd.Timestamp(2022)]
+        for value, result in zip(test_values, test_result):
+            with self.subTest(line=value):
+                self.assertEqual(get_not_null(value), result)
+
+
+        error_msg = "Value passed not recognized"
+        with self.assertRaisesRegex(Exception, error_msg):
+            result = get_not_null(unittest.TestCase)
+    
+    def test_get_not_null_iterable(self):
+        """Test function get_not_null with simple values"""
+        test_values = {'C': 2, 'D': [0]}
+        test_result = {'C': 2 }
+        self.assertEqual(get_not_null(test_values), test_result)
 
     def test_get_not_null(self):
         """Test function get_not_null"""
@@ -254,46 +215,9 @@ class TestingClass(unittest.TestCase):
 
         for value in [["A", unittest.BaseTestSuite], unittest.BaseTestSuite]:
             with self.subTest(line=value, error="True"):
-                error_msg = "Error while filtering null value from iterable"
+                error_msg = "Value passed not recognized"
                 with self.assertRaisesRegex(Exception, error_msg):
                     get_not_null(value)
-
-    def test_any_nested_list(self):
-        """Test function any_nested_list"""
-        test_values = [
-            [1, 0, "A", []],
-            [{"B": "A"}],
-            "Abcd",
-            "aBCD",
-            " ",
-            [1, [[[3, "A"]]]],
-        ]
-        test_result = [True, False, True, False, False, True]
-        for value, result in zip(test_values, test_result):
-            with self.subTest(line=value):
-                self.assertEqual(any_nested_list(value, "A"), result)
-
-        for value in [2]:
-            with self.subTest(line=value, test="error"):
-                error_msg = f"Error while testing for presence of A in {value}"
-                with self.assertRaisesRegex(Exception, error_msg):
-                    any_nested_list(value, "A")
-
-    def test_simplify_array(self):
-        """Test function simplify_array"""
-        test_values = [[1, 0, "A", []], ["B", "B", None], "AbcdA", " ", [1, 1, 2], None]
-        test_result = [[1, "A"], "B", "AbcdA", " ", [1, 2], None]
-        for value, result in zip(test_values, test_result):
-            if isinstance(result, list):
-                self.assertEqual(set(simplify_array(value, alter=False)), set(result))
-            else:
-                self.assertEqual(simplify_array(value, alter=False), result)
-
-        for value in [2]:
-            with self.subTest(line=value, test="error"):
-                error_msg = f"Error simplifying array {value}"
-                with self.assertRaisesRegex(Exception, error_msg):
-                    simplify_array(value, alter=False)
 
 
 if __name__ == "__main__":

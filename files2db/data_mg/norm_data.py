@@ -25,7 +25,7 @@ from files2db.data_mg.utils import update_only_missing
 
 def initial_clean_na_values_utf8(
     data_df: pd.DataFrame,
-    na_values: Any | None = [None, "", " ", "NaN", "nan", "N/A", "n/a", "NA", "na"],
+    na_values: list[Any] | None = None,
     fillna_value: Any | None = None,
     normalize_text: bool = True,
 ) -> pd.DataFrame:
@@ -82,7 +82,7 @@ def initial_clean_na_values_utf8(
 def norm_data(
     data_df: pd.DataFrame,
     db_orga: dict[pd.DataFrame],
-    na_values: list = ["", None, "NaN", "nan", "<na>", "None", {}],
+    na_values: list[Any] | None = None,
     fillna_value=pd.NA,
 ):
     """
@@ -101,6 +101,9 @@ def norm_data(
 
     """
     logging.info("Starting normalization of the datas")
+
+    if na_values is None:
+        na_values = ["", None, "NaN", "nan", "<na>", "None", {}]
 
     normed_df = initial_clean_na_values_utf8(data_df, fillna_value=fillna_value)
 

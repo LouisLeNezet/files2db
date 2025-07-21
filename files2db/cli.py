@@ -45,13 +45,27 @@ def show_notice():
 
 @app.command()
 def cli(
-    path: str = typer.Argument(None, help="Path to the main file to use."),
-    normalize: bool = typer.Option(False, "--normalize", "-n", help="Normalize the data after concatenation."),
-    output: str = typer.Option("./DataGenerated", "--output", "-o", help="Output directory for the generated files."),
-    prefix: str = typer.Option("AllID", "--prefix", "-p", help="Prefix for the output files."),
-    license: bool = typer.Option(False, "--license", help="Show license information and exit."),
-    warranty: bool = typer.Option(False, "--warranty", help="Show warranty disclaimer and exit."),
-    version: bool = typer.Option(False, "--version", help="Show version and exit."),
+    path: str = typer.Argument(
+        None, help="Path to the main file to use."
+    ),
+    normalize: bool = typer.Option(
+        False, "--normalize", "-n", help="Normalize the data after concatenation."
+    ),
+    output: str = typer.Option(
+        "./DataGenerated", "--output", "-o", help="Output directory for the generated files."
+    ),
+    prefix: str = typer.Option(
+        "AllID", "--prefix", "-p", help="Prefix for the output files."
+    ),
+    license: bool = typer.Option(
+        False, "--license", help="Show license information and exit."
+    ),
+    warranty: bool = typer.Option(
+        False, "--warranty", help="Show warranty disclaimer and exit."
+    ),
+    version: bool = typer.Option(
+        False, "--version", help="Show version and exit."
+    ),
 ):
     if version:
         typer.echo(f"files2db version {__version__}")
