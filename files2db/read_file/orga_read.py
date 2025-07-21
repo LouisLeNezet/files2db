@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 22/10/2021
 @author: LouisLeNezet
@@ -9,11 +8,13 @@ Check for presence absence of file, sheets, columns
 import logging
 import re
 from importlib import resources
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 from openpyxl import load_workbook
-from ..ui.get_infos import get_file_path
+
 from ..read_file.data_read import read_file
+from ..ui.get_infos import get_file_path
 
 
 def load_file_orga():
@@ -52,9 +53,7 @@ def validate_files_presence(files_needed: set, files_available: set, path: str):
         )
 
     if extra_files:
-        logging.warning(
-            "Extra files %s present in %s and not needed", extra_files, path
-        )
+        logging.warning("Extra files %s present in %s and not needed", extra_files, path)
 
 
 def validate_columns(df: pd.DataFrame, path: str, cols_need: list, cols_sup=False):
@@ -79,9 +78,7 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
             cols_sup=orga_dict[file]["columns_sup"],
         )
         # Transform to integer needed columns
-        if ("integer" in orga_dict[file]) and isinstance(
-            orga_dict[file]["integer"], str
-        ):
+        if ("integer" in orga_dict[file]) and isinstance(orga_dict[file]["integer"], str):
             for col in orga_dict[file]["integer"].split(","):
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
@@ -89,9 +86,7 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
         if ("list" in orga_dict[file]) and isinstance(orga_dict[file]["list"], str):
             for col in orga_dict[file]["list"].split(","):
                 if col in df.columns:
-                    df[col] = df[col].apply(
-                        lambda x: x.split(",") if isinstance(x, str) else x
-                    )
+                    df[col] = df[col].apply(lambda x: x.split(",") if isinstance(x, str) else x)
     return db_dict
 
 
@@ -161,9 +156,7 @@ def get_db_from_path(path_file: str, db_orga: dict) -> dict:
     elif re.search(string=path_file, pattern=r"\.(xlsx|xls|xlsm)"):
         db_dict = get_db_from_excel(path_file, db_orga)
     else:
-        raise TypeError(
-            f"File {path_file} should be either an .xlsx, .xls, xlsm or a .csv"
-        )
+        raise TypeError(f"File {path_file} should be either an .xlsx, .xls, xlsm or a .csv")
 
     db_dict = validate_columns_orga(db_orga, db_dict)
 

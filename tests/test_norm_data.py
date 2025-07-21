@@ -1,13 +1,14 @@
-import unittest
-import pandas as pd
 import os
+import unittest
+
+import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from files2db.data_mg.norm_data import initial_clean_na_values_utf8
-from files2db.read_file.orga_read import get_db_from_path, load_file_orga
-from files2db.data_mg.norm_data import norm_data
-from files2db.read_file.data_read import read_file
+from files2db.data_mg.norm_data import initial_clean_na_values_utf8, norm_data
 from files2db.data_mg.utils import df_to_str_keep_na
+from files2db.read_file.data_read import read_file
+from files2db.read_file.orga_read import get_db_from_path, load_file_orga
+
 
 class TestingInitCleanClass(unittest.TestCase):
     """Class for testing initial_clean_na_values_utf8 function"""
@@ -40,8 +41,10 @@ class TestingInitCleanClass(unittest.TestCase):
             expected_df.reset_index(drop=True),
         )
 
+
 class TestingNormData(unittest.TestCase):
     """Class for testing normdata function"""
+
     def setUp(self):
         """Set up test data path"""
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset/test2/")
@@ -59,7 +62,7 @@ class TestingNormData(unittest.TestCase):
         df_expected_path = os.path.join(self.test_data_path, "expected.csv")
         df_expected = read_file(df_expected_path, sep=";", col_start=2)
         df_expected.reset_index(drop=True, inplace=True)
-        
+
         print(df_file)
 
         result = norm_data(
@@ -83,4 +86,3 @@ class TestingNormData(unittest.TestCase):
             df_norm,
             df_expected,
         )
-

@@ -1,13 +1,12 @@
-import unittest
+import logging
 import os
-
-from files2db.main import main
-from files2db.read_file.data_read import read_file
-from files2db.data_mg.utils import df_to_str_keep_na
+import unittest
 
 from pandas._testing import assert_frame_equal
 
-import logging
+from files2db.data_mg.utils import df_to_str_keep_na
+from files2db.main import main
+from files2db.read_file.data_read import read_file
 
 logging.basicConfig(level=logging.DEBUG)
 

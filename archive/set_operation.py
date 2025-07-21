@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 22/01/2021
 @author: LouisLeNezet
 Module for all functions to analyse set of data.
 """
 
-from collections import abc as class_name
 import logging
+from collections import abc as class_name
+
 import numpy as np
 import pandas as pd
-from ..data_process.null_values import bool_invert, not_null, is_null
-from ..data_process.null_values import get_not_null, all_modify
-from ..ui.print_infos import print_exception
+
+from ..files2db.data_process.null_values import all_modify, bool_invert, get_not_null, is_null, not_null
+from ..files2db.ui.print_infos import print_exception
 
 
 def convert_to_set(values, alter=False, to_list=False):
@@ -40,11 +40,11 @@ def convert_to_set(values, alter=False, to_list=False):
     try:
         if is_null(values, alter=alter):
             set_values = []
-        elif isinstance(values, (str, float, int, np.integer, np.floating)):
+        elif isinstance(values, str | float | int | np.integer | np.floating):
             set_values = [values]
-        elif isinstance(values, (set, tuple)):
+        elif isinstance(values, set | tuple):
             set_values = list(values)
-        elif isinstance(values, (pd.Series, list)):
+        elif isinstance(values, pd.Series | list):
             set_values = list(values)
         elif isinstance(values, class_name.KeysView):
             set_values = list(values)
@@ -97,7 +97,8 @@ def percent_error(str_a, str_b, alter=False):
             str_a = str_a.replace(".", "").replace(" ", "").upper()
             str_b = str_b.replace(".", "").replace(" ", "").upper()
         values = sum(
-            1 for value_a, value_b in zip(str(str_a), str(str_b)) if value_a != value_b
+            1 for value_a, value_b in zip(str(str_a), str(str_b), strict=False)
+            if value_a != value_b
         )
         len_a = len(str(str_a))
         len_b = len(str(str_b))

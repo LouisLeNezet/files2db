@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 19/01/2022
 @author: LouisLeNezet
@@ -7,9 +6,9 @@ Module for all prompt message and user input.
 """
 
 import linecache
-import sys
-import os
 import logging
+import os
+import sys
 
 
 def print_exception():

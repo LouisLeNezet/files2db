@@ -1,5 +1,7 @@
-import pandas as pd
 import logging
+
+import pandas as pd
+
 from ..read_file.data_read import read_file
 from ..ui.get_infos import get_file_path
 
@@ -11,7 +13,8 @@ def iterate_file(file):
     The 'FileName' column is added to the resulting dataframe
     to indicate the source of each row of data.
     The metadata columns (starting with 'meta_') are also added to the dataframe.
-    If a metadata column is not present in the file data, it is added with the value from the file info.
+    If a metadata column is not present in the file data, it is added with the
+    value from the file info.
 
     Args:
         file (pd.DataFrame): Pandas dataframe containing the files to parse
@@ -43,7 +46,8 @@ def iterate_file(file):
 
     if file.empty:
         raise ValueError(
-            "The input dataframe containing file information is empty. Please provide a valid dataframe."
+            "The input dataframe containing file information is empty.",
+            "Please provide a valid dataframe.",
         )
 
     for index in file.index:

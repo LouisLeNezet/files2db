@@ -1,32 +1,32 @@
-# -*- coding: utf-8 -*-
 """
 Created on Tue Jul  6 12:28:13 2021
 
 @author: LouisLeNezet
 """
 
-import re
 import logging
-import pandas as pd
-import numpy as np
+import re
 import unicodedata
+from typing import Any
 
-from typing import Optional, Any
-from files2db.data_mg.string_management import (
-    data_sep,
-    data_clean,
-    data_replace,
-    data_sep_pattern,
-)
+import numpy as np
+import pandas as pd
+
 from files2db.data_mg.data_convert import data_conv
 from files2db.data_mg.data_validate import data_validate
+from files2db.data_mg.string_management import (
+    data_clean,
+    data_replace,
+    data_sep,
+    data_sep_pattern,
+)
 from files2db.data_mg.utils import update_only_missing
 
 
 def initial_clean_na_values_utf8(
     data_df: pd.DataFrame,
-    na_values: Optional[Any] = [None, "", " ", "NaN", "nan", "N/A", "n/a", "NA", "na"],
-    fillna_value: Optional[Any] = None,
+    na_values: list[Any] | None = None,
+    fillna_value: Any | None = None,
     normalize_text: bool = True,
 ) -> pd.DataFrame:
     """
@@ -70,9 +70,7 @@ def initial_clean_na_values_utf8(
                 lambda x: (
                     x
                     if pd.isna(x)
-                    else unicodedata.normalize("NFKD", x)
-                    .encode("ascii", "ignore")
-                    .decode("utf-8")
+                    else unicodedata.normalize("NFKD", x).encode("ascii", "ignore").decode("utf-8")
                 )
             )
 
@@ -82,7 +80,7 @@ def initial_clean_na_values_utf8(
 def norm_data(
     data_df: pd.DataFrame,
     db_orga: dict[pd.DataFrame],
-    na_values: list = ["", None, "NaN", "nan", "<na>", "None", {}],
+    na_values: list[Any] | None = None,
     fillna_value=pd.NA,
 ):
     """
@@ -102,6 +100,9 @@ def norm_data(
     """
     logging.info("Starting normalization of the datas")
 
+    if na_values is None:
+        na_values = ["", None, "NaN", "nan", "<na>", "None", {}]
+
     normed_df = initial_clean_na_values_utf8(data_df, fillna_value=fillna_value)
 
     errors_df = pd.DataFrame()
@@ -120,9 +121,9 @@ def norm_data(
             logging.info("Field %s not found in the file", field)
             continue
         field_infos = db_orga["FieldRules"].loc[field_i].to_dict()
-        field_equiv = db_orga["ValuesMap"][
-            db_orga["ValuesMap"]["Field"] == field
-        ].to_dict(orient="records")
+        field_equiv = db_orga["ValuesMap"][db_orga["ValuesMap"]["Field"] == field].to_dict(
+            orient="records"
+        )
         field_equiv = {d["Value"]: d["Eq"] for d in field_equiv}
 
         for col_i in match_cols:
@@ -176,11 +177,7 @@ def norm_data(
     if not errors_df.empty and len(errors_df.columns) > 0:
         normed_df["Error"] = errors_df.apply(
             lambda row: pd.Series(
-                {
-                    "Error": {
-                        col: val for col, val in row.items() if isinstance(val, dict)
-                    }
-                }
+                {"Error": {col: val for col, val in row.items() if isinstance(val, dict)}}
             ),
             axis=1,
         )

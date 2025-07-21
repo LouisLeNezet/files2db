@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 25/11/2022
 @author: LouisLeNezet
 Testing scripts for the different common functions.
 """
 
-import unittest
 import os
+import unittest
+
 import pandas as pd
 
 from files2db.data_mg.data_iterate import iterate_file
@@ -18,16 +18,12 @@ class TestValidateFiles(unittest.TestCase):
 
     def test_iterate_with_file_csv(self):
         """Use a CSV file to test the iterate_file function."""
-        test_file_path = os.path.join(
-            os.path.dirname(__file__), "test_dataset", "test1/files.csv"
-        )
+        test_file_path = os.path.join(os.path.dirname(__file__), "test_dataset", "test1/files.csv")
         file_df = pd.read_csv(test_file_path, sep=";", encoding="utf8")
         iterated_data = iterate_file(file_df)
 
         self.assertIsInstance(iterated_data, pd.DataFrame)
-        self.assertFalse(
-            iterated_data.empty, "The resulting DataFrame should not be empty."
-        )
+        self.assertFalse(iterated_data.empty, "The resulting DataFrame should not be empty.")
         columns_expected = [
             "EmplacementOrigine",
             "ColA",
@@ -52,12 +48,8 @@ class TestValidateFiles(unittest.TestCase):
         )
 
         # Check that the dimensions of the DataFrame are as expected
-        self.assertEqual(
-            iterated_data.shape[0], 10, "The DataFrame should have 10 rows."
-        )
-        self.assertEqual(
-            iterated_data.shape[1], 11, "The DataFrame should have 11 columns."
-        )
+        self.assertEqual(iterated_data.shape[0], 10, "The DataFrame should have 10 rows.")
+        self.assertEqual(iterated_data.shape[1], 11, "The DataFrame should have 11 columns.")
 
     def test_iterate_empty_dataframe(self):
         """Test the iterate_file function with an empty DataFrame."""

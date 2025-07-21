@@ -1,16 +1,34 @@
-[![codecov](https://codecov.io/gh/louislenezet/files2db/branch/deb/graph/badge.svg)](https://codecov.io/gh/louislenezet/files2db)
+[![codecov](https://codecov.io/gh/louislenezet/files2db/branch/dev/graph/badge.svg)](https://codecov.io/gh/louislenezet/files2db)
 [![Python Version](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/license-GPLv3-green.svg)](https://opensource.org/licenses/gpl-3-0)
 
 # Files2DB
 
-The goal of this project is to be able to concatenate a multitude of flat plain files (.csv, .xlsx) into a single, standardized database. 
-
-1. [Problematic](#1-problematic)
-2. [Python script](#2-python-script)
-    - [Script structure](#21-script-structure)
-    - [Installation](#22-installation)
-    - [Launch](#23-launch-of-the-script)
+<table>
+  <tr>
+    <td>
+      <p>
+        <i>One script to rule them all, one script to find them, one script to bring them all and in a database bind them.</i>
+      </p>
+      <p>
+        <strong>files2db</strong> is a python tool to help anyone concatenate, normalize and check a multitude of flat plain files (.csv, .xlsx) into a single, standardized database.
+      </p>
+      <ul>
+        <li><a href="#1-problematic">Problematic</a></li>
+        <li><a href="#2-python-script">Python script</a>
+          <ul>
+            <li><a href="#21-script-structure">Script structure</a></li>
+            <li><a href="#22-installation">Installation</a></li>
+            <li><a href="#23-launch-of-the-script">Launch</a></li>
+          </ul>
+        </li>
+      </ul>
+    </td>
+    <td style="text-align:right;">
+      <img src="assets/logo_files2db.png" alt="Files2DB Logo" height="100%"/>
+    </td>
+  </tr>
+</table>
 
 ## 1. Problematic
 
@@ -31,18 +49,16 @@ The goal of this project is to be able to concatenate a multitude of flat plain 
 
 ### 2.3 Problems to solve
 
-- Identification of the individual:
+- Identification of an observation:
   - Not always the same information available, need to check through different candidate keys
 - Data normalization
-  - Usual and official name to be separated
-  - Breed written differently and crossbred dogs poorly registered in Cani-DNA
-  - Excel date (without comment)
-- Dysplastic information:
-  - Diagnosis at different ages, different readers
-  - Not always the same measurement (distraction index, Norberg angle or FCI notation)
-  - Bilateral or not
-- Genealogy
-  - Parents identified only by Name + Affixe
+  - Need to split some of the information into several columns
+  - Need to merge some of the information into a single column
+  - Need to convert the format of the information
+  - Excel date (no comment)
+- Data validation:
+  - Need to check the format of the information
+  - Need to check the consistency of the information:
 
 ## 2. Python script
 
@@ -104,3 +120,6 @@ To launch the tests, run the following command:
 pytest --cov --cov-report=lcov
 coverage lcov
 ```
+
+## 4. License
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.

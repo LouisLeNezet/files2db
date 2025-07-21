@@ -1,22 +1,38 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
+# files2db - A tool to normalize and combine flat files into a database
+# Copyright (C) 2024 Louis Le Nezet
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 """
 Created on 22/10/2021
 @author: LouisLeNezet
 Main script fo the concatenation of the files
 """
 
+import logging
 import os
 import warnings
-import logging
 from datetime import date
-import pandas as pd
-import typer
 
-from .data_mg.norm_data import norm_data
+import pandas as pd
+
 from .data_mg.data_iterate import iterate_file
-from .read_file.orga_read import get_db_from_path, load_file_orga
+from .data_mg.norm_data import norm_data
 from .read_file.data_read import check_files_exist
+from .read_file.orga_read import get_db_from_path, load_file_orga
 from .ui.get_infos import get_file_path, get_os, welcome
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
@@ -33,24 +49,11 @@ def start():
     return (op_sys, path_wd)
 
 
-app = typer.Typer()
-
-
-@app.command()
 def main(
-    path: str = typer.Argument(..., help="Path to the main file to use."),
-    normalize: bool = typer.Option(
-        False, "--normalize", "-n", help="Normalize the data after concatenation."
-    ),
-    output_folder: str = typer.Option(
-        "./DataGenerated",
-        "--output",
-        "-o",
-        help="Output directory for the generated files.",
-    ),
-    output_files_prefix: str = typer.Option(
-        "AllID", "--prefix", "-p", help="Prefix for the output files."
-    ),
+    path: str,
+    normalize: bool,
+    output_folder: str,
+    output_files_prefix: str,
 ):
     """Main function of the concatenation script."""
 
@@ -67,9 +70,7 @@ def main(
     try:
         check_files_exist(db_get["Files"]["FilePath"])
     except FileNotFoundError:
-        logging.error(
-            "One or more files could not be found. Please check the file paths."
-        )
+        logging.error("One or more files could not be found. Please check the file paths.")
         return
 
     try:
@@ -87,9 +88,7 @@ def main(
         logging.info("Output folder created: %s", output_folder)
 
     # Save RAW as csv
-    save_path = os.path.join(
-        f"{output_folder}/{output_files_prefix}_{date.today()}_raw.csv"
-    )
+    save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}_raw.csv")
     all_data_raw.to_csv(get_file_path(save_path), sep=";")
 
     # Normalize data
@@ -98,16 +97,10 @@ def main(
         all_data = norm_data(all_data_raw, db_get)
 
         # Save normalized data
-        save_path = os.path.join(
-            f"{output_folder}/{output_files_prefix}_{date.today()}.csv"
-        )
+        save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}.csv")
         all_data.to_csv(get_file_path(save_path), sep=";")
         logging.info("Data saved to %s", save_path)
 
     logging.info("Concatenation completed successfully")
 
     return all_data_raw, all_data if normalize else None
-
-
-if __name__ == "__main__":
-    app()

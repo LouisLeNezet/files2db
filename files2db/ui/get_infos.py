@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 16/11/2022
 @author: LouisLeNezet
@@ -7,10 +6,10 @@ Module for all functions for getting infos about the os and converting path.
 """
 
 # ###Library needed####
-import platform
-import os
-import re
 import logging
+import os
+import platform
+import re
 
 
 def welcome(script_use=None, cwd=None, opsyst=None, col_needed=None):
@@ -27,9 +26,7 @@ def welcome(script_use=None, cwd=None, opsyst=None, col_needed=None):
     None.
     """
     logging.info("Hi, this script is used for %s", script_use)
-    logging.info(
-        "If you have any questions or problems, contact Louis Le Nézet by mail"
-    )
+    logging.info("If you have any questions or problems, contact Louis Le Nézet by mail")
     logging.info(" ")
     logging.info("Your current directory is the following: ")
     logging.info(cwd)
@@ -76,8 +73,7 @@ os_pattern = {
 }
 
 os_pat_comp = {
-    os_name: re.compile(os_pat, flags=re.IGNORECASE)
-    for os_name, os_pat in os_pattern.items()
+    os_name: re.compile(os_pat, flags=re.IGNORECASE) for os_name, os_pat in os_pattern.items()
 }
 
 
@@ -100,15 +96,11 @@ def get_path_os(path):
     Exception
         Multiple match
     """
-    os_match = [
-        os_name for os_name, os_pat in os_pat_comp.items() if bool(os_pat.search(path))
-    ]
+    os_match = [os_name for os_name, os_pat in os_pat_comp.items() if bool(os_pat.search(path))]
     if len(os_match) == 1:
         return os_match[0]
     else:
-        raise OSError(
-            f"Path '{path}' should not match multiple or none os patterns {os_match}"
-        )
+        raise OSError(f"Path '{path}' should not match multiple or none os patterns {os_match}")
 
 
 mnt_pat = r"^(\/mnt\/)?(C|D|E|F)(:)?(\\|\/)"
@@ -137,9 +129,7 @@ def get_file_path(file_path, cwd_os="", file_os=""):
         cwd_os = get_os()[0]
     if file_os == "":
         file_os = get_path_os(file_path)
-    if cwd_os != file_os and all(
-        [os_path in ["Windows", "Wsl"] for os_path in [cwd_os, file_os]]
-    ):
+    if cwd_os != file_os and all([os_path in ["Windows", "Wsl"] for os_path in [cwd_os, file_os]]):
         match = mnt_pat_comp.search(file_path)
         if match:
             if file_os == "Wsl":
@@ -154,8 +144,6 @@ def get_file_path(file_path, cwd_os="", file_os=""):
                     count=1,
                 )
         else:
-            raise OSError(
-                f"File path {file_path} should pocess a identifiable mounted volume"
-            )
+            raise OSError(f"File path {file_path} should pocess a identifiable mounted volume")
 
     return re.sub(r"\\", "/", file_path)

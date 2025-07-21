@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 07/10/2021
 @author: Louis Le Nézet
 """
 
 import unittest
+
+import numpy as np
 import pandas as pd
-from pandas.testing import assert_series_equal, assert_frame_equal
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 from files2db.data_mg.string_management import (
-    data_replace,
     data_clean,
+    data_replace,
     data_sep,
     data_sep_pattern,
 )
@@ -38,7 +39,7 @@ class TestingDataReplace(unittest.TestCase):
 class TestDataClean(unittest.TestCase):
     def test_del_match_only(self):
         s = pd.Series(["remove", "keep", "remove", "test", "test2"])
-        expected = pd.Series([None, "keep", None, None, "test2"])
+        expected = pd.Series([np.nan, "keep", np.nan, np.nan, "test2"])
         result = data_clean(s, del_match=["remove", "test"])
         assert_series_equal(result, expected)
 
@@ -61,13 +62,15 @@ class TestDataClean(unittest.TestCase):
         assert_series_equal(result, expected)
 
     def test_all_parameters_combined(self):
-        s = pd.Series(["REMOVE", "valueotherfoo", "trash:data", "skip (something to delete)", "???"])
+        s = pd.Series(
+            ["REMOVE", "valueotherfoo", "trash:data", "skip (something to delete)", "???"]
+        )
         expected = pd.Series(["", "value", "trash", "skip", ""])
         result = data_clean(
             s,
             del_match=["REMOVE", "???"],
             strip_from=["=", ":"],
-            del_in=["other", "foo", "\(.*\)", " "],
+            del_in=["other", "foo", r"\(.*\)", " "],
             fillna_value="",
         )
         assert_series_equal(result, expected)
@@ -96,9 +99,7 @@ class TestDataSep(unittest.TestCase):
     def test_multiple_separators(self):
         s = pd.Series(["a|b,c", "d,e|f"], name="col1")
 
-        expected = pd.DataFrame(
-            {"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", "f"]}
-        )
+        expected = pd.DataFrame({"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", "f"]})
 
         result = data_sep(s, sep=["|", ","])
         assert_frame_equal(result, expected)
@@ -130,9 +131,12 @@ class TestDataSep(unittest.TestCase):
         s = pd.Series([1, 2], name="col1")
         with self.assertRaises(TypeError):
             data_sep(s, sep=[","])
-    
+
     def test_complexe_data(self):
-        s = pd.Series(["00 et 2020.01/03 (my date)", "other date et possible et 2020.01/03 (my date)"], name="col1")
+        s = pd.Series(
+            ["00 et 2020.01/03 (my date)", "other date et possible et 2020.01/03 (my date)"],
+            name="col1",
+        )
         expect = pd.DataFrame(
             {
                 "col1_0": ["00", "other date"],
@@ -140,8 +144,8 @@ class TestDataSep(unittest.TestCase):
                 "col1_2": [None, "2020.01/03 (my date)"],
             }
         )
-        result = data_sep(s, sep=["et"])
-        
+        result = data_sep(s, sep=[" et "])
+        assert_frame_equal(result, expect)
 
 
 class TestDataSepPattern(unittest.TestCase):
@@ -150,9 +154,7 @@ class TestDataSepPattern(unittest.TestCase):
         pattern = r"(?P<num>\d+)-(?P<word>[a-zA-Z]+)"
         df = data_sep_pattern(s, pattern)
 
-        expected = pd.DataFrame(
-            {"num": ["123", "456", "789"], "word": ["abc", "def", "ghi"]}
-        )
+        expected = pd.DataFrame({"num": ["123", "456", "789"], "word": ["abc", "def", "ghi"]})
         assert_frame_equal(df, expected)
 
     def test_basic_separation_multiple_alpha(self):
@@ -161,7 +163,7 @@ class TestDataSepPattern(unittest.TestCase):
         df = data_sep_pattern(s, pattern)
 
         expected = pd.DataFrame(
-            {"G": ["A", "a", None], "D": ["E", "A", None], "DG": [None, None, "D"]}
+            {"G": ["A", "a", pd.NA], "D": ["E", "A", pd.NA], "DG": [pd.NA, pd.NA, "D"]}
         )
         assert_frame_equal(df, expected)
 
@@ -172,8 +174,8 @@ class TestDataSepPattern(unittest.TestCase):
 
         expected = pd.DataFrame(
             {
-                "Puce": ["250268720147419", "985154000245240", None],
-                "Tatouage": [None, "2DVT608", "2DVT608"],
+                "Puce": ["250268720147419", "985154000245240", pd.NA],
+                "Tatouage": [pd.NA, "2DVT608", "2DVT608"],
             }
         )
         assert_frame_equal(df, expected)

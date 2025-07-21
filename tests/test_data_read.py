@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 25/11/2022
 @author: LouisLeNezet
@@ -8,8 +7,8 @@ Testing scripts for the different common functions.
 
 import os
 import unittest
-from files2db.read_file.data_read import read_file, columns_to_int, lines_to_int
-from files2db.read_file.data_read import columns_convert
+
+from files2db.read_file.data_read import columns_convert, columns_to_int, lines_to_int, read_file
 
 
 class TestingClass(unittest.TestCase):

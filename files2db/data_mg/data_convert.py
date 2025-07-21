@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 09/12/2022
 @author: LouisLeNezet
@@ -7,12 +6,11 @@ Modules for all converting functions
 """
 
 import re
-import pandas as pd
-import numpy as np
-from typing import Optional
-from files2db.data_process.null_values import not_null
-from files2db.data_mg.utils import check_pd_series
 
+import numpy as np
+import pandas as pd
+
+from files2db.data_mg.utils import check_pd_series
 
 short_date_f = re.compile(r"\d{1,2}\.\d\d\.\d\d")
 long_date_f = re.compile(r"\d\d\.\d\d\.\d\d\d\d")
@@ -22,7 +20,7 @@ long_date_f_time = re.compile(r"\d\d\d\d-\d\d-\d\d00:00:00")
 
 def date_convert(
     date_to_convert: str,
-    na_values: list = ["", None, "NaN", "nan", "<na>"],
+    na_values: list | None = None,
     fillna_value: str = None,
 ) -> str:
     """
@@ -39,53 +37,41 @@ def date_convert(
         Date in the right format.
 
     """
+    if na_values is None:
+        na_values = ["", None, "NaN", "nan", "<na>"]
+
     if pd.isna(date_to_convert) or date_to_convert in na_values:
         return fillna_value
 
     if not isinstance(date_to_convert, str):
         raise TypeError("date_to_convert should be a string")
 
-    global \
-        super_short_date_f, \
-        short_date_f, \
-        long_date_f, \
-        long_date_f_inv, \
-        long_date_f_time
+    global super_short_date_f, short_date_f, long_date_f, long_date_f_inv, long_date_f_time
 
     date_to_convert = date_to_convert.replace("/", ".")
     if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
         new_date = fillna_value
     else:
         if short_date_f.fullmatch(date_to_convert):
-            raise TypeError(
-                "Format is not reliable please modify it to full year format"
-            )
+            raise TypeError("Format is not reliable please modify it to full year format")
             # if date_to_convert[-2:] > "80":  # Siecle dernier
             #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
             # else:
             #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
         elif long_date_f_time.fullmatch(date_to_convert):
             new_date = str(
-                date_to_convert[8:10]
-                + "."
-                + date_to_convert[5:7]
-                + "."
-                + date_to_convert[0:4]
+                date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
             )
         elif long_date_f.fullmatch(date_to_convert):
             new_date = str(date_to_convert)
         elif long_date_f_inv.fullmatch(date_to_convert):
             new_date = str(
-                date_to_convert[8:10]
-                + "."
-                + date_to_convert[5:7]
-                + "."
-                + date_to_convert[0:4]
+                date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
             )
         else:
             raise TypeError(f"Format not recognised {date_to_convert}")
 
-    if not_null(new_date):
+    if new_date not in na_values:
         return new_date
     else:
         return fillna_value
@@ -113,8 +99,8 @@ def check_numeric(value):
 
 def num_convert(
     data_se: pd.Series,
-    to_type: Optional[str] = "float",
-    fillna_value: Optional[str] = None,
+    to_type: str | None = "float",
+    fillna_value: str | None = None,
 ) -> pd.Series:
     """
     Convert string pandas Series to numeric while checking for errors and setting the type.
@@ -150,12 +136,12 @@ def num_convert(
         data_conv = pd.Series(
             [
                 int(round(float(x), 0)) if num else fillna_value
-                for x, num in zip(data, num_conv)
+                for x, num in zip(data, num_conv, strict=False)
             ]
         )
     if to_type == "float":
         data_conv = pd.Series(
-            [float(x) if num else fillna_value for x, num in zip(data, num_conv)]
+            [float(x) if num else fillna_value for x, num in zip(data, num_conv, strict=False)]
         )
 
     # Preserve the original name of the Series
@@ -166,8 +152,8 @@ def num_convert(
 
 def data_conv(
     data_se: pd.Series,
-    data_type: Optional[str] = None,
-    fillna_value: Optional[str] = None,
+    data_type: str | None = None,
+    fillna_value: str | None = None,
 ) -> pd.Series:
     if not check_pd_series(data_se, type_check=str):
         return data_se
@@ -181,9 +167,7 @@ def data_conv(
             data_se = data_se.str.title()
         elif data_type == "date":
             data_se = data_se.str.replace("-", ".", regex=False)
-            data_se = data_se.apply(
-                lambda row: date_convert(row, fillna_value=fillna_value)
-            )
+            data_se = data_se.apply(lambda row: date_convert(row, fillna_value=fillna_value))
         elif data_type in ["int", "float"]:
             data_se = num_convert(data_se, to_type=data_type, fillna_value=fillna_value)
         elif data_type == "string":

@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 Created on 19/01/2021
 @author: LouisLeNezet
 Module to read excel files and checkout the columns names.
 """
 
+import logging
 import os
 import re
-import logging
+
 import pandas as pd
 
 from ..ui.get_infos import get_file_path
@@ -145,13 +145,9 @@ def read_file(
         if sheet_name is None:
             logging.error("No sheet available please complete data in repertory")
             raise KeyError(f"No sheet available for {file_to_add_path}")
-        file_read = pd.read_excel(
-            file_to_add_path, sheet_name=sheet_name, header=None, dtype="str"
-        )
+        file_read = pd.read_excel(file_to_add_path, sheet_name=sheet_name, header=None, dtype="str")
     else:
-        raise TypeError(
-            f"File {file_to_add_path} should be either an .xlsx, .xls, xlsm or a .csv"
-        )
+        raise TypeError(f"File {file_to_add_path} should be either an .xlsx, .xls, xlsm or a .csv")
 
     # Check for column and line start and end
     col_start, col_end = columns_to_int(col_start, col_end, file_read.shape[1] + 1)

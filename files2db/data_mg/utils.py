@@ -1,12 +1,9 @@
 import pandas as pd
-from typing import Dict, Optional
 
-from ..data_process.null_values import is_null, get_not_null
+from files2db.data_process.null_values import get_not_null, is_null
 
 
-def conca_simplify(
-    data_df: pd.DataFrame, col_names: Optional[Dict[str, list]] = None
-) -> pd.Series:
+def conca_simplify(data_df: pd.DataFrame, col_names: dict[str, list] | None = None) -> pd.Series:
     """Simplify a nested dataframe into a single column.
 
     In the case of supplied col_names the columns
@@ -44,9 +41,7 @@ def conca_simplify(
                     if col_main + "_" + col_sub in data_df.columns
                 }
                 data_df.rename(columns=all_col, inplace=True)
-                data_df[col_main] = pd.Series(
-                    data_df[all_col.values()].to_dict("records")
-                )
+                data_df[col_main] = pd.Series(data_df[all_col.values()].to_dict("records"))
                 data_df.drop(all_col.values(), axis=1, inplace=True)
         return conca_simplify(data_df)
 
@@ -72,39 +67,29 @@ def nested_serie_test(data, value, test):
     """
     if test == "Sup":
         return [
-            x > value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x > value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     elif test == "Inf":
         return [
-            x < value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x < value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     elif test == "Equal":
         return [
-            x == value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x == value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     elif test == "Diff":
         return [
-            x != value
-            if not isinstance(x, list)
-            else (all(nested_serie_test(x, value, test)))
+            x != value if not isinstance(x, list) else (all(nested_serie_test(x, value, test)))
             for x in data
         ]
     else:
         raise ValueError(f"Test {test} given isn't recognize")
 
 
-def check_pd_series(
-    data_se: pd.Series, type_check: Optional[tuple] = ("str", "int")
-) -> bool:
+def check_pd_series(data_se: pd.Series, type_check: tuple | None = ("str", "int")) -> bool:
     """
     Check if the input is a Pandas Series.
 
@@ -133,9 +118,61 @@ def check_pd_series(
     return True
 
 
+def _to_bool_str(
+    value: str,
+    true_values: set[str] | None = None,
+    false_values: set[str] | None = None,
+) -> bool:
+    if true_values is None:
+        true_values = {"true", "1", "yes"}
+    if false_values is None:
+        false_values = {"false", "0", "no"}
+
+    val_lower = value.lower()
+    if val_lower in true_values:
+        return True
+    if val_lower in false_values:
+        return False
+    raise ValueError("String value must be 'True' or 'False'")
+
+
+def _to_bool_int(
+    value: int,
+    true_values: set[str] | None = None,
+    false_values: set[str] | None = None,
+) -> bool:
+    if true_values is None:
+        true_values = {1}
+    if false_values is None:
+        false_values = {0}
+
+    if value in true_values:
+        return True
+    if value in false_values:
+        return False
+    raise ValueError("Integer value must be 1 or 0")
+
+
+def _to_bool_float(
+    value: float,
+    true_values: set[str] | None = None,
+    false_values: set[str] | None = None,
+) -> bool:
+    if true_values is None:
+        true_values = {1.0}
+    if false_values is None:
+        false_values = {0.0}
+
+    if value in true_values:
+        return True
+    if value in false_values:
+        return False
+    raise ValueError("Float value must be 1.0 or 0.0")
+
+
 def to_bool(
     value: any,
-    fillna_value: Optional[bool] = None,
+    fillna_value: bool | None = None,
 ) -> bool:
     """
     Convert a value to boolean.
@@ -153,37 +190,28 @@ def to_bool(
     if value is None:
         if fillna_value is not None:
             return fillna_value
-        else:
-            raise ValueError("value cannot be None and fillna_value is not provided")
+        raise ValueError("value cannot be None and fillna_value is not provided")
+
+    str_true = {"true"}
+    str_false = {"false"}
+    int_true = {1}
+    int_false = {0}
+    float_true = {1.0}
+    float_false = {0.0}
 
     if isinstance(value, str):
-        if value.lower() == "true":
-            value = True
-        elif value.lower() == "false":
-            value = False
-        else:
-            raise ValueError("value should be 'True' or 'False' as a string")
-    elif isinstance(value, int):
-        if value == 1:
-            value = True
-        elif value == 0:
-            value = False
-        else:
-            raise ValueError("value should be 1 (True) or 0 (False) as an integer")
-    elif isinstance(value, float):
-        if value == 1.0:
-            value = True
-        elif value == 0.0:
-            value = False
-        else:
-            raise ValueError("value should be 1.0 (True) or 0.0 (False) as a float")
+        return _to_bool_str(value, str_true, str_false)
 
-    if not isinstance(value, bool):
-        raise TypeError(
-            f"value should be interpretable as a boolean value: got {value} of type {type(value)}"
-        )
+    if isinstance(value, int):
+        return _to_bool_int(value, int_true, int_false)
 
-    return value
+    if isinstance(value, float):
+        return _to_bool_float(value, float_true, float_false)
+
+    if isinstance(value, bool):
+        return value
+
+    raise TypeError(f"Cannot interpret {value!r} of type {type(value)} as boolean")
 
 
 def update_only_missing(target_df, update_df):
@@ -210,10 +238,11 @@ def update_only_missing(target_df, update_df):
 
 def df_to_str_keep_na(
     df: pd.DataFrame,
-    na_values = [None, "", "NaN", "nan", "<na>", "None", "NA", {}],  # Remove pd.NA from list
+    na_values: list | None = None,
 ) -> pd.DataFrame:
+    if na_values is None:
+        na_values = [None, "", "NaN", "nan", "<na>", "None", "NA", {}]  # Removed pd.NA explicitly
+
     return df.apply(
-        lambda col: col.map(
-            lambda x: str(x) if (not pd.isna(x) and x not in na_values) else pd.NA
-        )
+        lambda col: col.map(lambda x: str(x) if (not pd.isna(x) and x not in na_values) else pd.NA)
     )

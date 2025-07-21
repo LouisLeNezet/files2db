@@ -1,14 +1,12 @@
 import re
-import pandas as pd
+
 import numpy as np
-from typing import Optional, List
+import pandas as pd
 
 from files2db.data_mg.utils import check_pd_series, to_bool
 
 
-def data_replace(
-    data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True
-):
+def data_replace(data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True):
     """
     Replace all values in a Series based on equivalency mappings.
 
@@ -33,15 +31,9 @@ def data_replace(
     """
     if not isinstance(equiv_data, dict):
         raise TypeError("equiv_data should be a dictionary")
-    if not all(
-        isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()
-    ):
-        raise TypeError(
-            "equiv_data should be a dictionary with string keys and list values"
-        )
-    if not all(
-        isinstance(val, str) for sublist in equiv_data.values() for val in sublist
-    ):
+    if not all(isinstance(k, str) and isinstance(v, list) for k, v in equiv_data.items()):
+        raise TypeError("equiv_data should be a dictionary with string keys and list values")
+    if not all(isinstance(val, str) for sublist in equiv_data.values() for val in sublist):
         raise TypeError("All values in equiv_data should be strings")
     if equiv_data == {}:
         return data_se
@@ -64,13 +56,41 @@ def data_replace(
     return data_se.replace(replace_dict)
 
 
+def _replace_full_matches(series: pd.Series, match_list: list[str], fill_value) -> pd.Series:
+    return series.replace(match_list, fill_value)
+
+
+def _remove_substrings(series: pd.Series, substrings: list[str]) -> pd.Series:
+    for sub in substrings:
+        series = series.str.replace(sub, "", regex=True)
+    return series
+
+
+def _remove_start(series: pd.Series, patterns: list[str]) -> pd.Series:
+    for p in patterns:
+        series = series.str.replace(f"^{p}", "", regex=True)
+    return series
+
+
+def _remove_end(series: pd.Series, patterns: list[str]) -> pd.Series:
+    for p in patterns:
+        series = series.str.replace(f"{p}$", "", regex=True)
+    return series
+
+
+def _strip_after_delimiters(series: pd.Series, delimiters: list[str]) -> pd.Series:
+    for delim in delimiters:
+        series = series.str.partition(delim)[0]
+    return series
+
+
 def data_clean(
     data_se: pd.Series,
-    del_match: Optional[List[str]] = None,
-    del_start: Optional[List[str]] = None,
-    del_end: Optional[List[str]] = None,
-    strip_from: Optional[List[str]] = None,
-    del_in: Optional[List[str]] = None,
+    del_match: list[str] | None = None,
+    del_start: list[str] | None = None,
+    del_end: list[str] | None = None,
+    strip_from: list[str] | None = None,
+    del_in: list[str] | None = None,
     fillna_value=np.nan,
 ) -> pd.Series:
     """
@@ -98,37 +118,25 @@ def data_clean(
     if not check_pd_series(data_se, type_check=str):
         return data_se
 
-    # Delete full matches
     if del_match:
-        data_se = data_se.replace(del_match, fillna_value)
-
-    # Delete substring inside string
+        data_se = _replace_full_matches(data_se, del_match, fillna_value)
     if del_in:
-        for sub in del_in:
-            data_se = data_se.str.replace(sub, "", regex=True)
-
-    if del_start is not None:
-        for mod_del in del_start:
-            data_se = data_se.str.replace(f"^{mod_del}", "", regex=True)
-
-    if del_end is not None:
-        for mod_del in del_end:
-            data_se = data_se.str.replace(f"{mod_del}$", "", regex=True)
-
-    # Strip after substring
+        data_se = _remove_substrings(data_se, del_in)
+    if del_start:
+        data_se = _remove_start(data_se, del_start)
+    if del_end:
+        data_se = _remove_end(data_se, del_end)
     if strip_from:
-        for delim in strip_from:
-            data_se = data_se.str.partition(delim)[0]
+        data_se = _strip_after_delimiters(data_se, strip_from)
 
     data_se.name = original_name
-
     return data_se
 
 
 def data_sep(
     data_se: pd.Series,
-    sep: Optional[List[str]] = None,
-    fillna_value: Optional[str] = None,
+    sep: list[str] | None = None,
+    fillna_value: str | None = None,
 ) -> pd.DataFrame:
     if not check_pd_series(data_se, type_check=str):
         return pd.DataFrame(data_se)
@@ -159,10 +167,10 @@ def data_sep(
 
 def data_sep_pattern(
     data_se: pd.Series,
-    pattern: Optional[str] = None,
+    pattern: str | None = None,
     keep_link: bool = False,
     ignore_case: bool = True,
-    fillna_value: Optional[str] = None,
+    fillna_value: str | None = None,
 ) -> pd.DataFrame:
     """
     Separate data given into different columns based on regex patterns.
@@ -195,7 +203,7 @@ def data_sep_pattern(
     try:
         compiled_pattern = re.compile(pattern, flags=flags)
     except re.error as exc:
-        raise ValueError(f"Invalid regex pattern: {exc}")
+        raise ValueError(f"Invalid regex pattern: {exc}") from re.error
 
     # Extract named groups
     named_groups = compiled_pattern.groupindex.keys()

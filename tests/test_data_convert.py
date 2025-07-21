@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 07/10/2021
 @author: Louis Le Nézet
 """
 
 import unittest
-import pandas as pd
-import numpy as np
 
-from files2db.data_mg.data_convert import date_convert, num_convert, check_numeric
+import numpy as np
+import pandas as pd
 from pandas.testing import assert_series_equal
+
+from files2db.data_mg.data_convert import check_numeric, date_convert, num_convert
 
 
 class TestingClass(unittest.TestCase):
@@ -38,7 +38,7 @@ class TestingClass(unittest.TestCase):
             None,
             None,
         ]
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(date_convert(value), result)
 
@@ -48,7 +48,7 @@ class TestingClass(unittest.TestCase):
             "Format is not reliable please modify it to full year format",
             "Format not recognised WrongFormat",
         ]
-        for value, err in zip(test_values, error_msg):
+        for value, err in zip(test_values, error_msg, strict=False):
             with self.subTest(line=value):
                 with self.assertRaisesRegex(Exception, err):
                     date_convert(value)
@@ -114,7 +114,7 @@ class TestingClass(unittest.TestCase):
             True,
         ]
 
-        for value, result in zip(test_values, test_result):
+        for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(check_numeric(value), result)
 
