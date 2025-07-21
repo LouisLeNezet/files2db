@@ -1,11 +1,11 @@
-import pandas as pd
-from typing import Dict, Optional
 
-from ..data_process.null_values import is_null, get_not_null
+import pandas as pd
+
+from ..data_process.null_values import get_not_null, is_null
 
 
 def conca_simplify(
-    data_df: pd.DataFrame, col_names: Optional[Dict[str, list]] = None
+    data_df: pd.DataFrame, col_names: dict[str, list] | None = None
 ) -> pd.Series:
     """Simplify a nested dataframe into a single column.
 
@@ -103,7 +103,7 @@ def nested_serie_test(data, value, test):
 
 
 def check_pd_series(
-    data_se: pd.Series, type_check: Optional[tuple] = ("str", "int")
+    data_se: pd.Series, type_check: tuple | None = ("str", "int")
 ) -> bool:
     """
     Check if the input is a Pandas Series.
@@ -135,7 +135,7 @@ def check_pd_series(
 
 def to_bool(
     value: any,
-    fillna_value: Optional[bool] = None,
+    fillna_value: bool | None = None,
 ) -> bool:
     """
     Convert a value to boolean.

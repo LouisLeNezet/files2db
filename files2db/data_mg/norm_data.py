@@ -1,32 +1,32 @@
-# -*- coding: utf-8 -*-
 """
 Created on Tue Jul  6 12:28:13 2021
 
 @author: LouisLeNezet
 """
 
-import re
 import logging
-import pandas as pd
-import numpy as np
+import re
 import unicodedata
+from typing import Any
 
-from typing import Optional, Any
-from files2db.data_mg.string_management import (
-    data_sep,
-    data_clean,
-    data_replace,
-    data_sep_pattern,
-)
+import numpy as np
+import pandas as pd
+
 from files2db.data_mg.data_convert import data_conv
 from files2db.data_mg.data_validate import data_validate
+from files2db.data_mg.string_management import (
+    data_clean,
+    data_replace,
+    data_sep,
+    data_sep_pattern,
+)
 from files2db.data_mg.utils import update_only_missing
 
 
 def initial_clean_na_values_utf8(
     data_df: pd.DataFrame,
-    na_values: Optional[Any] = [None, "", " ", "NaN", "nan", "N/A", "n/a", "NA", "na"],
-    fillna_value: Optional[Any] = None,
+    na_values: Any | None = [None, "", " ", "NaN", "nan", "N/A", "n/a", "NA", "na"],
+    fillna_value: Any | None = None,
     normalize_text: bool = True,
 ) -> pd.DataFrame:
     """

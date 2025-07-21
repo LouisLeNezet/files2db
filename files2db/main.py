@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # files2db - A tool to normalize and combine flat files into a database
 # Copyright (C) 2024 Louis Le Nezet
@@ -23,16 +22,17 @@ Created on 22/10/2021
 Main script fo the concatenation of the files
 """
 
+import logging
 import os
 import warnings
-import logging
 from datetime import date
+
 import pandas as pd
 
-from .data_mg.norm_data import norm_data
 from .data_mg.data_iterate import iterate_file
-from .read_file.orga_read import get_db_from_path, load_file_orga
+from .data_mg.norm_data import norm_data
 from .read_file.data_read import check_files_exist
+from .read_file.orga_read import get_db_from_path, load_file_orga
 from .ui.get_infos import get_file_path, get_os, welcome
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")

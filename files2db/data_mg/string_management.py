@@ -1,7 +1,7 @@
 import re
-import pandas as pd
+
 import numpy as np
-from typing import Optional, List
+import pandas as pd
 
 from files2db.data_mg.utils import check_pd_series, to_bool
 
@@ -66,11 +66,11 @@ def data_replace(
 
 def data_clean(
     data_se: pd.Series,
-    del_match: Optional[List[str]] = None,
-    del_start: Optional[List[str]] = None,
-    del_end: Optional[List[str]] = None,
-    strip_from: Optional[List[str]] = None,
-    del_in: Optional[List[str]] = None,
+    del_match: list[str] | None = None,
+    del_start: list[str] | None = None,
+    del_end: list[str] | None = None,
+    strip_from: list[str] | None = None,
+    del_in: list[str] | None = None,
     fillna_value=np.nan,
 ) -> pd.Series:
     """
@@ -127,8 +127,8 @@ def data_clean(
 
 def data_sep(
     data_se: pd.Series,
-    sep: Optional[List[str]] = None,
-    fillna_value: Optional[str] = None,
+    sep: list[str] | None = None,
+    fillna_value: str | None = None,
 ) -> pd.DataFrame:
     if not check_pd_series(data_se, type_check=str):
         return pd.DataFrame(data_se)
@@ -159,10 +159,10 @@ def data_sep(
 
 def data_sep_pattern(
     data_se: pd.Series,
-    pattern: Optional[str] = None,
+    pattern: str | None = None,
     keep_link: bool = False,
     ignore_case: bool = True,
-    fillna_value: Optional[str] = None,
+    fillna_value: str | None = None,
 ) -> pd.DataFrame:
     """
     Separate data given into different columns based on regex patterns.

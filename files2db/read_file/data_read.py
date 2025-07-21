@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 Created on 19/01/2021
 @author: LouisLeNezet
 Module to read excel files and checkout the columns names.
 """
 
+import logging
 import os
 import re
-import logging
+
 import pandas as pd
 
 from ..ui.get_infos import get_file_path

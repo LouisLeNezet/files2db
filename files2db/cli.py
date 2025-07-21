@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # files2db - A tool to normalize and combine flat files into a database
 # Copyright (C) 2024 Louis Le Nezet
@@ -23,15 +22,16 @@ Created on 22/10/2021
 Script to launch the application
 """
 
+import logging
 import os
 import sys
-import logging
-import typer
-import click
 
+import click
+import typer
 from typer.main import get_command
-from files2db.main import main
+
 from files2db.__version__ import __version__
+from files2db.main import main
 
 logging.basicConfig(level=logging.INFO)
 

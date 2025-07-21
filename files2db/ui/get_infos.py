@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 16/11/2022
 @author: LouisLeNezet
@@ -7,10 +6,10 @@ Module for all functions for getting infos about the os and converting path.
 """
 
 # ###Library needed####
-import platform
-import os
-import re
 import logging
+import os
+import platform
+import re
 
 
 def welcome(script_use=None, cwd=None, opsyst=None, col_needed=None):

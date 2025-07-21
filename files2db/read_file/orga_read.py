@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 22/10/2021
 @author: LouisLeNezet
@@ -9,11 +8,13 @@ Check for presence absence of file, sheets, columns
 import logging
 import re
 from importlib import resources
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 from openpyxl import load_workbook
-from ..ui.get_infos import get_file_path
+
 from ..read_file.data_read import read_file
+from ..ui.get_infos import get_file_path
 
 
 def load_file_orga():

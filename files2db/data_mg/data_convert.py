@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 09/12/2022
 @author: LouisLeNezet
@@ -7,12 +6,12 @@ Modules for all converting functions
 """
 
 import re
-import pandas as pd
-import numpy as np
-from typing import Optional
-from files2db.data_process.null_values import not_null
-from files2db.data_mg.utils import check_pd_series
 
+import numpy as np
+import pandas as pd
+
+from files2db.data_mg.utils import check_pd_series
+from files2db.data_process.null_values import not_null
 
 short_date_f = re.compile(r"\d{1,2}\.\d\d\.\d\d")
 long_date_f = re.compile(r"\d\d\.\d\d\.\d\d\d\d")
@@ -113,8 +112,8 @@ def check_numeric(value):
 
 def num_convert(
     data_se: pd.Series,
-    to_type: Optional[str] = "float",
-    fillna_value: Optional[str] = None,
+    to_type: str | None = "float",
+    fillna_value: str | None = None,
 ) -> pd.Series:
     """
     Convert string pandas Series to numeric while checking for errors and setting the type.
@@ -150,12 +149,12 @@ def num_convert(
         data_conv = pd.Series(
             [
                 int(round(float(x), 0)) if num else fillna_value
-                for x, num in zip(data, num_conv)
+                for x, num in zip(data, num_conv, strict=False)
             ]
         )
     if to_type == "float":
         data_conv = pd.Series(
-            [float(x) if num else fillna_value for x, num in zip(data, num_conv)]
+            [float(x) if num else fillna_value for x, num in zip(data, num_conv, strict=False)]
         )
 
     # Preserve the original name of the Series
@@ -166,8 +165,8 @@ def num_convert(
 
 def data_conv(
     data_se: pd.Series,
-    data_type: Optional[str] = None,
-    fillna_value: Optional[str] = None,
+    data_type: str | None = None,
+    fillna_value: str | None = None,
 ) -> pd.Series:
     if not check_pd_series(data_se, type_check=str):
         return data_se

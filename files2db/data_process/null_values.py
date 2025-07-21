@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on 18/11/2022
 @author: LouisLeNezet
@@ -8,8 +7,10 @@ Modules for all tools needed to test presence / absence of null values
 
 import logging
 from collections import abc as class_name
+
 import numpy as np
 import pandas as pd
+
 from ..ui.print_infos import print_exception
 
 
