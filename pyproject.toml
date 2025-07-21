@@ -31,4 +31,4 @@ select = [
 ]   
 
 [pytest]
-norecursedirs = archive
+norecursedirs = "archive"
