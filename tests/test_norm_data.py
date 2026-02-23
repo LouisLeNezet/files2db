@@ -4,7 +4,7 @@ import unittest
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from files2db.data_mg.norm_data import initial_clean_na_values_utf8, norm_data
+from files2db.data_mg.data_norm import initial_clean_na_values_utf8, norm_data
 from files2db.data_mg.utils import df_to_str_keep_na
 from files2db.read_file.data_read import read_file
 from files2db.read_file.orga_read import get_db_from_path, load_file_orga
@@ -28,12 +28,12 @@ class TestingInitCleanClass(unittest.TestCase):
         expected_data = {
             "A": [1.0, 2.0, 4.0],
             "B": ["a", "c", "d"],
-            "D": ["eclair", "Resume", "NA"],
+            "D": ["eclair", "Resume", pd.NA],
         }
         expected_df = pd.DataFrame(expected_data)
 
         # Call the function to test
-        cleaned_df = initial_clean_na_values_utf8(df, fillna_value="NA")
+        cleaned_df = initial_clean_na_values_utf8(df)
 
         # Check if the cleaned DataFrame matches the expected DataFrame
         assert_frame_equal(

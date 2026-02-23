@@ -26,7 +26,6 @@ from files2db.data_mg.utils import update_only_missing
 def initial_clean_na_values_utf8(
     data_df: pd.DataFrame,
     na_values: list[Any] | None = None,
-    fillna_value: Any | None = None,
     normalize_text: bool = True,
 ) -> pd.DataFrame:
     """
@@ -39,8 +38,6 @@ def initial_clean_na_values_utf8(
         The input DataFrame to clean.
     na_values : list of Any, optional
         Values to consider as NA/empty. Default includes common empty values.
-    fill_value : Any, optional
-        Value to fill missing entries with. Default is None (no fill).
     normalize_text : bool, optional
         Whether to lowercase and strip accents from string columns. Default is True.
 
@@ -53,15 +50,11 @@ def initial_clean_na_values_utf8(
 
     # Set na_values
     if na_values is not None:
-        df.replace(na_values, np.nan, inplace=True)
+        df.replace(na_values, pd.NA, inplace=True)
 
     # Drop completely empty rows/columns
     df.dropna(how="all", axis=0, inplace=True)
     df.dropna(how="all", axis=1, inplace=True)
-
-    # Fill missing values
-    if fillna_value is not None:
-        df.fillna(fillna_value, inplace=True)
 
     # Normalize text in string columns
     if normalize_text:
@@ -103,7 +96,7 @@ def norm_data(
     if na_values is None:
         na_values = ["", None, "NaN", "nan", "<na>", "None", {}]
 
-    normed_df = initial_clean_na_values_utf8(data_df, fillna_value=fillna_value)
+    normed_df = initial_clean_na_values_utf8(data_df)
 
     errors_df = pd.DataFrame()
 
@@ -131,7 +124,6 @@ def norm_data(
             data_df_sep = data_sep(
                 normed_df.loc[:, col_i],
                 field_infos["Sep"],
-                fillna_value=fillna_value,
             )
 
             normed_df.drop(columns=col_i, inplace=True, errors="ignore")
@@ -146,12 +138,12 @@ def norm_data(
                     del_start=field_infos["DelStart"],
                     del_end=field_infos["DelEnd"],
                     strip_from=field_infos["StripFrom"],
-                    fillna_value=fillna_value,
                 )
-                print(data_se_cleaned)
+
                 data_se_converted = data_conv(
-                    data_se_cleaned, field_infos["DataType"], fillna_value=fillna_value
+                    data_se_cleaned, field_infos["DataType"]
                 )
+
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
 
                 errors = data_validate(
@@ -166,7 +158,6 @@ def norm_data(
                     data_se_replaced,
                     field_infos["SepPattern"],
                     field_infos["KeepLink"],
-                    fillna_value=fillna_value,
                 )
 
                 normed_df = update_only_missing(normed_df, data_df_separated)
@@ -184,5 +175,6 @@ def norm_data(
     else:
         normed_df["Error"] = pd.NA
     normed_df.replace(na_values, fillna_value, inplace=True)
+    normed_df.fillna(fillna_value, inplace=True)
 
     return normed_df

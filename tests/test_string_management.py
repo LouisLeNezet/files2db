@@ -65,13 +65,12 @@ class TestDataClean(unittest.TestCase):
         s = pd.Series(
             ["REMOVE", "valueotherfoo", "trash:data", "skip (something to delete)", "???"]
         )
-        expected = pd.Series(["", "value", "trash", "skip", ""])
+        expected = pd.Series([pd.NA, "value", "trash", "skip", pd.NA])
         result = data_clean(
             s,
             del_match=["REMOVE", "???"],
             strip_from=["=", ":"],
             del_in=["other", "foo", r"\(.*\)", " "],
-            fillna_value="",
         )
         assert_series_equal(result, expected)
 
@@ -111,7 +110,7 @@ class TestDataSep(unittest.TestCase):
             {"col1_0": ["a", "d"], "col1_1": ["b", "e"], "col1_2": ["c", pd.NA]}
         )
 
-        result = data_sep(s, sep=["|", ","], fillna_value=pd.NA)
+        result = data_sep(s, sep=["|", ","])
         assert_frame_equal(result, expected)
 
     def test_no_separator_provided(self):

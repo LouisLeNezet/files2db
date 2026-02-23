@@ -18,11 +18,7 @@ long_date_f_inv = re.compile(r"\d\d\d\d\.\d\d\.\d\d")
 long_date_f_time = re.compile(r"\d\d\d\d-\d\d-\d\d00:00:00")
 
 
-def date_convert(
-    date_to_convert: str,
-    na_values: list | None = None,
-    fillna_value: str = None,
-) -> str:
+def date_convert(date_to_convert: str) -> str:
     """
     Convert a string representing a date into a unique format.
 
@@ -37,11 +33,8 @@ def date_convert(
         Date in the right format.
 
     """
-    if na_values is None:
-        na_values = ["", None, "NaN", "nan", "<na>"]
-
-    if pd.isna(date_to_convert) or date_to_convert in na_values:
-        return fillna_value
+    if pd.isna(date_to_convert) :
+        return pd.NA
 
     if not isinstance(date_to_convert, str):
         raise TypeError("date_to_convert should be a string")
@@ -50,7 +43,7 @@ def date_convert(
 
     date_to_convert = date_to_convert.replace("/", ".")
     if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
-        new_date = fillna_value
+        new_date = pd.NA
     else:
         if short_date_f.fullmatch(date_to_convert):
             raise TypeError("Format is not reliable please modify it to full year format")
@@ -71,10 +64,7 @@ def date_convert(
         else:
             raise TypeError(f"Format not recognised {date_to_convert}")
 
-    if new_date not in na_values:
-        return new_date
-    else:
-        return fillna_value
+    return new_date
 
 
 def check_numeric(value):
@@ -99,8 +89,7 @@ def check_numeric(value):
 
 def num_convert(
     data_se: pd.Series,
-    to_type: str | None = "float",
-    fillna_value: str | None = None,
+    to_type: str | None = "float"
 ) -> pd.Series:
     """
     Convert string pandas Series to numeric while checking for errors and setting the type.
@@ -135,13 +124,13 @@ def num_convert(
     if to_type == "int":
         data_conv = pd.Series(
             [
-                int(round(float(x), 0)) if num else fillna_value
+                int(round(float(x), 0)) if num else pd.NA
                 for x, num in zip(data, num_conv, strict=False)
             ]
         )
     if to_type == "float":
         data_conv = pd.Series(
-            [float(x) if num else fillna_value for x, num in zip(data, num_conv, strict=False)]
+            [float(x) if num else pd.NA for x, num in zip(data, num_conv, strict=False)]
         )
 
     # Preserve the original name of the Series
@@ -153,7 +142,6 @@ def num_convert(
 def data_conv(
     data_se: pd.Series,
     data_type: str | None = None,
-    fillna_value: str | None = None,
 ) -> pd.Series:
     if not check_pd_series(data_se, type_check=str):
         return data_se
@@ -167,13 +155,13 @@ def data_conv(
             data_se = data_se.str.title()
         elif data_type == "date":
             data_se = data_se.str.replace("-", ".", regex=False)
-            data_se = data_se.apply(lambda row: date_convert(row, fillna_value=fillna_value))
+            data_se = data_se.apply(lambda row: date_convert(row))
         elif data_type in ["int", "float"]:
-            data_se = num_convert(data_se, to_type=data_type, fillna_value=fillna_value)
+            data_se = num_convert(data_se, to_type=data_type)
         elif data_type == "string":
             # Convert to string, preserving NaN values
             data_se = pd.Series(
-                [str(x) if pd.notna(x) else fillna_value for x in data_se],
+                [str(x) if pd.notna(x) else pd.NA for x in data_se],
                 index=data_se.index,
                 name=data_se.name,
             )

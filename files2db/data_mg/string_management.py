@@ -91,7 +91,6 @@ def data_clean(
     del_end: list[str] | None = None,
     strip_from: list[str] | None = None,
     del_in: list[str] | None = None,
-    fillna_value=np.nan,
 ) -> pd.Series:
     """
     Clean and normalize string data in a Pandas Series.
@@ -119,7 +118,7 @@ def data_clean(
         return data_se
 
     if del_match:
-        data_se = _replace_full_matches(data_se, del_match, fillna_value)
+        data_se = _replace_full_matches(data_se, del_match, pd.NA)
     if del_in:
         data_se = _remove_substrings(data_se, del_in)
     if del_start:
@@ -136,7 +135,6 @@ def data_clean(
 def data_sep(
     data_se: pd.Series,
     sep: list[str] | None = None,
-    fillna_value: str | None = None,
 ) -> pd.DataFrame:
     if not check_pd_series(data_se, type_check=str):
         return pd.DataFrame(data_se)
@@ -154,10 +152,6 @@ def data_sep(
     # Split using the combined regex pattern
     data_exp = data_se.str.split(regex_pattern, expand=True)
 
-    # Fill NaN values with the specified fillna_value
-    if fillna_value is not None:
-        data_exp.fillna(fillna_value, inplace=True)
-
     # Rename split columns
     data_exp.columns = [f"{original_name}_{i}" for i in range(data_exp.shape[1])]
 
@@ -169,8 +163,7 @@ def data_sep_pattern(
     data_se: pd.Series,
     pattern: str | None = None,
     keep_link: bool = False,
-    ignore_case: bool = True,
-    fillna_value: str | None = None,
+    ignore_case: bool = True
 ) -> pd.DataFrame:
     """
     Separate data given into different columns based on regex patterns.
@@ -203,7 +196,7 @@ def data_sep_pattern(
     try:
         compiled_pattern = re.compile(pattern, flags=flags)
     except re.error as exc:
-        raise ValueError(f"Invalid regex pattern: {exc}") from re.error
+        raise ValueError(f"Invalid regex pattern: {exc}") from exc
 
     # Extract named groups
     named_groups = compiled_pattern.groupindex.keys()
@@ -224,14 +217,13 @@ def data_sep_pattern(
     data_match_grouped = aggregated.reindex(data_se.index, fill_value=pd.NA)
 
     data_match_filtered = data_match_grouped.loc[:, named_groups]
+    # Ensure column names are strings and column values are string dtype
+    data_match_filtered.columns = data_match_filtered.columns.map(str)
 
     if keep_link:
         # Add the column original name to the new columns
         data_match_filtered.columns = [
             f"{data_se.name}_{col}" for col in data_match_filtered.columns
         ]
-
-    if fillna_value is not None:
-        data_match_filtered = data_match_filtered.fillna(fillna_value)
 
     return data_match_filtered

@@ -52,7 +52,7 @@ class TestMainFunction(unittest.TestCase):
             path=db_path,
             normalize=normalize,
             output_folder=output_folder,
-            output_files_prefix=output_files_prefix,
+            output_files_prefix=output_files_prefix
         )
 
         # Check if the output DataFrames are not None
