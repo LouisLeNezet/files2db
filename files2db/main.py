@@ -63,7 +63,7 @@ def main(
 
     if db_get is None:
         logging.error("No database found. Please check the file path and format.")
-        return
+        return None, None
 
     logging.info("Database loaded successfully")
 
@@ -71,13 +71,13 @@ def main(
         check_files_exist(db_get["Files"]["FilePath"])
     except FileNotFoundError:
         logging.error("One or more files could not be found. Please check the file paths.")
-        return
+        return None, None
 
     try:
-        all_data_raw = iterate_file(db_get["Files"].loc[db_get["Files"]["ToAdd"] == 1])
+        all_data_raw = iterate_file(db_get["Files"].loc[db_get["Files"]["ToAdd"]])
     except Exception as e:
         logging.error("An error occurred while iterating through the files: %s", e)
-        return
+        return None, None
 
     logging.debug(all_data_raw.head())
     logging.info("All data concatenated successfully")

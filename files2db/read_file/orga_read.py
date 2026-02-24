@@ -87,6 +87,14 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
             for col in orga_dict[file]["list"].split(","):
                 if col in df.columns:
                     df[col] = df[col].apply(lambda x: x.split(",") if isinstance(x, str) else x)
+
+        # Transform to boolean needed columns
+        if ("boolean" in orga_dict[file]) and isinstance(orga_dict[file]["boolean"], str):
+            for col in orga_dict[file]["boolean"].split(","):
+                if col in df.columns:
+                    df[col] = df[col].apply(lambda x:
+                        str(x).lower() in ("true", "1", "yes", "on") if isinstance(x, str) else x
+                    ).astype("boolean")
     return db_dict
 
 
@@ -102,7 +110,7 @@ def get_db_from_excel(path: str, orga_dict: dict) -> dict:
 
     validate_files_presence(set(orga_dict.keys()), set(wb.sheetnames), path)
 
-    db_dict = {sheet: pd.read_excel(path_file, sheet_name=sheet) for sheet in orga_dict}
+    db_dict = {sheet: read_file(path_file, sheet_name=sheet) for sheet in orga_dict}
 
     return db_dict
 
@@ -159,9 +167,5 @@ def get_db_from_path(path_file: str, db_orga: dict) -> dict:
         raise TypeError(f"File {path_file} should be either an .xlsx, .xls, xlsm or a .csv")
 
     db_dict = validate_columns_orga(db_orga, db_dict)
-
-    # Change all nan values to None
-    for _, df in db_dict.items():
-        df.replace(np.nan, None, inplace=True)
 
     return db_dict

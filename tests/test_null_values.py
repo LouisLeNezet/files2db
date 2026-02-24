@@ -5,6 +5,7 @@ Created on 18/11/2022
 Testing scripts for the null_values functions.
 """
 
+import logging
 import math
 import unittest
 
@@ -23,6 +24,9 @@ from files2db.data_process.null_values import (
 
 class TestingClass(unittest.TestCase):
     """Class for testing"""
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_modify(self):
         """Test function modify"""

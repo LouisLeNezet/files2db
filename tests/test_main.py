@@ -15,9 +15,10 @@ class TestMainFunction(unittest.TestCase):
     def setUp(self):
         """Set up test data path"""
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset")
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_main_function_no_normalisation(self):
-        """Test the main function with a sample path and options."""
+        """Test the main function with a sample path and no normalisation."""
         # Define a sample path and options
         db_path = os.path.join(self.test_data_path, "test1/orga.csv")
         normalize = False
@@ -40,7 +41,7 @@ class TestMainFunction(unittest.TestCase):
         self.assertEqual(df_raw.shape, (10, 11))
 
     def test_main_function_with_normalisation(self):
-        """Test the main function with a sample path and options."""
+        """Test the main function with a sample path and normalisation."""
         # Define a sample path and options
         db_path = os.path.join(self.test_data_path, "test1/orga.csv")
         normalize = True
@@ -73,7 +74,6 @@ class TestMainFunction(unittest.TestCase):
         db_expected = df_to_str_keep_na(db_expected)
 
         assert_frame_equal(df_norm, db_expected, check_dtype=False)
-
 
 if __name__ == "__main__":
     unittest.main()

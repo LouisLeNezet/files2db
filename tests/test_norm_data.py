@@ -1,3 +1,4 @@
+import logging
 import os
 import unittest
 
@@ -12,6 +13,10 @@ from files2db.read_file.orga_read import get_db_from_path, load_file_orga
 
 class TestingInitCleanClass(unittest.TestCase):
     """Class for testing initial_clean_na_values_utf8 function"""
+
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_initial_clean_na_values_utf8(self):
         """Test the initial_clean_na_values_utf8 function."""
@@ -48,12 +53,12 @@ class TestingNormData(unittest.TestCase):
     def setUp(self):
         """Set up test data path"""
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset/test2/")
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_normdata_complex(self):
-        """Test the initial_clean_na_values_utf8 function."""
+        """Test the normalisation process."""
         db_path = os.path.join(self.test_data_path, "orga.csv")
         db_files = get_db_from_path(db_path, load_file_orga())
-        print(db_files)
 
         file_path = os.path.join(self.test_data_path, "file_complex.csv")
         df_file = read_file(file_path, sep=";")
@@ -62,8 +67,6 @@ class TestingNormData(unittest.TestCase):
         df_expected_path = os.path.join(self.test_data_path, "expected.csv")
         df_expected = read_file(df_expected_path, sep=";", col_start=2)
         df_expected.reset_index(drop=True, inplace=True)
-
-        print(df_file)
 
         result = norm_data(
             data_df=df_file,
@@ -77,9 +80,6 @@ class TestingNormData(unittest.TestCase):
 
         df_norm = df_to_str_keep_na(result).reset_index(drop=True)
         df_expected = df_to_str_keep_na(df_expected).reset_index(drop=True)
-
-        print(df_norm)
-        print(df_expected)
 
         # Check if the cleaned DataFrame matches the expected DataFrame
         assert_frame_equal(

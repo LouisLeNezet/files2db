@@ -66,7 +66,6 @@ def lines_to_int(line_start, line_end, header, max_lines=None):
         line_end = max_lines
 
     if line_start < 1:
-        logging.error("line_start should be greater than 0")
         raise ValueError("line_start should be greater than 0")
 
     if header >= line_start:
@@ -164,9 +163,12 @@ def read_file(
 
     # Skip the lines before the header and between the header and the first line
     file_read.drop(row_to_skip, inplace=True)
+    file_read.fillna(pd.NA, inplace=True)
+    file_read.replace('', pd.NA, inplace=True)
 
     # Read the file from the line start to the line end and from the column start to the column end
     file_to_add = file_read.iloc[:, col_start - 1 : col_end]
+    file_to_add = file_to_add.astype('string')
 
     return file_to_add
 

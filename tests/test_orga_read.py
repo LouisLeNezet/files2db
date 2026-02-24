@@ -5,6 +5,7 @@ Created on 25/11/2022
 Testing scripts for the different common functions.
 """
 
+import logging
 import os
 import unittest
 from unittest.mock import patch
@@ -24,6 +25,10 @@ from files2db.read_file.orga_read import (
 
 class TestValidateFiles(unittest.TestCase):
     """Check that the validate_files_presence function works as expected."""
+
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_validate_files_presence_missing_files(self):
         """Test missing files detection."""
@@ -50,6 +55,11 @@ class TestValidateFiles(unittest.TestCase):
 class TestingLoadFileOrga(unittest.TestCase):
     """Class for testing load_file_orga"""
 
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
+        return super().setUp()
+
     def test_load_file_orga(self):
         """Test load_file_orga"""
         db_orga = load_file_orga()
@@ -59,7 +69,7 @@ class TestingLoadFileOrga(unittest.TestCase):
         )
         self.assertEqual(
             list(db_orga["Files"].keys()),
-            ["columns_needed", "columns_sup", "integer", "list"],
+            ["columns_needed", "columns_sup", "integer", "list", "boolean"],
         )
         self.assertEqual(
             db_orga["Files"]["columns_needed"],
@@ -80,6 +90,10 @@ class TestingLoadFileOrga(unittest.TestCase):
 
 class TestColumnValidation(unittest.TestCase):
     """Check that the validate_columns function works as expected."""
+
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_validate_columns_missing_columns(self):
         """Test missing columns error."""
@@ -120,6 +134,10 @@ class TestColumnValidation(unittest.TestCase):
 
 class TestColumnValidationOrga(unittest.TestCase):
     """Check that the validate_columns_orga function works as expected."""
+
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_validate_columns_missing_columns(self):
         """Test missing columns error."""
@@ -189,6 +207,7 @@ class TestGetDBFromPath(unittest.TestCase):
     def setUp(self):
         """Set up test data path"""
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset")
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     @patch("logging.warning")
     def test_get_db_from_path_correct_xlsx(self, mock_log):
@@ -202,7 +221,7 @@ class TestGetDBFromPath(unittest.TestCase):
             set(db_orga.keys()),
             set(["Files", "FieldRules", "ValuesMap"]),
         )
-        self.assertEqual(db_orga["Files"].shape, (2, 22))
+        self.assertEqual(db_orga["Files"].shape, (2, 20))
 
     def test_get_db_from_path_correct_csv(self):
         """Test missing sheet error."""
@@ -215,6 +234,7 @@ class TestGetDBFromPath(unittest.TestCase):
         )
         self.assertEqual(db_orga["Files"].shape, (4, 16))
         self.assertEqual(db_orga["FieldRules"]["DelMatch"][5], ["delmatchitis", "othermatch"])
+        self.assertTrue(pd.isna(db_orga["FieldRules"]["SepPattern"].iloc[2]))
 
 
 class TestGetDBFromCSV(unittest.TestCase):

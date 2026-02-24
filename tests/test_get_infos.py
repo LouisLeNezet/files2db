@@ -5,6 +5,7 @@ Created on 25/11/2022
 Testing scripts for the different common functions.
 """
 
+import logging
 import unittest
 
 from files2db.ui.get_infos import get_file_path, get_path_os, welcome
@@ -12,6 +13,10 @@ from files2db.ui.get_infos import get_file_path, get_path_os, welcome
 
 class TestingClass(unittest.TestCase):
     """Class for testing"""
+
+    def setUp(self):
+        """Set up test"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_welcome(self):
         """Test function welcome"""

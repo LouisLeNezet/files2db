@@ -107,7 +107,6 @@ def norm_data(
         return normed_df, errors_df
 
     for field_i in db_orga["FieldRules"].index:
-        print("Processing field index:", field_i)
         field = db_orga["FieldRules"].loc[field_i, "Field"]
         match_cols = [col for col in normed_df.columns if re.fullmatch(field, col)]
         if not match_cols:
@@ -130,7 +129,6 @@ def norm_data(
 
             for col_ii in data_df_sep:
                 logging.info("Normalising column: %s", col_ii)
-                print(field_infos)
                 data_se_cleaned = data_clean(
                     data_df_sep.loc[:, col_ii],
                     del_match=field_infos["DelMatch"],
@@ -147,17 +145,17 @@ def norm_data(
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
 
                 errors = data_validate(
-                    data_se_replaced,
-                    field_infos["Contains"],
-                    field_infos["Min"],
-                    field_infos["Max"],
+                    data_se = data_se_replaced,
+                    contains = field_infos["Contains"],
+                    min_value = field_infos["Min"],
+                    max_value = field_infos["Max"],
                 )
 
                 logging.info("Separating column: %s by pattern", col_ii)
                 data_df_separated = data_sep_pattern(
-                    data_se_replaced,
-                    field_infos["SepPattern"],
-                    field_infos["KeepLink"],
+                    data_se = data_se_replaced,
+                    pattern = field_infos["SepPattern"],
+                    keep_link = field_infos["KeepLink"],
                 )
 
                 normed_df = update_only_missing(normed_df, data_df_separated)

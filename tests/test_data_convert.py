@@ -26,7 +26,7 @@ class TestingClass(unittest.TestCase):
             "2022-12-0600:00:00",
             "00:00:00",
             "",
-            pd.NA,
+            pd.NA
         ]
         test_result = [
             "06.12.2022",
@@ -34,13 +34,17 @@ class TestingClass(unittest.TestCase):
             "06.12.2022",
             "06.12.2022",
             "06.12.2022",
-            None,
-            None,
-            None,
+            pd.NA,
+            pd.NA,
+            pd.NA
         ]
         for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
-                self.assertEqual(date_convert(value), result)
+                converted = date_convert(value)
+                if pd.isna(result):
+                    self.assertTrue(pd.isna(converted))
+                else:
+                    self.assertEqual(converted, result)
 
         test_values = ["06.12.22", "6.10.11", "WrongFormat"]
         error_msg = [
@@ -67,14 +71,18 @@ class TestingClass(unittest.TestCase):
                 "H": 5.6498798,
             }
         )
-        test_result_int = pd.Series([0, np.nan, np.nan, np.nan, 5, 0, np.nan, 6])
+        test_result_int = pd.Series(
+            [0, pd.NA, pd.NA, pd.NA, 5, 0, pd.NA, 6]
+        )
         test_result_float = pd.Series(
-            [0.0, np.nan, np.nan, np.nan, 4.50001, 0.00004, np.nan, 5.6498798]
+            [0.0, pd.NA, pd.NA, pd.NA, 4.50001, 0.00004, pd.NA, 5.6498798],
+            dtype="object"
         )
 
         with self.subTest(line=test_values, to_type="int"):
             data = num_convert(test_values, "int")
             assert_series_equal(data, test_result_int)
+
         with self.subTest(line=test_values, to_type="float"):
             data = num_convert(test_values, "float")
             assert_series_equal(data, test_result_float)

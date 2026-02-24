@@ -5,6 +5,7 @@ Created on 25/11/2022
 Testing scripts for the different common functions.
 """
 
+import logging
 import os
 import unittest
 
@@ -15,6 +16,10 @@ from files2db.data_mg.data_iterate import iterate_file
 
 class TestValidateFiles(unittest.TestCase):
     """Check that the validate_files_presence function works as expected."""
+
+    def setUp(self):
+        """Set up test data path"""
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_iterate_with_file_csv(self):
         """Use a CSV file to test the iterate_file function."""

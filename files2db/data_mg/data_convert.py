@@ -42,27 +42,28 @@ def date_convert(date_to_convert: str) -> str:
     global super_short_date_f, short_date_f, long_date_f, long_date_f_inv, long_date_f_time
 
     date_to_convert = date_to_convert.replace("/", ".")
-    if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00":
-        new_date = pd.NA
+
+    if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00" or date_to_convert == "" :
+        return pd.NA
+
+    if short_date_f.fullmatch(date_to_convert):
+        raise TypeError("Format is not reliable please modify it to full year format")
+        # if date_to_convert[-2:] > "80":  # Siecle dernier
+        #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
+        # else:
+        #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
+    elif long_date_f_time.fullmatch(date_to_convert):
+        new_date = str(
+            date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
+        )
+    elif long_date_f.fullmatch(date_to_convert):
+        new_date = str(date_to_convert)
+    elif long_date_f_inv.fullmatch(date_to_convert):
+        new_date = str(
+            date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
+        )
     else:
-        if short_date_f.fullmatch(date_to_convert):
-            raise TypeError("Format is not reliable please modify it to full year format")
-            # if date_to_convert[-2:] > "80":  # Siecle dernier
-            #    new_date = str(date_to_convert[0:6] + "19" + date_to_convert[-2:])
-            # else:
-            #    new_date = str(date_to_convert[0:6] + "20" + date_to_convert[-2:])
-        elif long_date_f_time.fullmatch(date_to_convert):
-            new_date = str(
-                date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
-            )
-        elif long_date_f.fullmatch(date_to_convert):
-            new_date = str(date_to_convert)
-        elif long_date_f_inv.fullmatch(date_to_convert):
-            new_date = str(
-                date_to_convert[8:10] + "." + date_to_convert[5:7] + "." + date_to_convert[0:4]
-            )
-        else:
-            raise TypeError(f"Format not recognised {date_to_convert}")
+        raise TypeError(f"Format not recognised {date_to_convert}")
 
     return new_date
 

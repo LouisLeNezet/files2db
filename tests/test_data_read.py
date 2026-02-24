@@ -5,6 +5,7 @@ Created on 25/11/2022
 Testing scripts for the different common functions.
 """
 
+import logging
 import os
 import unittest
 
@@ -17,6 +18,7 @@ class TestingClass(unittest.TestCase):
     def setUp(self):
         """Set up test data path"""
         self.test_data_path = os.path.join(os.path.dirname(__file__), "test_dataset")
+        logging.getLogger().setLevel(logging.CRITICAL)
 
     def test_columns_convert(self):
         """Test columns_to_int with various inputs"""
