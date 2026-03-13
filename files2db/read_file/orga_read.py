@@ -66,13 +66,15 @@ def validate_columns(df: pd.DataFrame, path: str, cols_need: list, cols_sup=Fals
     if not cols_sup and extra:
         logging.warning("Extra columns %s in %s and won't be used", extra, path)
 
+
 def _apply_key(orga_entry, df, key, func):
-        val = orga_entry.get(key)
-        if not isinstance(val, str):
-            return
-        for col in (c.strip() for c in val.split(",") if c.strip()):
-            if col in df.columns:
-                df[col] = func(df[col])
+    val = orga_entry.get(key)
+    if not isinstance(val, str):
+        return
+    for col in (c.strip() for c in val.split(",") if c.strip()):
+        if col in df.columns:
+            df[col] = func(df[col])
+
 
 def validate_columns_orga(orga_dict: dict, db_dict: dict):
     """Check for missing and extra columns in each file based on organisation specifications."""
@@ -87,23 +89,20 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
         orga_entry = orga_dict[file]
 
         _apply_key(
-            orga_entry, df, "integer",
-            lambda s: pd.to_numeric(s, errors="coerce").astype("Int64")
+            orga_entry, df, "integer", lambda s: pd.to_numeric(s, errors="coerce").astype("Int64")
         )
         _apply_key(
-            orga_entry, df, "list",
-            lambda s: s.apply(
-                lambda x: x.split(",")
-                if isinstance(x, str)
-                else x
-            )
+            orga_entry,
+            df,
+            "list",
+            lambda s: s.apply(lambda x: x.split(",") if isinstance(x, str) else x),
         )
         _apply_key(
-            orga_entry, df, "boolean",
+            orga_entry,
+            df,
+            "boolean",
             lambda s: s.apply(
-                lambda x: str(x).lower() in ("true", "1", "yes", "on")
-                if isinstance(x, str)
-                else x
+                lambda x: str(x).lower() in ("true", "1", "yes", "on") if isinstance(x, str) else x
             ).astype("boolean"),
         )
 

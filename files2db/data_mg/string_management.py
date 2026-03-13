@@ -162,7 +162,7 @@ def data_sep_pattern(
     data_se: pd.Series,
     pattern: str | None = None,
     keep_link: bool = False,
-    ignore_case: bool = True
+    ignore_case: bool = True,
 ) -> pd.DataFrame:
     """
     Separate data given into different columns based on regex patterns.

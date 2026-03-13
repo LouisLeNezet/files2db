@@ -53,7 +53,7 @@ class TestMainFunction(unittest.TestCase):
             path=db_path,
             normalize=normalize,
             output_folder=output_folder,
-            output_files_prefix=output_files_prefix
+            output_files_prefix=output_files_prefix,
         )
 
         # Check if the output DataFrames are not None
@@ -74,6 +74,7 @@ class TestMainFunction(unittest.TestCase):
         db_expected = df_to_str_keep_na(db_expected)
 
         assert_frame_equal(df_norm, db_expected, check_dtype=False)
+
 
 if __name__ == "__main__":
     unittest.main()

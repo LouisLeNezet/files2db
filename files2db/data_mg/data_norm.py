@@ -113,9 +113,7 @@ def norm_data(
             logging.info("Field %s not found in the file", field)
             continue
         field_infos = db_field_rules.loc[field_i].to_dict()
-        field_equiv = db_values_map[db_values_map["Field"] == field].to_dict(
-            orient="records"
-        )
+        field_equiv = db_values_map[db_values_map["Field"] == field].to_dict(orient="records")
         field_equiv = {d["Value"]: d["Eq"] for d in field_equiv}
 
         for col_i in match_cols:
@@ -138,24 +136,22 @@ def norm_data(
                     strip_from=field_infos["StripFrom"],
                 )
 
-                data_se_converted = data_conv(
-                    data_se_cleaned, field_infos["DataType"]
-                )
+                data_se_converted = data_conv(data_se_cleaned, field_infos["DataType"])
 
                 data_se_replaced = data_replace(data_se_converted, field_equiv)
 
                 errors = data_validate(
-                    data_se = data_se_replaced,
-                    contains = field_infos["Contains"],
-                    min_value = field_infos["Min"],
-                    max_value = field_infos["Max"],
+                    data_se=data_se_replaced,
+                    contains=field_infos["Contains"],
+                    min_value=field_infos["Min"],
+                    max_value=field_infos["Max"],
                 )
 
                 logging.info("Separating column: %s by pattern", col_ii)
                 data_df_separated = data_sep_pattern(
-                    data_se = data_se_replaced,
-                    pattern = field_infos["SepPattern"],
-                    keep_link = field_infos["KeepLink"],
+                    data_se=data_se_replaced,
+                    pattern=field_infos["SepPattern"],
+                    keep_link=field_infos["KeepLink"],
                 )
 
                 normed_df = update_only_missing(normed_df, data_df_separated)

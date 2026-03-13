@@ -33,7 +33,7 @@ def date_convert(date_to_convert: str) -> str:
         Date in the right format.
 
     """
-    if pd.isna(date_to_convert) :
+    if pd.isna(date_to_convert):
         return pd.NA
 
     if not isinstance(date_to_convert, str):
@@ -43,7 +43,7 @@ def date_convert(date_to_convert: str) -> str:
 
     date_to_convert = date_to_convert.replace("/", ".")
 
-    if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00" or date_to_convert == "" :
+    if date_to_convert == "00:00:00" or date_to_convert == "0000-00-00" or date_to_convert == "":
         return pd.NA
 
     if short_date_f.fullmatch(date_to_convert):
@@ -88,10 +88,7 @@ def check_numeric(value):
         return False
 
 
-def num_convert(
-    data_se: pd.Series,
-    to_type: str | None = "float"
-) -> pd.Series:
+def num_convert(data_se: pd.Series, to_type: str | None = "float") -> pd.Series:
     """
     Convert string pandas Series to numeric while checking for errors and setting the type.
 

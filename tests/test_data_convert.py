@@ -26,7 +26,7 @@ class TestingClass(unittest.TestCase):
             "2022-12-0600:00:00",
             "00:00:00",
             "",
-            pd.NA
+            pd.NA,
         ]
         test_result = [
             "06.12.2022",
@@ -36,7 +36,7 @@ class TestingClass(unittest.TestCase):
             "06.12.2022",
             pd.NA,
             pd.NA,
-            pd.NA
+            pd.NA,
         ]
         for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
@@ -71,12 +71,9 @@ class TestingClass(unittest.TestCase):
                 "H": 5.6498798,
             }
         )
-        test_result_int = pd.Series(
-            [0, pd.NA, pd.NA, pd.NA, 5, 0, pd.NA, 6]
-        )
+        test_result_int = pd.Series([0, pd.NA, pd.NA, pd.NA, 5, 0, pd.NA, 6])
         test_result_float = pd.Series(
-            [0.0, pd.NA, pd.NA, pd.NA, 4.50001, 0.00004, pd.NA, 5.6498798],
-            dtype="object"
+            [0.0, pd.NA, pd.NA, pd.NA, 4.50001, 0.00004, pd.NA, 5.6498798], dtype="object"
         )
 
         with self.subTest(line=test_values, to_type="int"):

@@ -99,7 +99,7 @@ def main(
             db_field_rules=db_get["FieldRules"],
             db_values_map=db_get["ValuesMap"],
             na_values=None,
-            fillna_value=pd.NA
+            fillna_value=pd.NA,
         )
 
         # Save normalized data

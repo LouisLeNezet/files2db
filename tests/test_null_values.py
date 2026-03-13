@@ -24,6 +24,7 @@ from files2db.data_process.null_values import (
 
 class TestingClass(unittest.TestCase):
     """Class for testing"""
+
     def setUp(self):
         """Set up test"""
         logging.getLogger().setLevel(logging.CRITICAL)
