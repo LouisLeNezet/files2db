@@ -9,7 +9,6 @@ import logging
 import re
 from importlib import resources
 
-import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
 
@@ -67,6 +66,13 @@ def validate_columns(df: pd.DataFrame, path: str, cols_need: list, cols_sup=Fals
     if not cols_sup and extra:
         logging.warning("Extra columns %s in %s and won't be used", extra, path)
 
+def _apply_key(orga_entry, df, key, func):
+        val = orga_entry.get(key)
+        if not isinstance(val, str):
+            return
+        for col in (c.strip() for c in val.split(",") if c.strip()):
+            if col in df.columns:
+                df[col] = func(df[col])
 
 def validate_columns_orga(orga_dict: dict, db_dict: dict):
     """Check for missing and extra columns in each file based on organisation specifications."""
@@ -77,24 +83,30 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
             cols_need=set(orga_dict[file]["columns_needed"]),
             cols_sup=orga_dict[file]["columns_sup"],
         )
-        # Transform to integer needed columns
-        if ("integer" in orga_dict[file]) and isinstance(orga_dict[file]["integer"], str):
-            for col in orga_dict[file]["integer"].split(","):
-                if col in df.columns:
-                    df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
-        # Transform to list needed columns
-        if ("list" in orga_dict[file]) and isinstance(orga_dict[file]["list"], str):
-            for col in orga_dict[file]["list"].split(","):
-                if col in df.columns:
-                    df[col] = df[col].apply(lambda x: x.split(",") if isinstance(x, str) else x)
 
-        # Transform to boolean needed columns
-        if ("boolean" in orga_dict[file]) and isinstance(orga_dict[file]["boolean"], str):
-            for col in orga_dict[file]["boolean"].split(","):
-                if col in df.columns:
-                    df[col] = df[col].apply(lambda x:
-                        str(x).lower() in ("true", "1", "yes", "on") if isinstance(x, str) else x
-                    ).astype("boolean")
+        orga_entry = orga_dict[file]
+
+        _apply_key(
+            orga_entry, df, "integer",
+            lambda s: pd.to_numeric(s, errors="coerce").astype("Int64")
+        )
+        _apply_key(
+            orga_entry, df, "list",
+            lambda s: s.apply(
+                lambda x: x.split(",")
+                if isinstance(x, str)
+                else x
+            )
+        )
+        _apply_key(
+            orga_entry, df, "boolean",
+            lambda s: s.apply(
+                lambda x: str(x).lower() in ("true", "1", "yes", "on")
+                if isinstance(x, str)
+                else x
+            ).astype("boolean"),
+        )
+
     return db_dict
 
 
