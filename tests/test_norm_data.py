@@ -70,7 +70,8 @@ class TestingNormData(unittest.TestCase):
 
         result = norm_data(
             data_df=df_file,
-            db_orga=db_files,
+            db_field_rules=db_files["FieldRules"],
+            db_values_map=db_files["ValuesMap"],
             na_values=["", None, "NaN", "nan", "<na>", "None", {}],
             fillna_value="NA",
         )

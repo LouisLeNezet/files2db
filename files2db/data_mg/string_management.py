@@ -1,6 +1,5 @@
 import re
 
-import numpy as np
 import pandas as pd
 
 from files2db.data_mg.utils import check_pd_series, to_bool

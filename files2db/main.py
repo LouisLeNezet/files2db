@@ -94,7 +94,13 @@ def main(
     # Normalize data
     if normalize:
         logging.info("Normalizing data...")
-        all_data = norm_data(all_data_raw, db_get)
+        all_data = norm_data(
+            data_df=all_data_raw,
+            db_field_rules=db_get["FieldRules"],
+            db_values_map=db_get["ValuesMap"],
+            na_values=None,
+            fillna_value=pd.NA
+        )
 
         # Save normalized data
         save_path = os.path.join(f"{output_folder}/{output_files_prefix}_{date.today()}.csv")

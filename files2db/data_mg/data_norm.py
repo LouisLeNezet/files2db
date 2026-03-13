@@ -9,7 +9,6 @@ import re
 import unicodedata
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 from files2db.data_mg.data_convert import data_conv
@@ -72,7 +71,8 @@ def initial_clean_na_values_utf8(
 
 def norm_data(
     data_df: pd.DataFrame,
-    db_orga: dict[pd.DataFrame],
+    db_field_rules: pd.DataFrame,
+    db_values_map: pd.DataFrame,
     na_values: list[Any] | None = None,
     fillna_value=pd.NA,
 ):
@@ -100,20 +100,20 @@ def norm_data(
 
     errors_df = pd.DataFrame()
 
-    if "Field" not in db_orga["FieldRules"].columns:
+    if "Field" not in db_field_rules.columns:
         logging.error(
             "No fields defined in the FieldRules. Please check the database organization."
         )
         return normed_df, errors_df
 
-    for field_i in db_orga["FieldRules"].index:
-        field = db_orga["FieldRules"].loc[field_i, "Field"]
+    for field_i in db_field_rules.index:
+        field = db_field_rules.loc[field_i, "Field"]
         match_cols = [col for col in normed_df.columns if re.fullmatch(field, col)]
         if not match_cols:
             logging.info("Field %s not found in the file", field)
             continue
-        field_infos = db_orga["FieldRules"].loc[field_i].to_dict()
-        field_equiv = db_orga["ValuesMap"][db_orga["ValuesMap"]["Field"] == field].to_dict(
+        field_infos = db_field_rules.loc[field_i].to_dict()
+        field_equiv = db_values_map[db_values_map["Field"] == field].to_dict(
             orient="records"
         )
         field_equiv = {d["Value"]: d["Eq"] for d in field_equiv}
