@@ -59,6 +59,6 @@ class TestCLI(unittest.TestCase):
         mock_main.assert_called_once_with(
             path="input.txt",
             normalize=True,
-            output="outdir",
-            prefix="testprefix",
+            output_folder="outdir",
+            output_files_prefix="testprefix",
         )

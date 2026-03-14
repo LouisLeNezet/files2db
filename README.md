@@ -118,7 +118,7 @@ To launch the tests, run the following command:
 
 ```bash
 pytest --cov --cov-report=lcov
-coverage lcov -o lcov.info
+coverage lcov
 ```
 
 ## 4. License

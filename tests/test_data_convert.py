@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_series_equal
 
-from files2db.data_mg.data_convert import check_numeric, date_convert, num_convert
+from files2db.data_mg.data_convert import check_numeric, data_conv, date_convert, num_convert
 
 
 class TestingClass(unittest.TestCase):
@@ -122,6 +122,57 @@ class TestingClass(unittest.TestCase):
         for value, result in zip(test_values, test_result, strict=False):
             with self.subTest(line=value):
                 self.assertEqual(check_numeric(value), result)
+
+    def test_data_conv(self):
+        """Test function num_convert"""
+        test_values = pd.Series(["aB", None, "1"])
+        test_result_lower = pd.Series(["ab", None, "1"])
+
+        with self.subTest(line=test_values, to_type="lower"):
+            data = data_conv(test_values, "lower")
+            assert_series_equal(data, test_result_lower)
+
+        test_result_upper = pd.Series(["AB", None, "1"])
+
+        with self.subTest(line=test_values, to_type="UPPER"):
+            data = data_conv(test_values, "UPPER")
+            assert_series_equal(data, test_result_upper)
+
+        test_result_title = pd.Series(["Ab", None, "1"])
+
+        with self.subTest(line=test_values, to_type="Title"):
+            data = data_conv(test_values, "Title")
+            assert_series_equal(data, test_result_title)
+
+        test_values = pd.Series(["21.1", None, "002.00"])
+        test_result_int = pd.Series([21, pd.NA, 2])
+        test_result_float = pd.Series([21.1, pd.NA, 2.0])
+
+        with self.subTest(line=test_values, to_type="int"):
+            data = data_conv(test_values, "int")
+            assert_series_equal(data, test_result_int, check_dtype=False)
+
+        with self.subTest(line=test_values, to_type="float"):
+            data = data_conv(test_values, "float")
+            assert_series_equal(data, test_result_float, check_dtype=False)
+
+        test_values = pd.Series(["23", None, "ab"])
+        test_result_string = pd.Series(["23", pd.NA, "ab"])
+
+        with self.subTest(line=test_values, to_type="string"):
+            data = data_conv(test_values, "string")
+            assert_series_equal(data, test_result_string)
+
+        test_values = pd.Series(["TrUe", None, "FaLse"])
+        test_result_bool = pd.Series([True, pd.NA, False])
+
+        with self.subTest(line=test_values, to_type="bool"):
+            data = data_conv(test_values, "bool")
+            assert_series_equal(data, test_result_bool, check_dtype=False)
+
+        with self.subTest(line="Unittest", type="error"):
+            with self.assertRaisesRegex(Exception, "Unknown case type: other_type"):
+                data_conv(test_values, "other_type")
 
 
 if __name__ == "__main__":
