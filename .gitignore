@@ -1,2 +1,4 @@
 *_pycache*
 DataGenerated/
+.coverage
+lcov.info

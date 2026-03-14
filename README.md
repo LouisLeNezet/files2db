@@ -118,8 +118,9 @@ To launch the tests, run the following command:
 
 ```bash
 pytest --cov --cov-report=lcov
-coverage lcov
+coverage lcov -o lcov.info
 ```
 
 ## 4. License
+
 This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
