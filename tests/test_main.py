@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import unittest
 
 from pandas._testing import assert_frame_equal
@@ -45,7 +46,7 @@ class TestMainFunction(unittest.TestCase):
         # Define a sample path and options
         db_path = os.path.join(self.test_data_path, "test1/orga.csv")
         normalize = True
-        output_folder = "./DataGenerated"
+        output_folder = os.path.join(self.test_data_path, "DataGenerated")
         output_files_prefix = "AllID"
 
         # Call the main function
@@ -74,6 +75,8 @@ class TestMainFunction(unittest.TestCase):
         db_expected = df_to_str_keep_na(db_expected)
 
         assert_frame_equal(df_norm, db_expected, check_dtype=False)
+        if os.path.exists(output_folder):
+            shutil.rmtree(output_folder)
 
 
 if __name__ == "__main__":

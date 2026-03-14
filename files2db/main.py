@@ -36,7 +36,6 @@ from .read_file.orga_read import get_db_from_path, load_file_orga
 from .ui.get_infos import get_file_path, get_os, welcome
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
-pd.set_option("future.no_silent_downcasting", True)
 pd.set_option("display.max_columns", None)
 
 

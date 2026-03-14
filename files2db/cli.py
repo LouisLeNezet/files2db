@@ -23,19 +23,15 @@ Script to launch the application
 """
 
 import logging
-import os
-import sys
 
-import click
 import typer
-from typer.main import get_command
 
 from files2db.__version__ import __version__
 from files2db.main import main
 
 logging.basicConfig(level=logging.INFO)
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer(name="files2db", add_completion=False)
 
 
 def show_notice():
@@ -90,22 +86,8 @@ def cli(
     show_notice()
 
     # Call the main logic
-    main(path=path, normalize=normalize, output=output, prefix=prefix)
+    main(path=path, normalize=normalize, output_folder=output, output_files_prefix=prefix)
 
-
-# Fix for sys.path if needed (optional)
-if sys.path[0] in ("", os.getcwd()):
-    sys.path.pop(0)
-
-if __package__ == "":
-    path = os.path.dirname(os.path.dirname(__file__))
-    sys.path.insert(0, path)
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        # Get the click.Command object from Typer
-        command = get_command(app)
-        ctx = click.Context(command)
-        typer.echo(command.get_help(ctx))
-        sys.exit(0)
     app()

@@ -55,10 +55,13 @@ def validate_files_presence(files_needed: set, files_available: set, path: str):
         logging.warning("Extra files %s present in %s and not needed", extra_files, path)
 
 
-def validate_columns(df: pd.DataFrame, path: str, cols_need: list, cols_sup=False):
+def validate_columns(df: pd.DataFrame, path: str, cols_need: list, cols_sup: bool = False):
     """Check for missing and extra columns in each file."""
-    missing = cols_need - set(df.columns)
-    extra = set(df.columns) - cols_need
+    # Convert cols_need to a set
+    cols_need_set = set(cols_need)
+
+    missing = cols_need_set - set(df.columns)
+    extra = set(df.columns) - cols_need_set
 
     if missing:
         raise KeyError(f"Missing columns {missing} in {path}")
@@ -82,7 +85,7 @@ def validate_columns_orga(orga_dict: dict, db_dict: dict):
         validate_columns(
             df,
             path=file,
-            cols_need=set(orga_dict[file]["columns_needed"]),
+            cols_need=list(orga_dict[file]["columns_needed"]),
             cols_sup=orga_dict[file]["columns_sup"],
         )
 

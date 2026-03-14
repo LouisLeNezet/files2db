@@ -37,7 +37,7 @@ def data_replace(data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower:
     if equiv_data == {}:
         return data_se
 
-    if not check_pd_series(data_se, type_check=str):
+    if not check_pd_series(data_se, type_check=(str,)):
         return data_se
 
     replace_dict = {}
@@ -113,7 +113,7 @@ def data_clean(
         Cleaned Pandas Series.
     """
     original_name = data_se.name
-    if not check_pd_series(data_se, type_check=str):
+    if not check_pd_series(data_se, type_check=(str,)):
         return data_se
 
     if del_match:
@@ -135,7 +135,7 @@ def data_sep(
     data_se: pd.Series,
     sep: list[str] | None = None,
 ) -> pd.DataFrame:
-    if not check_pd_series(data_se, type_check=str):
+    if not check_pd_series(data_se, type_check=(str,)):
         return pd.DataFrame(data_se)
 
     data_se = data_se.copy()
@@ -187,7 +187,7 @@ def data_sep_pattern(
     if pattern is None:
         return pd.DataFrame(data_se)
 
-    if not check_pd_series(data_se, type_check=str):
+    if not check_pd_series(data_se, type_check=(str,)):
         return pd.DataFrame(data_se)
 
     # Compile pattern

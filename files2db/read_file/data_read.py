@@ -86,7 +86,7 @@ def read_file(
     line_start=2,
     line_end=None,
     col_start: str = "A",
-    col_end: str = None,
+    col_end: str | None = None,  # Allow None as valid type,
     sheet_name=None,
     encoding="utf8",
     sep=None,
@@ -149,7 +149,7 @@ def read_file(
         raise TypeError(f"File {file_to_add_path} should be either an .xlsx, .xls, xlsm or a .csv")
 
     # Check for column and line start and end
-    col_start, col_end = columns_to_int(col_start, col_end, file_read.shape[1] + 1)
+    col_start_index, col_end_index = columns_to_int(col_start, col_end, file_read.shape[1] + 1)
     line_start, line_end, header = lines_to_int(
         line_start, line_end, header, file_read.shape[0] + 1
     )
@@ -167,7 +167,7 @@ def read_file(
     file_read.replace("", pd.NA, inplace=True)
 
     # Read the file from the line start to the line end and from the column start to the column end
-    file_to_add = file_read.iloc[:, col_start - 1 : col_end]
+    file_to_add = file_read.iloc[:, col_start_index - 1 : col_end_index]
     file_to_add = file_to_add.astype("string")
 
     return file_to_add

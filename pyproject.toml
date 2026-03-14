@@ -28,4 +28,4 @@ select = [
   "UP",   # pyupgrade: modern Python syntax
   "N",    # pep8-naming: naming conventions
   "C90",  # mccabe: cyclomatic complexity
-]   
+]

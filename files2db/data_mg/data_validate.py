@@ -58,11 +58,15 @@ def data_validate(
     max_value: Any | None = None,
     fillna_value: Any | None = None,
 ) -> pd.Series:
-    err_content = err_min = err_max = [pd.NA for x in data_se]
+    err_content = err_min = err_max = [pd.NA for _ in data_se]
     err_content = data_contains(data_se, contains)
 
     err_content = [
-        "not " + contains if (not err and not_null(val)) else fillna_value
+        (
+            "not " + contains
+            if contains is not None and (not err and not_null(val))
+            else fillna_value
+        )
         for err, val in zip(err_content, data_se, strict=False)
     ]
 

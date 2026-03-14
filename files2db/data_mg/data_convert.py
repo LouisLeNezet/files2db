@@ -141,7 +141,7 @@ def data_conv(
     data_se: pd.Series,
     data_type: str | None = None,
 ) -> pd.Series:
-    if not check_pd_series(data_se, type_check=str):
+    if not check_pd_series(data_se, type_check=(str,)):
         return data_se
 
     if data_type is not None:
