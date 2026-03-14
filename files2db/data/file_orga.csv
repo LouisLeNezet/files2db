@@ -1,6 +1,4 @@
-file,columns_needed,columns_sup
-Files,"FilePath,SheetName,LineStart,LineEnd,Header,ColStart,ColEnd,ToAdd,AsCorrection",True
-Fields,"Field,Category,Type,Case,Sep,Del,DelEnd,DelIn,SepGive,StripStart,StripEnd,Min,Max,Contains",False
-ValuesConv,"Field,Eq,Value",False
-Formats,"Type,ToNum,ToDate,DelEnd,Del,Sep,StripStart,StripEnd,Case,Sep1Name,Sep1Pat,Sep2Name,Sep2Pat,Sep3Name,Sep3Pat,SepKeepLink",False
-FieldsOrga,"Field,ParentField,Type,Min,Max,Mod",False
+file,columns_needed,columns_sup,integer,list,boolean
+Files,"FilePath,SheetName,LineStart,LineEnd,Header,ColStart,ColEnd,ToAdd,AsCorrection,Separator",True,"Header,LineStart,LineEnd","","ToAdd,AsCorrection"
+FieldRules,"Field,Category,Sep,DelMatch,DelEnd,DelIn,DelStart,StripFrom,DataType,Contains,Min,Max,SepPattern,KeepLink",False,"Min,Max","Sep,DelMatch,DelEnd,DelIn,DelStart,StripFrom","KeepLink"
+ValuesMap,"Field,Eq,Value",False,"","Eq",

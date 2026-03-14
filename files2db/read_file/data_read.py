@@ -1,21 +1,98 @@
-# -*- coding: utf-8 -*-
 """
 Created on 19/01/2021
 @author: LouisLeNezet
 Module to read excel files and checkout the columns names.
 """
+
+import logging
 import os
 import re
-import logging
+
 import pandas as pd
 
+from ..ui.get_infos import get_file_path
+
+
+def columns_convert(col):
+    """Convert column letters to integers."""
+    if isinstance(col, str):
+        if re.match(r"^\d+$", col):
+            return int(col)
+        elif re.match(r"^[A-Z]+$", col):
+            col_index = [ord(c) - ord("A") + 1 for c in col.upper()]
+            col_index = sum([c * (26**i) for i, c in enumerate(reversed(col_index))])
+            return col_index
+        else:
+            raise TypeError("col should be a string of letters or an integer")
+    elif not isinstance(col, int):
+        raise TypeError("col should be a string or an integer")
+    return col
+
+
+def columns_to_int(col_start, col_end, max_col=None):
+    """Convert column letters to integers."""
+    if max_col is None:
+        raise TypeError("max_col should be provided to check column numbers")
+    if col_start is None:
+        col_start = 1
+    if col_end is None:
+        col_end = max_col
+
+    col_start = columns_convert(col_start)
+    col_end = columns_convert(col_end)
+
+    if col_start > col_end:
+        raise ValueError("col_start should be smaller than col_end")
+
+    if col_start > max_col:
+        raise ValueError("ColStart should be smaller than the number of columns")
+
+    if col_end > max_col:
+        raise ValueError("ColEnd should be smaller than the number of columns")
+
+    return col_start, col_end
+
+
+def lines_to_int(line_start, line_end, header, max_lines=None):
+    """Convert line numbers to integers."""
+    if max_lines is None:
+        raise TypeError("max_lines should be provided to check line numbers")
+
+    if header is None:
+        header = 1
+    if line_start is None:
+        line_start = header + 1
+    if line_end is None:
+        line_end = max_lines
+
+    if line_start < 1:
+        raise ValueError("line_start should be greater than 0")
+
+    if header >= line_start:
+        raise ValueError("header should be smaller than line_start")
+
+    if line_start > line_end:
+        raise ValueError("line_start should be smaller than line_end")
+
+    if line_end > max_lines:
+        raise ValueError("line_end should be smaller than the number of rows")
+
+    return line_start, line_end, header
+
+
 def read_file(
-    file_to_add_path:str, header = 1, line_start = 2, line_end = None,
-    col_start = 1, col_end = None, sheet_name = None, encoding = "utf8",
-    sep = None
+    file_to_add_path: str,
+    header=1,
+    line_start=2,
+    line_end=None,
+    col_start: str = "A",
+    col_end: str | None = None,  # Allow None as valid type,
+    sheet_name=None,
+    encoding="utf8",
+    sep=None,
 ):
     """Read dataframe file from path and export it in pandas DataFrame.
-    
+
     Beware the all indexes in file_infos should be integers and are in base 1.
     i.e. the first line is 1, the first column is 1.
 
@@ -23,8 +100,6 @@ def read_file(
     ----------
     file_to_add_path : str
         Path to excel or csv file.
-    file_infos : pd.Series
-        All the infos about the file to read.
 
     Returns
     -------
@@ -50,7 +125,7 @@ def read_file(
     if not os.path.isfile(file_to_add_path):
         logging.info(
             "Couldn't access file:\n %s \n Please make sure the file is present",
-            file_to_add_path
+            file_to_add_path,
         )
         raise FileNotFoundError(f"Couldn't access File {file_to_add_path}")
 
@@ -59,69 +134,25 @@ def read_file(
         if sep is None:
             logging.error(
                 "No separator available please complete data in repertory %s",
-                file_to_add_path
+                file_to_add_path,
             )
             raise KeyError(f"No separator available for {file_to_add_path}")
         file_read = pd.read_csv(
-            file_to_add_path, sep=sep, encoding=encoding,
-            header=None, dtype="object"
+            file_to_add_path, sep=sep, encoding=encoding, header=None, dtype="str"
         )
-    elif re.search(string=file_to_add_path,pattern=r"\.(xlsx|xls|xlsm)$"):
+    elif re.search(string=file_to_add_path, pattern=r"\.(xlsx|xls|xlsm)$"):
         if sheet_name is None:
-            logging.error(
-                "No sheet available please complete data in repertory %s",
-                sheet_name
-            )
+            logging.error("No sheet available please complete data in repertory")
             raise KeyError(f"No sheet available for {file_to_add_path}")
-        file_read = pd.read_excel(
-            file_to_add_path, sheet_name=sheet_name,
-            header=None, dtype="object"
-        )
+        file_read = pd.read_excel(file_to_add_path, sheet_name=sheet_name, header=None, dtype="str")
     else:
-        raise TypeError(
-            f"File {file_to_add_path} should be either an .xlsx, .xls, xlsm or a .csv"
-        )
+        raise TypeError(f"File {file_to_add_path} should be either an .xlsx, .xls, xlsm or a .csv")
 
-    if col_end is None:
-        col_end = file_read.shape[1] + 1
-    if line_end is None:
-        line_end = file_read.shape[0] + 1
-
-    # Check for correct values
-    if header > line_start:
-        logging.error(
-            "header should be smaller than line_start in file %s",
-            file_to_add_path
-        )
-        raise ValueError("header should be smaller than line_start")
-
-    if line_start > line_end:
-        logging.error(
-            "line_start should be smaller than line_end in file %s",
-            file_to_add_path
-        )
-        raise ValueError("line_start should be smaller than line_end")
-
-    if col_start > col_end:
-        logging.error(
-            "col_start should be smaller than col_end in file %s",
-            file_to_add_path
-        )
-        raise ValueError("col_start should be smaller than col_end")
-
-    if col_end - 1 > file_read.shape[1]:
-        logging.error(
-            "col_end should be smaller than the number of columns in file %s",
-            file_to_add_path
-        )
-        raise ValueError("ColEnd should be smaller than the number of columns")
-
-    if line_end - 1 > file_read.shape[0]:
-        logging.error(
-            "line_end should be smaller than the number of rows in file %s",
-            file_to_add_path
-        )
-        raise ValueError("line_end should be smaller than the number of rows")
+    # Check for column and line start and end
+    col_start_index, col_end_index = columns_to_int(col_start, col_end, file_read.shape[1] + 1)
+    line_start, line_end, header = lines_to_int(
+        line_start, line_end, header, file_read.shape[0] + 1
+    )
 
     # Set the header
     file_read.columns = file_read.iloc[header - 1]
@@ -132,47 +163,38 @@ def read_file(
 
     # Skip the lines before the header and between the header and the first line
     file_read.drop(row_to_skip, inplace=True)
+    file_read.fillna(pd.NA, inplace=True)
+    file_read.replace("", pd.NA, inplace=True)
 
     # Read the file from the line start to the line end and from the column start to the column end
-    file_to_add = file_read.iloc[ : , col_start - 1 : col_end]
+    file_to_add = file_read.iloc[:, col_start_index - 1 : col_end_index]
+    file_to_add = file_to_add.astype("string")
 
     return file_to_add
 
 
-def get_columns(file_to_add, field_orga):
-    """
-    Found all the columns present inside DataFrame by category.
+def check_files_exist(files_path: pd.Series):
+    """Check for the existence of all files in the given series
 
     Parameters
     ----------
-    file_to_add : DataFrame
-        Data to analyse.
-    field_orga : DataFrame
-        Organisation of the data.
+    files_path : pd.Series
+        Series containing the files paths to check
 
-    Returns
-    -------
-    all_columns : Dict
-        Dict of all the column names present in the data frame in a list for each field category
+    Raises
+    ------
+    FileNotFoundError
+        File not found, could not access the file.
     """
-    genealogy_col = list(set(file_to_add.columns) &
-                            set(field_orga.loc[field_orga["Category"] == "Genealogy", "Field"]))
-    dcf_col = [col for col in file_to_add.columns if "Dys_" in col]
-    infos_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "Infos", "Field"]))
-    cani_dna_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "CaniDNA", "Field"]))
-    adress_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "Adresse", "Field"]))
-    id_col = list(set(file_to_add.columns) &
-                    set(field_orga.loc[field_orga["Category"] == "Identity", "Field"]))
-    id_supl_col = list(set(file_to_add.columns) &
-                        set(field_orga.loc[field_orga["Category"] == "IdentitySupl", "Field"]))
-    all_cols = {"Genealogy": genealogy_col,
-                "DCF": dcf_col,
-                "Infos": infos_col,
-                "CaniDNA": cani_dna_col,
-                "Adress": adress_col,
-                "Id": id_col,
-                "IdSupl": id_supl_col}
-    return all_cols
+    # Check for all file if accessible
+    for file_path in files_path:
+        # Change '/' to '\\'
+        file_path = get_file_path(file_path.replace("/", "\\"))
+        if int(os.path.isfile(file_path)):
+            pass
+        else:
+            logging.error(
+                "Couldn't access file:\n%s\nPlease make sure the file is present",
+                file_path,
+            )
+            raise FileNotFoundError("Couldn't access File")

@@ -1,3 +1,0 @@
-﻿EmplacementOrigine;OlderFileName;FileName;FilePath;SheetName;LineStart;LineEnd;Header;ColStart;ColEnd;Author;InfosSup;ToAdd;AsCorrection;DateFileCreation;;
-Somewhere;MySpecialFile;FileA;./PythonScript/tests/test_dataset/files/fileA.xlsx;Sheet1;4;20;3;B;N;Myself;NA;;;;;
-SomewhereElse;;FileB;./PythonScript/tests/test_dataset/files/fileB.csv;;2;40;1;A;R;NA;NA;;;;;

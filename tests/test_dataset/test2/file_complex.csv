@@ -1,0 +1,5 @@
+Name;Infos_1_DateTest;Infos_1_Mesure1_DG;Infos_2_DateTest;Infos_2_Mesure2_D;Infos_2_Mesure2_G;NumIdent;Pheno;
+Ind1 or ind14;2023-01-01;AA;2023-01-02;200.25;300;100000 / ABCDE;ID: Pheno1 ID2: Pheno2;
+Ind2;2023-01-03 (garbage infos);B;2023-01-04;250;350;FGHIJ 200000;ID2: Pheno4 ID: Pheno3;
+Ind3;2023-01-05;B/A;2023-01-06; 300 ;400A;KLMnO;ID: Pheno5 ID2: Pheno6;
+Ind4;2023-01-07;B/1;2023-01-08;90;450;PQRSTU PQRSTUVW;ID2: Pheno7 ID: Pheno8;

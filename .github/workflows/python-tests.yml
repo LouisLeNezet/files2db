@@ -1,0 +1,38 @@
+name: Run Python Tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          environment-file: environment.yml
+          auto-activate-base: false
+          activate-environment: env_concat
+
+      - name: Run tests with coverage
+        shell: bash -l {0}
+        run: |
+          conda activate env_concat
+          pytest --cov --junitxml=junit.xml -o junit_family=legacy
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

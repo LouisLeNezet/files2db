@@ -1,4 +1,4 @@
-pandas
+pandas>=2.2.0,<2.3.0
 xlrd
 openpyxl
-typer
+typer>=0.16.0,<0.17.0

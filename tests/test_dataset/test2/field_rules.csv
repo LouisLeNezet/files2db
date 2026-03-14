@@ -1,0 +1,12 @@
+﻿Field;Category;Sep;DelMatch;DelIn;DelStart;DelEnd;StripFrom;DataType;Contains;Min;Max;SepPattern;KeepLink
+Name;ID;or;; ;ind,Ind;;;int;int;1;4;;
+.*DateTest;Infos;;; ,\(.*\);;;;date;date;;;;
+Infos_.*_DG;Infos;;; ;;;;UPPER;;;;((?P<G>[A-E]|[0-9]*)(\/*)(?P<D>[A-E]|[0-9]*))|(?P<DG>[A-E]|[0-9]*);True
+Infos_.*_Mesure1_.*;;;;;;;;UPPER;A,B,C,D,E;;;;
+Infos_.*_Mesure2_.*;;;;;;;;int;int;200;400;;
+NumIdent;ID;;;;;;;;;;;(?P<Ident_Num>[0-9]*)|(?P<Ident_Char>[A-Z]*);False
+Ident_Num;ID;;;;;;;int;int;150000;400000;;
+Ident_Char;ID;;;;;;;;LETTERS;;;;
+Pheno;Phenos;;;;;;;;;;;(?P<Pheno1>ID\:\s[A-Za-z0-9]+)*(?P<Pheno2>ID2\:\s[A-Za-z0-9]+)*;False
+Pheno1;Phenos;;;;ID: ;;;UPPER;ALPHANUM;;;
+Pheno2;Phenos;;;;ID2: ;;;Title;Alphanum;;;;

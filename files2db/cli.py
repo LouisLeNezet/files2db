@@ -1,35 +1,93 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
+# files2db - A tool to normalize and combine flat files into a database
+# Copyright (C) 2024 Louis Le Nezet
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 """
 Created on 22/10/2021
 @author: LouisLeNezet
 Script to launch the application
 """
-import os
-import sys
+
 import logging
+
 import typer
-from files2db.data_mg.main import main
+
+from files2db.__version__ import __version__
+from files2db.main import main
 
 logging.basicConfig(level=logging.INFO)
 
-# Remove '' and current working directory from the first entry
-# of sys.path, if present to avoid using current directory
-# in pip commands check, freeze, install, list and show,
-# when invoked as python -m pip <command>
-if sys.path[0] in ("", os.getcwd()):
-    sys.path.pop(0)
+app = typer.Typer(name="files2db", add_completion=False)
 
-# If we are running from a wheel, add the wheel to sys.path
-# This allows the usage python common_tools-*.whl/ install common_tools-*.whl
-if __package__ == "":
-    # __file__ is common_tools-*.whl/__main__.py
-    # first dirname call strips of '/__main__.py', second strips off '/pip'
-    # Resulting path is the name of the wheel itself
-    # Add that to sys.path so we can import pip
-    path = os.path.dirname(os.path.dirname(__file__))
-    logging.info(path)
-    sys.path.insert(0, path)
 
-if __name__=="__main__":
-    typer.run(main)
+def show_notice():
+    typer.echo(f"files2db v{__version__}  Copyright (C) 2024 Louis Le Nezet")
+    typer.echo("This program comes with ABSOLUTELY NO WARRANTY; for details type '--warranty'.")
+    typer.echo("This is free software, and you are welcome to redistribute it")
+    typer.echo("under certain conditions; type '--license' for details.\n")
+
+
+@app.command()
+def cli(
+    path: str = typer.Argument(None, help="Path to the main file to use."),
+    normalize: bool = typer.Option(
+        False, "--normalize", "-n", help="Normalize the data after concatenation."
+    ),
+    output: str = typer.Option(
+        "./DataGenerated", "--output", "-o", help="Output directory for the generated files."
+    ),
+    prefix: str = typer.Option("AllID", "--prefix", "-p", help="Prefix for the output files."),
+    license: bool = typer.Option(False, "--license", help="Show license information and exit."),
+    warranty: bool = typer.Option(False, "--warranty", help="Show warranty disclaimer and exit."),
+    version: bool = typer.Option(False, "--version", help="Show version and exit."),
+):
+    if version:
+        typer.echo(f"files2db version {__version__}")
+        raise typer.Exit()
+
+    if license:
+        typer.echo(
+            "This program is free software: you can redistribute it and/or modify\n"
+            "it under the terms of the GNU General Public License as published by\n"
+            "the Free Software Foundation, either version 3 of the License, or\n"
+            "(at your option) any later version.\n\n"
+            "See <https://www.gnu.org/licenses/> for details."
+        )
+        raise typer.Exit()
+
+    if warranty:
+        typer.echo(
+            "This program is distributed in the hope that it will be useful,\n"
+            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+            "See <https://www.gnu.org/licenses/> for details."
+        )
+        raise typer.Exit()
+
+    # Now path is required if neither license nor warranty is requested
+    if path is None:
+        typer.echo("Error: Missing argument 'PATH'. Use --help for more info.\n")
+        raise typer.Exit(code=1)
+
+    show_notice()
+
+    # Call the main logic
+    main(path=path, normalize=normalize, output_folder=output, output_files_prefix=prefix)
+
+
+if __name__ == "__main__":
+    app()

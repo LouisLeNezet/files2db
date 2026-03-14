@@ -1,0 +1,30 @@
+name: Lint with Ruff
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  lint:
+    name: Ruff Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: ruff check --output-format=github .
+
+      - name: Check formatting with Ruff
+        run: ruff format --check .
