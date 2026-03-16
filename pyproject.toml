@@ -4,6 +4,23 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "files2db"
+description = "A tool to normalize and combine flat files into a database."
+license = "GPL-3.0-or-later"
+dependencies = [
+    "pandas>=2.2.0,<2.3.0",
+    "xlrd",
+    "openpyxl",
+    "typer>=0.16.0,<0.17.0"
+]
+authors = [{ name = "Louis Le Nézet", email = "louislenezet@gmail.com" }]
+maintainers = [{ name = "Louis Le Nézet", email = "louislenezet@gmail.com" }]
+keywords = ["data processing", "file normalization", "database"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+readme = "README.md"
 
 [project.scripts]
 files2db = "files2db.cli:main"
@@ -17,7 +34,7 @@ version = {file = "files2db/__version__.py"}
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = ["tests/data", "archive"]
+extend-exclude = ["tests/data"]
 
 [tool.ruff.lint]
 select = [
