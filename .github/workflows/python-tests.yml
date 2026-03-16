@@ -31,17 +31,16 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install -e .
 
+      - name: Run CLI help test
+        run: files2db --help
+
       - name: Run tests with coverage
         shell: bash -l {0}
         run: |
           conda activate env_concat
-          pytest --cov --junitxml=junit.xml -o junit_family=legacy
-
-      - name: Run CLI help test
-        run: files2db --help
+          pytest tests --cov=files2db --cov-report=xml --cov-report=term-missing
 
       - uses: codecov/codecov-action@v5
-        if: ${{ !cancelled() }}
         with:
           fail_ci_if_error: true # optional (default = false)
           files: codecov/test-results-action@v1
