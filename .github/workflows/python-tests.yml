@@ -17,23 +17,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache conda packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.conda/pkgs
-          key: conda-pkgs-${{ matrix.python-version }}-${{ hashFiles('environment.yml') }}
-          restore-keys: |
-            conda-pkgs-${{ matrix.python-version }}-
-
       - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v2
         with:
+          environment-file: environment.yml
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
           activate-environment: env_concat
-          environment-file: environment.yml
-          use-only-tar-bz2: true
 
       - name: Install pip dependencies
         run: |
