@@ -24,7 +24,7 @@ classifiers = [
 readme = "README.md"
 
 [project.scripts]
-files2db = "files2db.cli:main"
+files2db = "files2db.cli:app"
 
 [tool.setuptools.packages.find]
 include = ["files2db*"]
