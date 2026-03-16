@@ -30,7 +30,8 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          activate-environment: test_env
+          auto-activate-base: false
+          activate-environment: env_concat
           environment-file: environment.yml
           use-only-tar-bz2: true
 
@@ -40,8 +41,9 @@ jobs:
           pip install -e .
 
       - name: Run tests with coverage
+        shell: bash -l {0}
         run: |
-          conda activate test_env
+          conda activate env_concat
           pytest tests --cov=files2db --cov-report=xml --cov-report=term-missing
 
       - name: Run CLI help test
