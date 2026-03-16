@@ -41,6 +41,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
+          conda activate test_env
           pytest tests --cov=files2db --cov-report=xml --cov-report=term-missing
 
       - name: Run CLI help test
