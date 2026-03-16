@@ -1,6 +1,10 @@
 name: Run Python Tests
 
 on:
+  push:
+    branches:
+      - main
+      - dev
   pull_request:
     branches:
       - main
@@ -44,5 +48,5 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
           commit: ${{ github.sha }}
