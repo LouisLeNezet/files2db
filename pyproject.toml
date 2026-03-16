@@ -1,11 +1,13 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "files2db"
+dynamic = ["version"]
 description = "A tool to normalize and combine flat files into a database."
 license = "GPL-3.0-or-later"
+requires-python = ">=3.9"
 dependencies = [
     "pandas>=2.2.0,<2.3.0",
     "xlrd",
@@ -17,7 +19,6 @@ maintainers = [{ name = "Louis Le Nézet", email = "louislenezet@gmail.com" }]
 keywords = ["data processing", "file normalization", "database"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
@@ -25,11 +26,14 @@ readme = "README.md"
 [project.scripts]
 files2db = "files2db.cli:main"
 
+[tool.setuptools.packages.find]
+include = ["files2db*"]
+
 [tool.setuptools.package-data]
 "files2db" = ["data/file_orga.csv"]
 
 [tool.setuptools.dynamic]
-version = {file = "files2db/__version__.py"}
+version = {attr = "files2db.__version__"}
 
 [tool.ruff]
 line-length = 100
