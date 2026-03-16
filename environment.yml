@@ -7,6 +7,7 @@ channels:
 dependencies:
   - python >= 3.13.0
   - pandas >= 2.2.0
+  - numpy
   - xlrd
   - typer >= 0.16.0
   - openpyxl
