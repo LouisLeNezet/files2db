@@ -1,5 +1,6 @@
 *_pycache*
-DataGenerated/
+DataGenerated
 .coverage
 coverage.lcov
 lcov.info
+.vscode

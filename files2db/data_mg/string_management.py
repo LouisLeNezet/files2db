@@ -5,7 +5,7 @@ import pandas as pd
 from files2db.data_mg.utils import check_pd_series, to_bool
 
 
-def data_replace(data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = True):
+def data_replace(data_se: pd.Series, equiv_data: dict[str, list[str]], to_lower: bool = False):
     """
     Replace all values in a Series based on equivalency mappings.
 

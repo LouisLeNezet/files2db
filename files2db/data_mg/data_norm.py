@@ -137,8 +137,11 @@ def norm_data(
                 )
 
                 data_se_converted = data_conv(data_se_cleaned, field_infos["DataType"])
-
-                data_se_replaced = data_replace(data_se_converted, field_equiv)
+                data_se_replaced = data_replace(
+                    data_se_converted,
+                    equiv_data=field_equiv,
+                    to_lower=field_infos["DataType"] == "lower",
+                )
 
                 errors = data_validate(
                     data_se=data_se_replaced,
