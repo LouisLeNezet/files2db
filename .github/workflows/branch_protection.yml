@@ -1,0 +1,17 @@
+name: Enforce Dev Branch for PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source branch
+        run: |
+          if [[ "${{ github.head_ref }}" != "dev" ]]; then
+            echo "Error: PRs to 'main' can only be made from the 'dev' branch."
+            exit 1
+          fi
