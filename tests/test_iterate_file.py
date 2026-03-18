@@ -52,14 +52,27 @@ class TestValidateFiles(unittest.TestCase):
             "The DataFrame should not contain 'Out' values.",
         )
 
+        print(iterated_data)
+
         # Check that the dimensions of the DataFrame are as expected
         self.assertEqual(iterated_data.shape[0], 10, "The DataFrame should have 10 rows.")
         self.assertEqual(iterated_data.shape[1], 11, "The DataFrame should have 11 columns.")
 
+    def test_iterate_with_file_csv_error_meta(self):
+        """Use a CSV file to test the iterate_file function."""
+        test_file_path = os.path.join(
+            os.path.dirname(__file__), "test_dataset", "test1/files_error_meta.csv"
+        )
+        file_df = pd.read_csv(test_file_path, sep=";", encoding="utf8")
+        with self.assertRaisesRegex(ValueError, "Column ColE already present in FileC"):
+            iterate_file(file_df)
+
     def test_iterate_empty_dataframe(self):
         """Test the iterate_file function with an empty DataFrame."""
         empty_df = pd.DataFrame()
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(
+            ValueError, "The input dataframe containing file information is empty"
+        ):
             iterate_file(empty_df)
 
     def test_iterate_with_invalid_file(self):

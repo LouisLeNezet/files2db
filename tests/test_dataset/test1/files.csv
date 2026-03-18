@@ -1,5 +1,5 @@
-﻿meta_EmplacementOrigine;OlderFileName;FileName;FilePath;SheetName;Separator;LineStart;LineEnd;Header;ColStart;ColEnd;meta_Author;InfosSup;ToAdd;AsCorrection;meta_DateFileCreation
-Somewhere;MySpecialFile;FileA;./tests/test_dataset/test1/fileA.xlsx;Feuil1;;5;6;3;C;E;Myself;NA;1;;
-SomewhereElse;;FileB;./tests/test_dataset/test1/fileB.csv;;;2;3;1;A;C;NA;NA;1;;
-Elsewhere;;FileC;./tests/test_dataset/test1/fileC.csv;;";";2;4;1;A;E;NA;NA;1;;
-SomewhereElse;;FileD;./tests/test_dataset/test1/fileD.csv;;";";2;4;1;A;C;NA;NA;1;;
+﻿meta_EmplacementOrigine;OlderFileName;FileName;FilePath;SheetName;Separator;LineStart;LineEnd;Header;ColStart;ColEnd;meta_Author;InfosSup;ToAdd;AsCorrection;meta_ColE;
+Somewhere;MySpecialFile;FileA;./tests/test_dataset/test1/fileA.xlsx;Feuil1;;5;6;3;C;E;Myself;NA;1;;;
+SomewhereElse;;FileB;./tests/test_dataset/test1/fileB.csv;;;2;3;1;A;C;NA;NA;1;;MetaNewValue;
+Elsewhere;;FileC;./tests/test_dataset/test1/fileC.csv;;";";2;4;1;A;E;NA;NA;1;;;
+SomewhereElse;;FileD;./tests/test_dataset/test1/fileD.csv;;";";2;4;1;A;C;NA;NA;1;;;

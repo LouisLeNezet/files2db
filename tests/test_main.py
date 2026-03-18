@@ -74,6 +74,9 @@ class TestMainFunction(unittest.TestCase):
         df_norm = df_to_str_keep_na(df_norm)
         db_expected = df_to_str_keep_na(db_expected)
 
+        print(df_norm.columns)
+        print(db_expected.columns)
+
         assert_frame_equal(df_norm, db_expected, check_dtype=False)
         if os.path.exists(output_folder):
             shutil.rmtree(output_folder)
