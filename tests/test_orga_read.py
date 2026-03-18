@@ -232,7 +232,7 @@ class TestGetDBFromPath(unittest.TestCase):
             set(db_orga.keys()),
             set(["Files", "FieldRules", "ValuesMap"]),
         )
-        self.assertEqual(db_orga["Files"].shape, (4, 16))
+        self.assertEqual(db_orga["Files"].shape, (4, 18))
         self.assertEqual(db_orga["FieldRules"]["DelMatch"][5], ["delmatchitis", "othermatch"])
         self.assertTrue(pd.isna(db_orga["FieldRules"]["SepPattern"].iloc[2]))
 
@@ -265,7 +265,7 @@ class TestGetDBFromCSV(unittest.TestCase):
             set(db_orga.keys()),
             set(["Files", "FieldRules", "ValuesMap"]),
         )
-        self.assertEqual(db_orga["Files"].shape, (4, 16))
+        self.assertEqual(db_orga["Files"].shape, (4, 18))
 
 
 if __name__ == "__main__":

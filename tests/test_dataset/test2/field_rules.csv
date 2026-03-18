@@ -8,5 +8,7 @@ NumIdent;ID;;;;;;;;;;;(?P<Ident_Num>[0-9]*)|(?P<Ident_Char>[A-Z]*);False
 Ident_Num;ID;;;;;;;int;int;150000;400000;;
 Ident_Char;ID;;;;;;;;LETTERS;;;;
 Pheno;Phenos;;;;;;;;;;;(?P<Pheno1>ID\:\s[A-Za-z0-9]+)*(?P<Pheno2>ID2\:\s[A-Za-z0-9]+)*;False
-Pheno1;Phenos;;;;ID: ;;;UPPER;ALPHANUM;;;
+Pheno1;Phenos;;;;ID: ;;;UPPER;ALPHANUM;;;;
 Pheno2;Phenos;;;;ID2: ;;;Title;Alphanum;;;;
+ValueToMap;Infos;;; ;;;;;Alphanum;;;;
+ValueToMap2;Infos;;;;;;;;Alphanum;;;;

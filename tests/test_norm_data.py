@@ -82,6 +82,8 @@ class TestingNormData(unittest.TestCase):
         df_norm = df_to_str_keep_na(result).reset_index(drop=True)
         df_expected = df_to_str_keep_na(df_expected).reset_index(drop=True)
 
+        print(df_norm)
+
         # Check if the cleaned DataFrame matches the expected DataFrame
         assert_frame_equal(
             df_norm,

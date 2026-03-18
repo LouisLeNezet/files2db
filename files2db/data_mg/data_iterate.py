@@ -6,6 +6,46 @@ from ..read_file.data_read import read_file
 from ..ui.get_infos import get_file_path
 
 
+def set_default_if_missing(value, default):
+    """Return default value if provided value is NaN or empty."""
+    return value if pd.notna(value) and value != "" else default
+
+
+def process_file_info(file_infos, metadata_columns):
+    """Process and read a single file, adding metadata and returning the resulting DataFrame."""
+    file_name = file_infos["FileName"]
+    file_path = get_file_path(file_infos["FilePath"])
+    logging.info("Processing file: %s", file_name)
+
+    encoding = set_default_if_missing(file_infos.get("Encoding"), "utf8")
+    sep = set_default_if_missing(file_infos.get("Separator"), "\t")
+
+    file_data = read_file(
+        file_to_add_path=file_path,
+        header=file_infos.get("Header"),
+        line_start=file_infos.get("LineStart"),
+        line_end=file_infos.get("LineEnd"),
+        col_start=file_infos.get("ColStart"),
+        col_end=file_infos.get("ColEnd"),
+        sheet_name=file_infos.get("SheetName"),
+        encoding=encoding,
+        sep=sep,
+    )
+
+    if "FileName" not in file_data.columns:
+        file_data["FileName"] = file_name
+
+    print(metadata_columns)
+    for col in metadata_columns:
+        col_name = col.replace("meta_", "")
+        if pd.notna(file_infos[col]):
+            if col_name in file_data.columns:
+                raise ValueError(f"Column {col_name} already present in {file_name}")
+            file_data[col_name] = file_infos[col]
+
+    return file_data
+
+
 def iterate_file(file):
     """Iterate through all files in the database
 
@@ -51,54 +91,12 @@ def iterate_file(file):
         )
 
     for index in file.index:
-        file_infos = file.loc[index].copy()
-        file_name = file_infos["FileName"]
-        file_path = get_file_path(file_infos["FilePath"])
-
-        logging.info("Processing file: %s", file_name)
-
-        # Set default for encoding and separator if not provided
-        encoding = file_infos.get("Encoding", "utf8")
-        sep = file_infos.get("Separator", "\t")
-
-        if pd.isna(sep) or sep == "":
-            sep = "\t"
-
-        if pd.isna(encoding) or encoding == "":
-            encoding = "utf8"
-
-        # Read  file
+        file_infos = file.loc[index]
         try:
-            file_data = read_file(
-                file_to_add_path=file_path,
-                header=file_infos.get("Header"),
-                line_start=file_infos.get("LineStart"),
-                line_end=file_infos.get("LineEnd"),
-                col_start=file_infos.get("ColStart"),
-                col_end=file_infos.get("ColEnd"),
-                sheet_name=file_infos.get("SheetName"),
-                encoding=encoding,
-                sep=sep,
-            )
+            file_data = process_file_info(file_infos, metadata_columns)
+            file_data["RowIndex"] = file_data.index
+            all_data = pd.concat([all_data, file_data], ignore_index=True)
         except FileNotFoundError as e:
-            raise FileNotFoundError(f"File not found: {file_path}") from e
-        except Exception as e:
-            raise e
-
-        if "FileName" not in file_data.columns:
-            file_data["FileName"] = file_name
-
-        for col in metadata_columns:
-            col_name = col.replace("meta_", "")
-            if col_name not in file_data.columns:
-                file_data[col_name] = file_infos[col]
-            else:
-                # If the column is already present, we can just skip it
-                pass
-
-        # Add file to merged data_frame
-        all_data = pd.concat([all_data, file_data])
-        all_data["RowIndex"] = all_data.index
-        all_data.reset_index(drop=True, inplace=True)
+            raise FileNotFoundError(f"File not found: {file_infos['FilePath']}") from e
 
     return all_data
